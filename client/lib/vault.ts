@@ -66,6 +66,7 @@ export interface EncryptedValue {
 export interface DEKVaultRecord {
   id: "primary";
   lockSalt: Uint8Array;
+  recoverySalt: Uint8Array;
   lockWrappedDEK: EncryptedValue;
   recoveryWrappedDEK: EncryptedValue;
   encryptedRecoveryPhrase: EncryptedValue;

@@ -22,6 +22,12 @@ export const LOCK_FAILURE_DELAYS_MS = [0, 0, 0, 5_000, 15_000, 60_000] as const;
 
 const activeDEKs = new Set<Uint8Array>();
 
+function copyBufferSource(bytes: Uint8Array): ArrayBuffer {
+  const copy = new Uint8Array(bytes.byteLength);
+  copy.set(bytes);
+  return copy.buffer;
+}
+
 function trackDEK(dek: Uint8Array): Uint8Array {
   activeDEKs.add(dek);
   return dek;
@@ -81,6 +87,12 @@ function assertDEK(dek: Uint8Array): void {
   if (dek.length !== DEK_BYTES) throw new Error("DEK must be 32 bytes.");
 }
 
+function assertLockSecret(value: string): void {
+  if (!/^\d{6}$/.test(value) && value.length < 8) {
+    throw new Error("Use a 6-digit PIN or a passphrase of at least 8 characters.");
+  }
+}
+
 function assertScopeParts(...parts: string[]): void {
   if (parts.some((part) => part.length === 0)) {
     throw new Error("Vault table, row, scope, and scope value must be non-empty.");
@@ -91,7 +103,12 @@ async function importAESKey(
   rawKey: Uint8Array,
   usages: KeyUsage[],
 ): Promise<CryptoKey> {
-  return crypto.subtle.importKey("raw", rawKey, { name: "AES-GCM" }, false, usages);
+  const keyBytes = copyBufferSource(rawKey);
+  try {
+    return await crypto.subtle.importKey("raw", keyBytes, { name: "AES-GCM" }, false, usages);
+  } finally {
+    new Uint8Array(keyBytes).fill(0);
+  }
 }
 
 async function encryptWithKey(
@@ -100,12 +117,21 @@ async function encryptWithKey(
   additionalData: Uint8Array,
 ): Promise<EncryptedValue> {
   const nonce = crypto.getRandomValues(new Uint8Array(12));
-  const ciphertext = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: nonce, additionalData },
-    key,
-    plaintext,
-  );
-  return { nonce, ciphertext: new Uint8Array(ciphertext) };
+  const plaintextCopy = copyBufferSource(plaintext);
+  try {
+    const ciphertext = await crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv: copyBufferSource(nonce),
+        additionalData: copyBufferSource(additionalData),
+      },
+      key,
+      plaintextCopy,
+    );
+    return { nonce, ciphertext: new Uint8Array(ciphertext) };
+  } finally {
+    new Uint8Array(plaintextCopy).fill(0);
+  }
 }
 
 async function decryptWithKey(
@@ -114,9 +140,13 @@ async function decryptWithKey(
   additionalData: Uint8Array,
 ): Promise<Uint8Array> {
   const plaintext = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: encrypted.nonce, additionalData },
+    {
+      name: "AES-GCM",
+      iv: copyBufferSource(encrypted.nonce),
+      additionalData: copyBufferSource(additionalData),
+    },
     key,
-    encrypted.ciphertext,
+    copyBufferSource(encrypted.ciphertext),
   );
   return new Uint8Array(plaintext);
 }
@@ -148,11 +178,20 @@ async function deriveRecoveryKey(
   }
   const seed = mnemonicToSeedSync(normalized);
   try {
-    const hkdfKey = await crypto.subtle.importKey("raw", seed, "HKDF", false, [
-      "deriveKey",
-    ]);
+    const seedCopy = copyBufferSource(seed);
+    let hkdfKey: CryptoKey;
+    try {
+      hkdfKey = await crypto.subtle.importKey("raw", seedCopy, "HKDF", false, ["deriveKey"]);
+    } finally {
+      new Uint8Array(seedCopy).fill(0);
+    }
     return await crypto.subtle.deriveKey(
-      { name: "HKDF", hash: "SHA-256", salt, info: RECOVERY_INFO },
+      {
+        name: "HKDF",
+        hash: "SHA-256",
+        salt: copyBufferSource(salt),
+        info: copyBufferSource(RECOVERY_INFO),
+      },
       hkdfKey,
       { name: "AES-GCM", length: 256 },
       false,
@@ -165,11 +204,20 @@ async function deriveRecoveryKey(
 
 async function deriveScopeTagKey(dek: Uint8Array): Promise<CryptoKey> {
   assertDEK(dek);
-  const hkdfKey = await crypto.subtle.importKey("raw", dek, "HKDF", false, [
-    "deriveKey",
-  ]);
+  const dekCopy = copyBufferSource(dek);
+  let hkdfKey: CryptoKey;
+  try {
+    hkdfKey = await crypto.subtle.importKey("raw", dekCopy, "HKDF", false, ["deriveKey"]);
+  } finally {
+    new Uint8Array(dekCopy).fill(0);
+  }
   return crypto.subtle.deriveKey(
-    { name: "HKDF", hash: "SHA-256", salt: EMPTY_HKDF_SALT, info: SCOPE_TAG_INFO },
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: copyBufferSource(EMPTY_HKDF_SALT),
+      info: copyBufferSource(SCOPE_TAG_INFO),
+    },
     hkdfKey,
     { name: "HMAC", hash: "SHA-256", length: 256 },
     false,
@@ -218,12 +266,14 @@ export async function createDEKVault(
   pin: string,
   recoveryPhrase: string,
 ): Promise<Uint8Array> {
+  assertLockSecret(pin);
   if (!validateRecoveryPhrase(recoveryPhrase.trim().split(/\s+/).join(" "))) {
     throw new Error("A valid 24-word BIP39 recovery phrase is required.");
   }
   const sodium = await initCrypto();
   const dek = sodium.randombytes_buf(DEK_BYTES);
   const lockSalt = sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
+  const recoverySalt = new Uint8Array(lockSalt);
   let lockKey: Uint8Array | undefined;
   let recoveryPhraseBytes: Uint8Array | undefined;
   try {
@@ -234,7 +284,7 @@ export async function createDEKVault(
       LOCK_AAD,
     );
     const recoveryWrappedDEK = await encryptWithKey(
-      await deriveRecoveryKey(recoveryPhrase, lockSalt),
+      await deriveRecoveryKey(recoveryPhrase, recoverySalt),
       dek,
       LOCK_AAD,
     );
@@ -247,6 +297,7 @@ export async function createDEKVault(
     await database.dekVault.put({
       id: "primary",
       lockSalt,
+      recoverySalt,
       lockWrappedDEK,
       recoveryWrappedDEK,
       encryptedRecoveryPhrase,
@@ -269,6 +320,10 @@ function clearFailedLockAttemptsIfAvailable(): void {
 async function readDEKVault(): Promise<DEKVaultRecord> {
   const record = await database.dekVault.get("primary");
   if (!record) throw new Error("The DEK vault has not been initialized.");
+  if (!record.recoverySalt) {
+    record.recoverySalt = record.lockSalt;
+    await database.dekVault.update("primary", { recoverySalt: record.recoverySalt });
+  }
   return record;
 }
 
@@ -297,7 +352,7 @@ export async function unlockDEKWithRecovery(
   recoveryPhrase: string,
 ): Promise<Uint8Array> {
   const record = await readDEKVault();
-  const recoveryKey = await deriveRecoveryKey(recoveryPhrase, record.lockSalt);
+  const recoveryKey = await deriveRecoveryKey(recoveryPhrase, record.recoverySalt);
   const dek = await decryptWithKey(
     recoveryKey,
     record.recoveryWrappedDEK,
@@ -310,6 +365,28 @@ export async function unlockDEKWithRecovery(
     throw error;
   }
   return trackDEK(dek);
+}
+
+export async function setDEKLock(
+  dek: Uint8Array,
+  pin: string,
+): Promise<void> {
+  assertDEK(dek);
+  assertLockSecret(pin);
+  await readDEKVault();
+  const sodium = await initCrypto();
+  const lockSalt = sodium.randombytes_buf(sodium.crypto_pwhash_SALTBYTES);
+  const lockKey = await deriveLockKey(pin, lockSalt);
+  try {
+    const lockWrappedDEK = await encryptWithKey(
+      await importAESKey(lockKey, ["encrypt"]),
+      dek,
+      LOCK_AAD,
+    );
+    await database.dekVault.update("primary", { lockSalt, lockWrappedDEK });
+  } finally {
+    lockKey.fill(0);
+  }
 }
 
 export async function revealRecoveryPhrase(dek: Uint8Array): Promise<string> {

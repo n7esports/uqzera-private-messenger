@@ -9,6 +9,7 @@ import {
   decryptRow,
   findEncryptedRowsByScope,
   revealRecoveryPhrase,
+  setDEKLock,
   storeEncryptedRow,
   unlockDEKWithPin,
   unlockDEKWithRecovery,
@@ -42,6 +43,54 @@ describe("DEK vault", () => {
 
     expect(recoveredDEK).toEqual(originalDEK);
   });
+
+  it("uses the lock salt for recovery when reading a legacy vault record", async () => {
+    const record = await database.dekVault.get("primary");
+    expect(record).toBeDefined();
+    if (!record) throw new Error("DEK vault was not persisted.");
+    delete (record as Partial<typeof record>).recoverySalt;
+    await database.dekVault.put(record);
+
+    await expect(unlockDEKWithRecovery(recoveryPhrase)).resolves.toEqual(originalDEK);
+    expect(await database.dekVault.get("primary")).toMatchObject({
+      recoverySalt: record.lockSalt,
+    });
+  }, 30_000);
+
+  it("changes only the PIN wrapper and preserves recovery unlock", async () => {
+    const nextPin = "another strong passphrase";
+    const storedPlaintext = new TextEncoder().encode("preserve encrypted rows");
+    await storeEncryptedRow(
+      originalDEK,
+      "contacts",
+      "preserved-row",
+      "owner",
+      "recovery-test",
+      storedPlaintext,
+    );
+    const before = await database.dekVault.get("primary");
+    expect(before).toBeDefined();
+    if (!before) throw new Error("DEK vault was not persisted.");
+
+    await setDEKLock(originalDEK, nextPin);
+
+    const after = await database.dekVault.get("primary");
+    expect(after?.lockSalt).not.toEqual(before.lockSalt);
+    expect(after?.lockWrappedDEK).not.toEqual(before.lockWrappedDEK);
+    expect(after?.recoverySalt).toEqual(before.recoverySalt);
+    expect(after?.recoveryWrappedDEK).toEqual(before.recoveryWrappedDEK);
+    await expect(unlockDEKWithPin(pin)).rejects.toBeDefined();
+    await expect(unlockDEKWithPin(nextPin)).resolves.toEqual(originalDEK);
+    await expect(unlockDEKWithRecovery(recoveryPhrase)).resolves.toEqual(originalDEK);
+    const recoveredRows = await findEncryptedRowsByScope(
+      originalDEK,
+      "contacts",
+      "owner",
+      "recovery-test",
+    );
+    expect(recoveredRows.find((row) => row.rowId === "preserved-row")?.plaintext)
+      .toEqual(storedPlaintext);
+  }, 60_000);
 
   it("reveals the recovery phrase only by decrypting its DEK-encrypted record", async () => {
     await expect(revealRecoveryPhrase(originalDEK)).resolves.toBe(recoveryPhrase);
