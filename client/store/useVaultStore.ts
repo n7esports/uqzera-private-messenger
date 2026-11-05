@@ -10,6 +10,7 @@ import {
   saveIdentityWithVaultKey,
   VaultCorruptionError,
   VaultStoragePermissionError,
+  registerVaultWipeCleanup,
   type VaultRecord,
 } from "../lib/vault";
 
@@ -256,5 +257,7 @@ export const useVaultStore = create<VaultState>((set, get) => ({
     });
   },
 }));
+
+registerVaultWipeCleanup(() => useVaultStore.getState().clearMemoryKeys());
 
 export { readLocalVaultKey as readVaultKey };

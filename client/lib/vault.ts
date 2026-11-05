@@ -58,6 +58,27 @@ export interface FlagRecord {
   value: boolean;
 }
 
+export interface EncryptedValue {
+  nonce: Uint8Array;
+  ciphertext: Uint8Array;
+}
+
+export interface DEKVaultRecord {
+  id: "primary";
+  lockSalt: Uint8Array;
+  lockWrappedDEK: EncryptedValue;
+  recoveryWrappedDEK: EncryptedValue;
+  encryptedRecoveryPhrase: EncryptedValue;
+  createdAt: number;
+}
+
+export interface EncryptedVaultRowRecord extends EncryptedValue {
+  id: string;
+  table: string;
+  rowId: string;
+  scopeTag: string;
+}
+
 /**
  * The device vault key is never stored in plaintext next to the data it
  * protects. It is a random 32-byte key that is itself encrypted ("wrapped")
@@ -124,6 +145,8 @@ class UQZERADatabase extends Dexie {
   sessions!: Table<EncryptedSessionRecord, string>;
   outbox!: Table<QueuedEnvelopeRecord, string>;
   flags!: Table<FlagRecord, string>;
+  dekVault!: Table<DEKVaultRecord, DEKVaultRecord["id"]>;
+  encryptedRows!: Table<EncryptedVaultRowRecord, string>;
 
   constructor() {
     super("UQZERADatabase");
@@ -150,10 +173,27 @@ class UQZERADatabase extends Dexie {
       outbox: "id, nextAttemptAt, createdAt",
       flags: "key",
     });
+    this.version(4).stores({
+      vault: "id",
+      chats: "id, updatedAt",
+      messages: "id, chatId, createdAt",
+      notes: "id, updatedAt",
+      sessions: "id, updatedAt",
+      outbox: "id, nextAttemptAt, createdAt",
+      flags: "key",
+      dekVault: "id",
+      encryptedRows: "id, scopeTag",
+    });
   }
 }
 
 export const database = new UQZERADatabase();
+const vaultWipeCleanups = new Set<() => void>();
+
+export function registerVaultWipeCleanup(cleanup: () => void): () => void {
+  vaultWipeCleanups.add(cleanup);
+  return () => vaultWipeCleanups.delete(cleanup);
+}
 
 export async function getDB(): Promise<typeof database> {
   await database.open();
@@ -495,6 +535,13 @@ export async function deleteAllVaultData(confirm: string): Promise<void> {
 
 export async function wipeVaultDatabase(): Promise<void> {
   const errors: unknown[] = [];
+  for (const cleanup of vaultWipeCleanups) {
+    try {
+      cleanup();
+    } catch (error) {
+      errors.push(error);
+    }
+  }
   if (typeof indexedDB === "undefined") {
     errors.push(
       new Error("IndexedDB is unavailable; stored databases could not be erased."),
