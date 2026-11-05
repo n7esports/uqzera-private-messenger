@@ -33,6 +33,7 @@ import {
   transportManager,
   type RelayStatus,
 } from "../lib/transport";
+import { EncryptedOutbox } from "../lib/outbox";
 import {
   database,
   type EncryptedChatRecord,
@@ -46,6 +47,7 @@ import {
 import type { Channel, DeviceSession, ToastNotification } from "../types";
 
 let chatServicesStarted = false;
+let encryptedOutbox: EncryptedOutbox | null = null;
 
 export const PRIVATE_NOTES_CHAT_ID = "private-notes";
 export const WELCOME_CHAT_ID = "welcome-guide";
@@ -224,7 +226,7 @@ async function withChatLock<T>(chatId: string, fn: () => Promise<T>): Promise<T>
 // persisted to IndexedDB, and the relay is not the only path messages travel.
 // A bounded in-memory set of already-ingested message ids makes duplicate
 // ingestion idempotent even under that race.
-const MAX_RECENTLY_SEEN_MESSAGE_IDS = 5_000;
+const MAX_RECENTLY_SEEN_MESSAGE_IDS = 1_000;
 const recentlySeenMessageIds = new Set<string>();
 
 function markMessageSeen(id: string): boolean {
@@ -266,6 +268,39 @@ function getVaultMaterial(): {
     throw new Error("Unlock the vault before using chats.");
   }
   return { identity, vaultKey };
+}
+
+function getEncryptedOutbox(vaultKey: Uint8Array): EncryptedOutbox {
+  if (!encryptedOutbox) {
+    encryptedOutbox = new EncryptedOutbox(
+      vaultKey,
+      (packet) => transportManager.sendEnvelope(packet),
+      {
+        onPublished: (messageId) => {
+          void useChatStore
+            .getState()
+            .updateDeliveryStatus(messageId, "sent")
+            .catch((error: unknown) =>
+              useChatStore.setState({
+                transportError:
+                  error instanceof Error ? error.message : "Could not update message status.",
+              }),
+            );
+        },
+        onFailed: () =>
+          useChatStore.setState({
+            transportError: "A queued message expired before relay delivery.",
+          }),
+      },
+    );
+  }
+  void encryptedOutbox.start().catch((error: unknown) =>
+    useChatStore.setState({
+      transportError:
+        error instanceof Error ? error.message : "Could not restore the encrypted outbox.",
+    }),
+  );
+  return encryptedOutbox;
 }
 
 function toPlaintext(value: object): Uint8Array {
@@ -631,6 +666,7 @@ async function expireMessage(messageId: string): Promise<void> {
     await database.messages.delete(messageId);
     await database.notes.delete(messageId);
     await database.outbox.delete(messageId);
+    await encryptedOutbox?.remove(messageId);
     ephemeralExpiryTimers.delete(messageId);
     // Reconcile in-memory state across EVERY chat, not just the one that
     // happened to be found first: a message whose owning chat is not loaded
@@ -737,6 +773,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     // Also clear persistent storage
     void (async () => {
       try {
+        await encryptedOutbox?.clear();
         await database.chats.clear();
         await database.messages.clear();
         await database.sessions.clear();
@@ -944,7 +981,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             },
           }));
           scheduleMessageExpiry(base);
-          await transportManager.enqueue(packet);
+          await getEncryptedOutbox(vaultKey).enqueue(packet);
           if (chat.kind === "direct") {
             void buildTypingSignal("stop", identity, recipientPublicKey)
               .then((signal) => transportManager.sendTyping(signal))
@@ -1286,6 +1323,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       await database.messages.delete(record.id);
       await database.notes.delete(record.id);
       await database.outbox.delete(record.id);
+      await encryptedOutbox?.remove(record.id);
       const timer = ephemeralExpiryTimers.get(record.id);
       if (timer) {
         clearTimeout(timer);
@@ -1339,6 +1377,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       await database.messages.delete(messageId);
       await database.notes.delete(messageId);
       await database.outbox.delete(messageId);
+      await encryptedOutbox?.remove(messageId);
       const timer = ephemeralExpiryTimers.get(messageId);
       if (timer) {
         clearTimeout(timer);
@@ -1361,6 +1400,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       await database.messages.delete(record.id);
       await database.notes.delete(record.id);
       await database.outbox.delete(record.id);
+      await encryptedOutbox?.remove(record.id);
       const timer = ephemeralExpiryTimers.get(record.id);
       if (timer) {
         clearTimeout(timer);
@@ -1410,6 +1450,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             await database.messages.delete(message.id);
             await database.notes.delete(message.id);
             await database.outbox.delete(message.id);
+            await encryptedOutbox?.remove(message.id);
             messagesMap[message.chatId] = messagesMap[message.chatId].filter(
               (existing) => existing.id !== message.id,
             );
@@ -1540,6 +1581,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
 registerMemoryKeyCleanup(() => {
   transportManager.stop();
+  encryptedOutbox?.stop();
+  encryptedOutbox = null;
+  recentlySeenMessageIds.clear();
   chatServicesStarted = false;
   for (const timer of ephemeralExpiryTimers.values()) clearTimeout(timer);
   ephemeralExpiryTimers.clear();
@@ -1580,10 +1624,19 @@ export function startChatServices(): () => void {
   transportManager.start(vaultKey, encodeBytes(identity.encryptionPublicKey), {
     onMessage: (packet) => useChatStore.getState().receiveMessage(packet),
     onTyping: (signal) => useChatStore.getState().receiveTyping(signal),
-    onReceipt: (messageId, status, signerEncryptionPubKey) =>
-      void useChatStore
-        .getState()
-        .updateDeliveryStatus(messageId, status, signerEncryptionPubKey),
+    onReceipt: (messageId, status, signerEncryptionPubKey) => {
+      void (async () => {
+        await useChatStore
+          .getState()
+          .updateDeliveryStatus(messageId, status, signerEncryptionPubKey);
+        await encryptedOutbox?.acknowledge(messageId, signerEncryptionPubKey);
+      })().catch((error: unknown) =>
+        useChatStore.setState({
+          transportError:
+            error instanceof Error ? error.message : "Could not process delivery receipt.",
+        }),
+      );
+    },
     onSent: (messageId) =>
       void useChatStore.getState().updateDeliveryStatus(messageId, "sent"),
     onConnectionChange: (relayStatus) =>
@@ -1591,8 +1644,16 @@ export function startChatServices(): () => void {
     onError: (error) =>
       useChatStore.setState({ transportError: error.message }),
   });
+  void getEncryptedOutbox(vaultKey).start().catch((error: unknown) =>
+    useChatStore.setState({
+      transportError:
+        error instanceof Error ? error.message : "Could not restore the encrypted outbox.",
+    }),
+  );
   return () => {
     chatServicesStarted = false;
     transportManager.stop();
+    encryptedOutbox?.stop();
+    encryptedOutbox = null;
   };
 }
