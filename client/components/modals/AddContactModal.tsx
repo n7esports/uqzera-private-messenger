@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useVaultStore } from "../../store/useVaultStore";
 import { decodeBytes, encodeBytes } from "../../lib/protocol";
+import { parseShareKey } from "../../lib/contracts/shareKey";
 import IconCopy from "../icons/IconCopy";
 import BoxQRCode from "../icons/BoxQRCode";
 
@@ -26,7 +27,9 @@ export default function AddContactModal({
   const addContact = useChatStore((s) => s.addContact);
   const showToast = useChatStore((s) => s.showToast);
   const myCodeID = identity
-    ? `uqz1.${encodeBytes(identity.encryptionPublicKey)}`
+    ? `uqz1.${[...identity.encryptionPublicKey, ...identity.signingPublicKey]
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("")}`
     : "";
 
   // Reset when opening
@@ -58,28 +61,45 @@ export default function AddContactModal({
       setError("Nickname must be 1–40 characters.");
       return;
     }
-    const pastedKey = hexKey.trim().replace(/[\s\u200B-\u200D\uFEFF]/g, "");
-    const isShareID = /^uqz1\./i.test(pastedKey);
-    const encodedKey = pastedKey.replace(/^(?:cloak:|uqz1\.)/i, "");
     let publicKey: Uint8Array;
-    try {
-      publicKey = !isShareID && /^[0-9a-f]{64}$/i.test(encodedKey)
-        ? Uint8Array.from(encodedKey.match(/.{2}/g) ?? [], (byte) => Number.parseInt(byte, 16))
-        : decodeBytes(encodedKey);
-    } catch {
-      setError("Enter a valid uqz1. ID or public key.");
-      return;
-    }
-    if (publicKey.length !== 32) {
-      setError("Enter a valid uqz1. ID or public key.");
-      return;
-    }
-    if (
-      identity &&
-      publicKey.every((byte, index) => byte === identity.encryptionPublicKey[index])
-    ) {
-      setError("You cannot add your own identity as a contact.");
-      return;
+    const pastedKey = hexKey.trim();
+    if (pastedKey.startsWith("uqz1.")) {
+      const parsed = parseShareKey(pastedKey, myCodeID || undefined);
+      if (!parsed.ok) {
+        setError(
+          parsed.reason === "self"
+            ? "You cannot add your own identity as a contact."
+            : "Enter a valid uqz1. ID or public key.",
+        );
+        return;
+      }
+      publicKey = parsed.bytes.slice(0, 32);
+    } else {
+      const legacyKey = pastedKey
+        .replace(/[\s\u200B-\u200D\uFEFF]/g, "")
+        .replace(/^cloak:/i, "");
+      try {
+        publicKey = /^[0-9a-f]{64}$/i.test(legacyKey)
+          ? Uint8Array.from(
+              legacyKey.match(/.{2}/g) ?? [],
+              (byte) => Number.parseInt(byte, 16),
+            )
+          : decodeBytes(legacyKey);
+      } catch {
+        setError("Enter a valid uqz1. ID or public key.");
+        return;
+      }
+      if (publicKey.length !== 32) {
+        setError("Enter a valid uqz1. ID or public key.");
+        return;
+      }
+      if (
+        identity &&
+        publicKey.every((byte, index) => byte === identity.encryptionPublicKey[index])
+      ) {
+        setError("You cannot add your own identity as a contact.");
+        return;
+      }
     }
     const normalizedKey = encodeBytes(publicKey);
     if (chats.some((chat) => chat.recipientPubKey === normalizedKey)) {
