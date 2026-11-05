@@ -104,7 +104,9 @@ export default function AddContactModal({
 
   const handleSaveContact = async () => {
     setError(null);
-    const trimmed = hexKey.trim().replace(/[\s\u200B-\u200D\uFEFF]/g, "").replace(/^cloak:/i, "");
+    const trimmed = hexKey.trim()
+      .replace(/[\s\u200B-\u200D\uFEFF]/g, "")
+      .replace(/^(?:cloak:|uqz1\.)/i, "");
     if (!trimmed || trimmed.length < 43) {
       setError("Enter a valid Base64 public key.");
       return;
@@ -223,7 +225,7 @@ export default function AddContactModal({
                   <input
                     value={hexKey}
                     onChange={(e) => setHexKey(e.target.value)}
-                    placeholder="64-char hex key"
+                    placeholder="uqz1. ID or Base64 public key"
                     className="flex-1 rounded-xl border border-hairline bg-surface-container px-3 py-2.5 font-mono text-sm text-on-surface outline-none focus:border-primary"
                   />
                   <button

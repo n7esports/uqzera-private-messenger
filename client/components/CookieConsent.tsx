@@ -1,81 +1,45 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 type Category = "essential" | "analytics" | "marketing";
+type Preferences = Record<Category, boolean>;
 
+const STORAGE_KEY = "anon_consent";
 const CATEGORIES: { id: Category; label: string; disabled: boolean }[] = [
   { id: "essential", label: "Essential", disabled: true },
   { id: "analytics", label: "Analytics", disabled: false },
   { id: "marketing", label: "Marketing", disabled: false },
 ];
-
-function postConsent(granted: boolean) {
-  console.log("[cookie] postConsent", granted);
-  return fetch("/api/consent", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kind: "cookies", version: "1.0", granted }),
-  }).then((res) => {
-    console.log("[cookie] /api/consent response", res.status);
-    return res;
-  });
-}
-
-function setConsentCookie() {
-  const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
-  document.cookie = `anon_consent=1; expires=${expires}; path=/; SameSite=Lax`;
-}
-
-function hasConsentCookie() {
-  return document.cookie.split("; ").some((c) => c.startsWith("anon_consent="));
-}
+const ESSENTIAL_ONLY: Preferences = {
+  essential: true,
+  analytics: false,
+  marketing: false,
+};
 
 export default function CookieConsent() {
   const [open, setOpen] = useState(false);
   const [showBanner, setShowBanner] = useState(false);
-  const [toggles, setToggles] = useState<Record<Category, boolean>>({
-    essential: true,
-    analytics: false,
-    marketing: false,
-  });
+  const [toggles, setToggles] = useState<Preferences>(ESSENTIAL_ONLY);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setShowBanner(!hasConsentCookie());
+    setShowBanner(localStorage.getItem(STORAGE_KEY) === null);
   }, []);
 
-  const acceptAll = () => {
-    console.log("[cookie] Accept clicked");
-    setShowBanner(false);
-    setConsentCookie();
-    setToggles({ essential: true, analytics: true, marketing: true });
-    postConsent(true).catch((err) =>
-      console.error("[cookie] Accept API error", err)
-    );
-  };
-
-  const rejectNonEssential = () => {
-    console.log("[cookie] Reject clicked");
-    setShowBanner(false);
-    setConsentCookie();
-    setToggles({ essential: true, analytics: false, marketing: false });
-    postConsent(false).catch((err) =>
-      console.error("[cookie] Reject API error", err)
-    );
-  };
-
-  const savePreferences = () => {
-    const granted = toggles.analytics || toggles.marketing;
-    console.log("[cookie] Save preferences clicked", granted);
-    setOpen(false);
-    setConsentCookie();
-    postConsent(granted).catch((err) =>
-      console.error("[cookie] Save preferences API error", err)
-    );
+  const save = (preferences: Preferences) => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+      setShowBanner(false);
+      setOpen(false);
+      setError(null);
+    } catch {
+      setError("Could not save your cookie preferences in this browser.");
+    }
   };
 
   const toggle = (id: Category) => {
-    setToggles((prev) => ({ ...prev, [id]: !prev[id] }));
+    setToggles((previous) => ({ ...previous, [id]: !previous[id] }));
   };
 
   if (!showBanner && !open) return null;
@@ -83,29 +47,36 @@ export default function CookieConsent() {
   return (
     <>
       {showBanner && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-hairline bg-surface-container p-4">
-          <div className="mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="pointer-events-none fixed inset-x-0 top-3 z-50 flex justify-center px-3">
+          <div className="pointer-events-auto flex w-full max-w-3xl flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline bg-surface-container p-3 shadow-panel">
             <p className="text-sm text-on-surface">
               This site uses cookies. Essential cookies are always enabled.
             </p>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={acceptAll}
-                className="rounded px-3 py-1.5 text-sm font-medium text-on-primary bg-primary"
+                onClick={() => save({ essential: true, analytics: true, marketing: true })}
+                className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary"
               >
                 Accept all
               </button>
               <button
-                onClick={rejectNonEssential}
-                className="rounded px-3 py-1.5 text-sm font-medium border border-hairline text-on-surface"
+                onClick={() => save(ESSENTIAL_ONLY)}
+                className="rounded border border-hairline px-3 py-1.5 text-sm font-medium text-on-surface"
               >
                 Reject non-essential
               </button>
               <button
                 onClick={() => setOpen(true)}
-                className="rounded px-3 py-1.5 text-sm font-medium border border-hairline text-on-surface"
+                className="rounded border border-hairline px-3 py-1.5 text-sm font-medium text-on-surface"
               >
                 Preferences
+              </button>
+              <button
+                aria-label="Dismiss cookie notice"
+                onClick={() => save(ESSENTIAL_ONLY)}
+                className="rounded border border-hairline px-3 py-1.5 text-sm font-medium text-on-surface"
+              >
+                Dismiss
               </button>
             </div>
           </div>
@@ -145,16 +116,17 @@ export default function CookieConsent() {
                 </li>
               ))}
             </ul>
+            {error && <p role="alert" className="mt-4 text-sm text-error">{error}</p>}
             <div className="mt-6 flex justify-end gap-2">
               <button
                 onClick={() => setOpen(false)}
-                className="rounded px-3 py-1.5 text-sm font-medium border border-hairline text-on-surface"
+                className="rounded border border-hairline px-3 py-1.5 text-sm font-medium text-on-surface"
               >
                 Cancel
               </button>
               <button
-                onClick={savePreferences}
-                className="rounded px-3 py-1.5 text-sm font-medium text-on-primary bg-primary"
+                onClick={() => save(toggles)}
+                className="rounded bg-primary px-3 py-1.5 text-sm font-medium text-on-primary"
               >
                 Save preferences
               </button>

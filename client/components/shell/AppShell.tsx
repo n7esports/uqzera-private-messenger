@@ -60,10 +60,10 @@ export default function AppShell({ onOpenIdentity }: { onOpenIdentity?: () => vo
   const pendingRequests = useChatStore((s: ChatState) => s.pendingRequests);
   const dismissPendingRequest = useChatStore((s: ChatState) => s.dismissPendingRequest);
   const isUnlocked = useVaultStore((s) => s.isUnlocked);
+  const profile = useVaultStore((s) => s.profile);
   const loadChats = useChatStore((s: ChatState) => s.loadChats);
   const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [userAlias, setUserAlias] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
@@ -82,19 +82,6 @@ export default function AppShell({ onOpenIdentity }: { onOpenIdentity?: () => vo
       document.removeEventListener("click", handleClick);
       document.removeEventListener("contextmenu", handleContextMenu);
     };
-  }, []);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("cloak.identity.alias");
-    if (stored) setUserAlias(stored);
-
-    function handleStorage(e: StorageEvent) {
-      if (e.key === "cloak.identity.alias") {
-        setUserAlias(e.newValue || "");
-      }
-    }
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   useEffect(() => {
@@ -322,9 +309,9 @@ export default function AppShell({ onOpenIdentity }: { onOpenIdentity?: () => vo
             className="flex items-center gap-3 text-left transition hover:bg-surface"
           >
             <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">
-              {initials(userAlias)}
+              {initials(profile?.name ?? "")}
             </div>
-            <span className="text-sm font-medium text-on-surface">{userAlias || "Set alias"}</span>
+            <span className="text-sm font-medium text-on-surface">{profile?.name || "Your profile"}</span>
           </button>
           <div ref={settingsRef} className="relative">
             <button

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { consentSchema } from "@/lib/validations/consent";
 
+// Legacy /api/consent endpoint retained; the current client stores choices locally.
 export async function POST(request: Request) {
   try {
     let body: unknown;
@@ -19,9 +20,6 @@ export async function POST(request: Request) {
     }
 
     const { kind, version, granted } = parsed.data;
-
-    const forwarded = request.headers.get("x-forwarded-for");
-    const ip = forwarded ? forwarded.split(",")[0].trim() : undefined;
 
     const cookie = request.headers.get("cookie") || "";
     const match = cookie.match(/(?:^|; )anon_id=([^;]+)/);
@@ -61,7 +59,6 @@ export async function POST(request: Request) {
       kind,
       version,
       granted,
-      ip: ip || null,
       user_id: user_id || null,
       anon_id: anon_id || null,
     };

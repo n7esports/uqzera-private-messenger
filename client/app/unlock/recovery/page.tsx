@@ -1,102 +1,112 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { validateRecoveryPhrase, disposeMnemonic } from "@/lib/recovery";
+import { useVaultStore } from "../../../store/useVaultStore";
+import { validateRecoveryPhrase, disposeMnemonic } from "../../../lib/recovery";
 
 export default function UnlockRecoveryPage() {
   const router = useRouter();
+  const unlockWithRecoveryPhrase = useVaultStore((state) => state.unlockWithRecoveryPhrase);
   const [phrase, setPhrase] = useState("");
-  const phraseRef = useRef<string | null>(null);
+  const [newLock, setNewLock] = useState("");
+  const [lockType, setLockType] = useState<"pin" | "passphrase">("pin");
+  const [showLock, setShowLock] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState(false);
+  const [busy, setBusy] = useState(false);
 
-  const handleVerify = () => {
+  const recover = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError(null);
     const normalized = phrase.trim().replace(/\s+/g, " ");
-    if (normalized.length === 0) {
-      setError("Please enter your recovery phrase.");
+    const validLock = lockType === "pin"
+      ? /^\d{6}$/.test(newLock)
+      : newLock.length >= 8;
+    if (!validateRecoveryPhrase(normalized)) {
+      setError("Recovery phrase is invalid. Check the words and try again.");
       return;
     }
-    // SECURITY FIX (F-14 follow-up): the recovery phrase is entered by the
-    // user here and validated against the BIP-39 checksum locally. It is
-    // NEVER read from or written to localStorage — the setup flow no longer
-    // persists it anywhere. The transient copy is released immediately after
-    // validation.
-    phraseRef.current = normalized;
-    const ok = validateRecoveryPhrase(phraseRef.current);
-    disposeMnemonic(phraseRef.current);
-    phraseRef.current = null;
-    if (!ok) {
-      setError("That recovery phrase is not valid. Check for typos or missing words.");
+    if (!validLock) {
+      setError(lockType === "pin"
+        ? "Choose a new 6-digit PIN."
+        : "Your new passphrase must be at least 8 characters.");
       return;
     }
-    setDone(true);
+
+    setBusy(true);
+    try {
+      await unlockWithRecoveryPhrase(normalized, newLock);
+      setPhrase("");
+      setNewLock("");
+      disposeMnemonic(normalized);
+      router.replace("/chats");
+    } catch {
+      setError("Could not recover the vault. Check the phrase and try again.");
+    } finally {
+      setBusy(false);
+    }
   };
 
-  if (done) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-base">
-        <div className="bg-panel border border-default w-full max-w-sm px-8 py-10">
-          <h1 className="font-sans text-2xl font-semibold tracking-tight text-primary">
-            Verified
-          </h1>
-          <p className="mt-2 text-sm text-secondary">
-            Recovery phrase confirmed. Your encrypted vault stays on this
-            device; nothing about this phrase was stored in the browser.
-          </p>
-          <button
-            onClick={() => router.replace("/lock")}
-            className="mt-6 w-full rounded-xl accent-emerald py-3 text-sm font-medium transition hover:opacity-90"
-          >
-            Continue
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex h-screen w-full items-center justify-center bg-base">
-      <div className="bg-panel border border-default w-full max-w-sm px-8 py-10">
-        <h1 className="font-sans text-2xl font-semibold tracking-tight text-primary">
-          Recovery
-        </h1>
+    <main className="flex min-h-screen w-full items-center justify-center bg-base px-4 py-8">
+      <section className="bg-panel border border-default w-full max-w-md rounded-2xl px-8 py-10">
+        <h1 className="font-sans text-2xl font-semibold text-primary">Recover your vault</h1>
         <p className="mt-2 text-sm text-secondary">
-          Enter the full 24-word recovery phrase you wrote down during setup.
-          We only check its checksum locally — the phrase never leaves this
-          device and is not stored anywhere.
+          Enter your 24-word phrase and choose a new lock. Your encrypted contacts and messages remain on this device.
         </p>
-
-        <textarea
-          value={phrase}
-          onChange={(e) => setPhrase(e.target.value)}
-          rows={5}
-          spellCheck={false}
-          autoComplete="off"
-          autoCorrect="off"
-          autoCapitalize="none"
-          placeholder="word word word …"
-          className="mt-6 w-full rounded-xl border border-default bg-input px-4 py-3 font-mono text-sm text-primary outline-none focus:border-default"
-        />
-
-        {error && <p className="mt-3 text-sm text-error">{error}</p>}
-
-        <button
-          onClick={handleVerify}
-          className="mt-6 w-full rounded-xl accent-emerald py-3 text-sm font-medium transition hover:opacity-90"
-        >
-          Verify
-        </button>
-
-        <p className="mt-4 text-center text-xs text-secondary">
-          Lost your phrase?{" "}
-          <Link href="/setup/recovery" className="text-accent-emerald hover:underline">
-            Generate a new one
-          </Link>
-        </p>
-      </div>
-    </div>
+        <form onSubmit={(event) => void recover(event)} className="mt-6 space-y-4">
+          <label className="block text-sm text-secondary">
+            Recovery phrase
+            <textarea
+              autoCapitalize="none"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              rows={5}
+              value={phrase}
+              onChange={(event) => setPhrase(event.target.value)}
+              className="mt-2 w-full rounded-xl border border-default bg-input px-4 py-3 font-mono text-sm text-primary"
+            />
+          </label>
+          <div className="flex gap-2">
+            <button type="button" onClick={() => { setLockType("pin"); setNewLock(""); }} className="rounded-xl border border-default px-4 py-2 text-sm text-primary">
+              New PIN
+            </button>
+            <button type="button" onClick={() => { setLockType("passphrase"); setNewLock(""); }} className="rounded-xl border border-default px-4 py-2 text-sm text-primary">
+              New passphrase
+            </button>
+          </div>
+          <label className="block text-sm text-secondary">
+            {lockType === "pin" ? "New 6-digit PIN" : "New passphrase (8+ characters)"}
+            <span className="mt-2 flex gap-2">
+              <input
+                autoComplete="new-password"
+                inputMode={lockType === "pin" ? "numeric" : undefined}
+                maxLength={lockType === "pin" ? 6 : undefined}
+                type={showLock ? "text" : "password"}
+                value={newLock}
+                onChange={(event) => setNewLock(lockType === "pin"
+                  ? event.target.value.replace(/\D/g, "")
+                  : event.target.value)}
+                className="min-w-0 flex-1 rounded-xl border border-default bg-input px-4 py-3 text-primary"
+              />
+              {lockType === "passphrase" && (
+                <button type="button" onClick={() => setShowLock(!showLock)} className="rounded-xl border border-default px-3 text-sm text-primary">
+                  {showLock ? "Hide" : "Show"}
+                </button>
+              )}
+            </span>
+          </label>
+          {error && <p role="alert" className="text-sm text-error">{error}</p>}
+          <button type="submit" disabled={busy} className="w-full rounded-xl accent-emerald py-3 text-sm font-medium disabled:opacity-50">
+            {busy ? "Recovering…" : "Recover and set new lock"}
+          </button>
+        </form>
+        <Link href="/lock" className="mt-4 block text-center text-sm text-secondary underline">
+          Back to unlock
+        </Link>
+      </section>
+    </main>
   );
 }

@@ -1,18 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useVaultStore } from "../../store/useVaultStore";
 import { encodeBytes } from "../../lib/protocol";
-import { generateIdentity } from "../../lib/crypto";
-import {
-  getOrCreateLocalVaultKey,
-  saveIdentityWithVaultKey,
-  wipeVaultDatabase,
-} from "../../lib/vault";
 import IconCopy from "../icons/IconCopy";
-
-const ALIAS_STORAGE_KEY = "cloak.identity.alias";
 
 export function MyIdentityModal({
   open,
@@ -23,80 +15,55 @@ export function MyIdentityModal({
 }) {
   const router = useRouter();
   const identity = useVaultStore((s) => s.identity);
+  const profile = useVaultStore((s) => s.profile);
+  const setProfile = useVaultStore((s) => s.setProfile);
   const lockVault = useVaultStore((s) => s.lockVault);
 
   const publicKey = useMemo(() => {
     if (!identity) return "";
     return encodeBytes(identity.encryptionPublicKey);
   }, [identity]);
+  const publicID = publicKey ? `uqz1.${publicKey}` : "";
 
   // QR payload rotates on a 5-minute timer so the canvas re-renders with a
   // fresh timestamp. shortcut: visible QR doesn't change, only the embedded ts.
-  const [alias, setAlias] = useState("");
-  const [savedAlias, setSavedAlias] = useState("");
+  const [name, setName] = useState("");
+  const [bio, setBio] = useState("");
   const [copied, setCopied] = useState(false);
-  const [confirmChangeKey, setConfirmChangeKey] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
-      const stored = localStorage.getItem(ALIAS_STORAGE_KEY);
-      setSavedAlias(stored || "");
-      setAlias(stored || "");
+      setName(profile?.name ?? "");
+      setBio(profile?.bio ?? "");
     }
-  }, [open]);
+  }, [open, profile]);
 
   const handleCopy = async () => {
     if (!publicKey) return;
     try {
-      await navigator.clipboard.writeText(publicKey);
+      await navigator.clipboard.writeText(publicID);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      // ignore
+      setError(null);
+    } catch (copyError) {
+      setError(copyError instanceof Error ? copyError.message : "Could not copy the ID.");
     }
   };
 
-  const handleSaveAlias = () => {
-    const trimmed = alias.trim();
-    localStorage.setItem(ALIAS_STORAGE_KEY, trimmed);
-    setSavedAlias(trimmed);
-  };
-
-  const handleChangeKey = useCallback(async () => {
-    if (!confirmChangeKey) {
-      setConfirmChangeKey(true);
-      return;
-    }
-    setBusy(true);
+  const handleSaveProfile = async () => {
     setError(null);
     try {
-      await wipeVaultDatabase();
-      const vaultKey = await getOrCreateLocalVaultKey();
-      const newIdentity = await generateIdentity();
-      await saveIdentityWithVaultKey(newIdentity, vaultKey);
-      useVaultStore.setState({ identity: newIdentity, vaultKey });
-      localStorage.removeItem(ALIAS_STORAGE_KEY);
-      setSavedAlias("");
-      setAlias("");
-      setConfirmChangeKey(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Could not regenerate identity.");
-    } finally {
-      setBusy(false);
+      await setProfile({ name, bio });
+    } catch (saveError) {
+      setError(saveError instanceof Error ? saveError.message : "Could not save your profile.");
     }
-  }, [confirmChangeKey]);
+  };
 
-  const handleSignOut = useCallback(async () => {
-    try {
-      await wipeVaultDatabase();
-    } catch {
-      // best-effort wipe; continue to lock regardless
-    }
+  const handleSignOut = () => {
     lockVault();
-    router.push("/lock");
-  }, [lockVault, router]);
+    router.replace("/lock");
+  };
 
   const deviceInfo = useMemo(() => {
     if (typeof navigator === "undefined") return "Unavailable";
@@ -148,7 +115,7 @@ export function MyIdentityModal({
               <p className="mb-1 text-xs font-medium text-on-surface-variant">PUBLIC KEY • X25519</p>
               <div className="flex items-center gap-2 rounded-xl border border-hairline bg-surface px-3 py-2">
                 <code className="flex-1 truncate font-mono text-xs text-on-surface break-all">
-                  {publicKey}
+                  {publicID}
                 </code>
                 <button
                   onClick={handleCopy}
@@ -176,61 +143,36 @@ export function MyIdentityModal({
             </div>
           )}
 
-          {/* Alias edit */}
+          {/* Profile */}
           <div>
-            <p className="mb-1 text-xs font-medium text-on-surface-variant">Alias</p>
-            <div className="flex items-center gap-2">
-              <input
-                value={alias}
-                onChange={(e) => setAlias(e.target.value)}
-                placeholder="Your display name"
-                className="flex-1 rounded-xl border border-hairline bg-surface-container px-3 py-2 text-sm text-on-surface placeholder:text-on-surface-variant outline-none focus:border-primary"
-              />
-              <button
-                onClick={handleSaveAlias}
-                className="rounded-xl bg-primary px-4 py-2 text-xs font-medium text-on-primary transition hover:bg-primary/90"
-              >
-                Save
-              </button>
-            </div>
-            {savedAlias && (
-              <p className="mt-1 text-xs text-on-surface-variant">Saved as &ldquo;{savedAlias}&rdquo;</p>
-            )}
+            <label className="mb-1 block text-xs font-medium text-on-surface-variant">Name</label>
+            <input
+              value={name}
+              maxLength={40}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full rounded-xl border border-hairline bg-surface-container px-3 py-2 text-sm text-on-surface"
+            />
+            <label className="mb-1 mt-3 block text-xs font-medium text-on-surface-variant">Bio</label>
+            <textarea
+              value={bio}
+              maxLength={160}
+              rows={3}
+              onChange={(e) => setBio(e.target.value)}
+              className="w-full rounded-xl border border-hairline bg-surface-container px-3 py-2 text-sm text-on-surface"
+            />
+            <button
+              onClick={() => void handleSaveProfile()}
+              className="mt-2 w-full rounded-xl bg-primary px-4 py-2 text-xs font-medium text-on-primary"
+            >
+              Save profile
+            </button>
           </div>
 
-          {/* Change Key */}
+          {/* Key rotation is not available in the DEK-backed vault flow. */}
           <div className="flex flex-col gap-2">
-            {!confirmChangeKey ? (
-              <button
-                onClick={handleChangeKey}
-                disabled={busy}
-                className="rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-xs font-medium text-on-surface-variant transition hover:border-outline-variant hover:text-on-surface disabled:opacity-50"
-              >
-                Change Key
-              </button>
-            ) : (
-              <div className="rounded-xl border border-error/40 bg-error/10 p-3">
-                <p className="text-xs text-error">
-                  This will permanently destroy your current identity and all encrypted data. This cannot be undone.
-                </p>
-                <div className="mt-2 flex gap-2">
-                  <button
-                    onClick={handleChangeKey}
-                    disabled={busy}
-                    className="flex-1 rounded-lg bg-error px-3 py-1.5 text-xs font-medium text-on-error transition hover:bg-error/90 disabled:opacity-50"
-                  >
-                    {busy ? "Regenerating…" : "Regenerate identity"}
-                  </button>
-                  <button
-                    onClick={() => setConfirmChangeKey(false)}
-                    disabled={busy}
-                    className="flex-1 rounded-lg border border-outline-variant bg-surface px-3 py-1.5 text-xs font-medium text-on-surface-variant transition hover:text-on-surface disabled:opacity-50"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
+            <button disabled className="rounded-xl border border-outline-variant bg-surface-container px-4 py-2.5 text-xs font-medium text-on-surface-variant opacity-40">
+              Change Key (unavailable)
+            </button>
             {error && <p className="text-xs text-error">{error}</p>}
           </div>
 

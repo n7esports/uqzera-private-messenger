@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useVaultStore } from "../store/useVaultStore";
+import { startAutoLockTimer } from "../lib/lockSettings";
 
 export function Providers({ children }: { children: React.ReactNode }) {
  const [isReady, setIsReady] = useState(false);
+ const markReady = useCallback(() => setIsReady(true), []);
 
  return (
- <VaultInitializer onReady={() => setIsReady(true)}>
+ <VaultInitializer onReady={markReady}>
  {isReady ? children : <LoadingShell />}
  </VaultInitializer>
  );
@@ -23,10 +25,60 @@ function VaultInitializer({
  const initializeVault = useVaultStore((s) => s.initializeVault);
 
  useEffect(() => {
-   initializeVault().then(onReady).catch(() => onReady());
+   initializeVault().then(onReady).catch((error: unknown) => {
+     useVaultStore.setState({
+       sessionRestored: true,
+       sessionRestoreError: error instanceof Error ? error.message : "Could not open the vault.",
+     });
+     onReady();
+   });
  }, [initializeVault, onReady]);
 
- return <>{children}</>;
+ return (
+   <>
+     <VaultAutoLock />
+     {children}
+   </>
+ );
+}
+
+function VaultAutoLock() {
+ const isUnlocked = useVaultStore((s) => s.isUnlocked);
+ const autoLockMinutes = useVaultStore((s) => s.autoLockMinutes);
+ const lockOnBackground = useVaultStore((s) => s.lockOnBackground);
+ const lockVault = useVaultStore((s) => s.lockVault);
+
+ useEffect(() => {
+   if (!isUnlocked) return;
+   let cancelTimer = () => {};
+   const scheduleLock = () => {
+     cancelTimer();
+     cancelTimer = startAutoLockTimer(lockVault, autoLockMinutes);
+   };
+   const onActivity = () => scheduleLock();
+   const onBackground = () => {
+     if (lockOnBackground && document.visibilityState === "hidden") lockVault();
+   };
+   const onPageHide = () => {
+     if (lockOnBackground) lockVault();
+   };
+   scheduleLock();
+   window.addEventListener("pointerdown", onActivity);
+   window.addEventListener("keydown", onActivity);
+   window.addEventListener("touchstart", onActivity);
+   document.addEventListener("visibilitychange", onBackground);
+   window.addEventListener("pagehide", onPageHide);
+   return () => {
+     cancelTimer();
+     window.removeEventListener("pointerdown", onActivity);
+     window.removeEventListener("keydown", onActivity);
+     window.removeEventListener("touchstart", onActivity);
+     document.removeEventListener("visibilitychange", onBackground);
+     window.removeEventListener("pagehide", onPageHide);
+   };
+ }, [autoLockMinutes, isUnlocked, lockOnBackground, lockVault]);
+
+ return null;
 }
 
 function LoadingShell() {

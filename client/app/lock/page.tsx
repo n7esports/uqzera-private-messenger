@@ -3,151 +3,149 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useVaultStore } from "../../store/useVaultStore";
-import { verifyPasscode, recordFailedPasscodeAttempt, clearFailedPasscodeAttempts } from "../../src/lib/security";
+import { recordFailedLockAttempt } from "../../lib/dek";
 
 export default function LockPage() {
   const router = useRouter();
   const isUnlocked = useVaultStore((state) => state.isUnlocked);
+  const vaultExists = useVaultStore((state) => state.vaultExists);
   const sessionRestored = useVaultStore((state) => state.sessionRestored);
-  const sessionRestoreError = useVaultStore((state) => state.sessionRestoreError);
   const unlockVault = useVaultStore((state) => state.unlockVault);
-  const lockVault = useVaultStore((state) => state.lockVault);
-
-  const [passcode, setPasscode] = useState("");
+  const [lockType, setLockType] = useState<"pin" | "passphrase">("pin");
+  const [lockValue, setLockValue] = useState("");
+  const [showLockValue, setShowLockValue] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [lockedUntil, setLockedUntil] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    inputRef.current?.focus();
-  }, []);
+    if (!sessionRestored) return;
+    if (!vaultExists) router.replace("/onboarding");
+    else if (isUnlocked) router.replace("/chats");
+  }, [isUnlocked, router, sessionRestored, vaultExists]);
 
   useEffect(() => {
-    if (isUnlocked) {
-      router.replace("/chats");
-    }
-  }, [isUnlocked, router]);
+    inputRef.current?.focus();
+  }, [lockType]);
 
-  // Lockout timer
   useEffect(() => {
     if (!lockedUntil) return;
-    const tick = () => {
-      const remaining = Math.max(0, lockedUntil - Date.now());
-      if (!remaining) setLockedUntil(0);
-    };
-    tick();
-    const id = setInterval(tick, 250);
-    return () => clearInterval(id);
+    const timer = setInterval(() => {
+      if (Date.now() >= lockedUntil) setLockedUntil(0);
+    }, 250);
+    return () => clearInterval(timer);
   }, [lockedUntil]);
 
-  const remainingLockoutSecs = lockedUntil > 0 ? Math.ceil((lockedUntil - Date.now()) / 1000) : 0;
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (busy || lockedUntil > 0) return;
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    if (busy || lockedUntil > Date.now()) return;
     setError(null);
-
-    if (!/^\d{6}$/.test(passcode)) {
-      setError("Enter your 6-digit passcode.");
+    if (lockType === "pin" ? !/^\d{6}$/.test(lockValue) : lockValue.length < 8) {
+      setError(lockType === "pin" ? "Enter your 6-digit PIN." : "Enter your passphrase.");
       return;
     }
 
     setBusy(true);
     try {
-      const result = await verifyPasscode(passcode);
-      if (result === "primary" || result === "decoy") {
-        await clearFailedPasscodeAttempts();
-        await unlockVault();
-        return;
-      }
-      const failureState = await recordFailedPasscodeAttempt();
-      setPasscode("");
-      if (failureState.lockedUntil > Date.now()) {
-        setLockedUntil(failureState.lockedUntil);
-        setError(`Too many attempts. Try again in ${Math.ceil((failureState.lockedUntil - Date.now()) / 1000)} seconds.`);
+      await unlockVault(lockValue);
+    } catch (unlockError) {
+      if (unlockError instanceof DOMException && unlockError.name === "OperationError") {
+        setLockValue("");
+        try {
+          const delay = recordFailedLockAttempt();
+          if (delay > 0) setLockedUntil(Date.now() + delay);
+          setError("Wrong PIN or passphrase");
+        } catch {
+          setError("Could not save the failed-attempt counter. Check browser storage and try again.");
+        }
       } else {
-        setError("Incorrect passcode.");
+        setError("Could not unlock the vault. Check browser storage and try again.");
       }
-    } catch (verifyError) {
-      setError(verifyError instanceof Error ? verifyError.message : "Passcode verification failed.");
     } finally {
       setBusy(false);
     }
   }
 
-  function handleLogout() {
-    lockVault();
-    setPasscode("");
-    setError(null);
-    setLockedUntil(0);
-    inputRef.current?.focus();
-  }
-
   if (!sessionRestored) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-base">
-        <div className="bg-panel border border-default flex flex-col items-center gap-3 px-8 py-6">
-          <div className="h-2 w-2 rounded-full bg-primary" />
-          <p className="font-mono text-xs uppercase tracking-widest text-secondary">Restoring session</p>
-        </div>
-      </div>
-    );
+    return <p className="p-8 text-center text-sm text-secondary">Checking vault…</p>;
   }
 
-  if (!isUnlocked) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-base">
-        <div className="bg-panel border border-default w-full max-w-sm px-8 py-10">
-          <h1 className="font-sans text-2xl font-semibold tracking-tight text-primary">UQZERA</h1>
-          <p className="mt-2 text-sm text-secondary">Enter your 6-digit passcode to unlock.</p>
-          {sessionRestoreError && (
-            <p className="mt-2 text-sm text-error">{sessionRestoreError}</p>
-          )}
-          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-            <label className="block">
-              <span className="sr-only">Passcode</span>
-              <input
-                aria-label="Passcode"
-                autoComplete="off"
-                className="h-14 w-full rounded-xl border border-default bg-input text-center font-mono text-2xl tracking-[0.5em] text-primary outline-none focus:border-default focus:ring-2 focus:ring-accent-emerald/20"
-                disabled={busy || lockedUntil > 0}
-                inputMode="numeric"
-                maxLength={6}
-                onChange={(event) => setPasscode(event.target.value.replace(/\D/g, ""))}
-                pattern="[0-9]*"
-                ref={inputRef}
-                type="password"
-                value={passcode}
-              />
-            </label>
-            {lockedUntil > 0 && (
-              <p aria-live="polite" className="text-center text-sm text-error">
-                Locked for {remainingLockoutSecs} seconds.
-              </p>
-            )}
-            {error && (
-              <p aria-live="polite" role="alert" className="text-center text-sm text-error">{error}</p>
-            )}
-            <button
-              type="submit"
-              disabled={busy || lockedUntil > 0}
-              className="h-12 w-full rounded-xl accent-emerald py-3 text-sm font-medium transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
-            >
-              {busy ? "Checking…" : "Unlock"}
-            </button>
-          </form>
+  const remainingSeconds = Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000));
+  return (
+    <main className="flex h-screen w-full items-center justify-center bg-base px-4">
+      <section className="bg-panel border border-default w-full max-w-sm rounded-2xl px-8 py-10">
+        <h1 className="font-sans text-2xl font-semibold text-primary">Unlock your vault</h1>
+        <p className="mt-2 text-sm text-secondary">Enter your PIN or passphrase.</p>
+        <div className="mt-5 flex gap-2">
           <button
             type="button"
-            onClick={handleLogout}
-            className="mt-3 w-full rounded-xl border border-default bg-panel px-4 py-2 text-xs text-secondary transition hover:text-primary"
+            aria-pressed={lockType === "pin"}
+            onClick={() => { setLockType("pin"); setLockValue(""); setError(null); }}
+            className="flex-1 rounded-xl border border-default px-3 py-2 text-sm text-primary"
           >
-            Lock Vault
+            PIN
+          </button>
+          <button
+            type="button"
+            aria-pressed={lockType === "passphrase"}
+            onClick={() => { setLockType("passphrase"); setLockValue(""); setError(null); }}
+            className="flex-1 rounded-xl border border-default px-3 py-2 text-sm text-primary"
+          >
+            Passphrase
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return null;
+        <form className="mt-5 space-y-4" onSubmit={(event) => void handleSubmit(event)}>
+          <label className="block text-sm text-secondary">
+            {lockType === "pin" ? "6-digit PIN" : "Passphrase"}
+            <span className="mt-2 flex gap-2">
+              <input
+                ref={inputRef}
+                aria-label={lockType === "pin" ? "PIN" : "Passphrase"}
+                autoComplete="current-password"
+                disabled={busy || remainingSeconds > 0}
+                inputMode={lockType === "pin" ? "numeric" : undefined}
+                maxLength={lockType === "pin" ? 6 : undefined}
+                onChange={(event) => setLockValue(lockType === "pin"
+                  ? event.target.value.replace(/\D/g, "")
+                  : event.target.value)}
+                type={showLockValue ? "text" : "password"}
+                value={lockValue}
+                className="h-12 min-w-0 flex-1 rounded-xl border border-default bg-input px-4 text-primary"
+              />
+              {lockType === "passphrase" && (
+                <button
+                  type="button"
+                  onClick={() => setShowLockValue(!showLockValue)}
+                  className="rounded-xl border border-default px-3 text-sm text-primary"
+                >
+                  {showLockValue ? "Hide" : "Show"}
+                </button>
+              )}
+            </span>
+          </label>
+          {remainingSeconds > 0 && (
+            <p aria-live="polite" className="text-center text-sm text-error">
+              Try again in {remainingSeconds} seconds.
+            </p>
+          )}
+          {error && <p role="alert" className="text-center text-sm text-error">{error}</p>}
+          <button
+            type="submit"
+            disabled={busy || remainingSeconds > 0}
+            className="h-12 w-full rounded-xl accent-emerald text-sm font-medium disabled:opacity-50"
+          >
+            {busy ? "Unlocking…" : "Unlock"}
+          </button>
+        </form>
+        <button
+          type="button"
+          onClick={() => router.push("/unlock/recovery")}
+          className="mt-5 w-full text-sm text-secondary underline"
+        >
+          Forgot PIN or passphrase?
+        </button>
+      </section>
+    </main>
+  );
 }

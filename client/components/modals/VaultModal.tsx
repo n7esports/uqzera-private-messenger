@@ -18,7 +18,7 @@ export function VaultModal() {
  const handleUnlock = async () => {
  setError(null);
  try {
- await useVaultStore.getState().unlockVault();
+ await useVaultStore.getState().unlockVault(passphrase);
  setVaultModalOpen(false);
  setPassphrase("");
  } catch {
