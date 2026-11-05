@@ -21,8 +21,8 @@ export default function AcceptContactModal({ open, senderEncryptionPubKey, packe
   const handleSave = async () => {
     setError(null);
     const trimmed = nickname.trim();
-    if (!trimmed) {
-      setError("Enter a nickname.");
+    if (trimmed.length < 1 || trimmed.length > 40) {
+      setError("Nickname must be 1–40 characters.");
       return;
     }
     setSaving(true);
@@ -52,6 +52,7 @@ export default function AcceptContactModal({ open, senderEncryptionPubKey, packe
             <span className="text-xs font-medium text-on-surface-variant">Nickname</span>
             <input
               value={nickname}
+              maxLength={40}
               onChange={(e) => setNickname(e.target.value)}
               placeholder="How you know them"
               className="w-full rounded-xl border border-hairline bg-surface-container px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary"

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useVaultStore } from "../../store/useVaultStore";
 import { encodeBytes } from "../../lib/protocol";
 import IconCopy from "../icons/IconCopy";
+import BoxQRCode from "../icons/BoxQRCode";
 
 export function MyIdentityModal({
   open,
@@ -112,7 +113,7 @@ export function MyIdentityModal({
           {/* Public key with copy */}
           {publicKey && (
             <div>
-              <p className="mb-1 text-xs font-medium text-on-surface-variant">PUBLIC KEY • X25519</p>
+              <p className="mb-1 text-xs font-medium text-on-surface-variant">SHARE ID • X25519</p>
               <div className="flex items-center gap-2 rounded-xl border border-hairline bg-surface px-3 py-2">
                 <code className="flex-1 truncate font-mono text-xs text-on-surface break-all">
                   {publicID}
@@ -120,10 +121,13 @@ export function MyIdentityModal({
                 <button
                   onClick={handleCopy}
                   className="rounded-lg p-1.5 text-primary transition hover:bg-surface-high"
-                  title="Copy public key"
+                  title="Copy share ID"
                 >
                   <IconCopy size={16} />
                 </button>
+              </div>
+              <div className="mt-3 flex justify-center">
+                <BoxQRCode payload={publicID} size={160} />
               </div>
               {copied && (
                 <p className="mt-1 text-xs text-primary">Copied to clipboard.</p>

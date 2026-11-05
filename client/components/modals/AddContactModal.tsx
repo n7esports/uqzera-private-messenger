@@ -1,11 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
-import QRCode from "qrcode";
+import { useState, useEffect, useCallback } from "react";
 import { useChatStore } from "../../store/useChatStore";
 import { useVaultStore } from "../../store/useVaultStore";
-import { initCrypto } from "../../lib/crypto";
-import { encodeBytes } from "../../lib/protocol";
+import { decodeBytes, encodeBytes } from "../../lib/protocol";
 import IconCopy from "../icons/IconCopy";
 import BoxQRCode from "../icons/BoxQRCode";
 
@@ -19,67 +17,17 @@ export default function AddContactModal({
   const [tab, setTab] = useState<"mycode" | "add">("mycode");
   const [hexKey, setHexKey] = useState("");
   const [nickname, setNickname] = useState("");
-  const [myCodeKey, setMyCodeKey] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const identity = useVaultStore((s) => s.identity);
+  const chats = useChatStore((s) => s.chats);
   const addContact = useChatStore((s) => s.addContact);
   const showToast = useChatStore((s) => s.showToast);
-
-  // Generate "My Code" QR whenever identity is available
-  useEffect(() => {
-    if (!open || tab !== "mycode" || !identity) return;
-    (async () => {
-      await initCrypto();
-      const hex = encodeBytes(identity.encryptionPublicKey);
-      const payload = `cloak:${hex}`;
-      setMyCodeKey(hex);
-      // Draw rounded-dot QR to canvas
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const size = 256;
-      const moduleCount = 25;
-      const margin = 2;
-      const totalModules = moduleCount + margin * 2;
-      const cellSize = size / totalModules;
-      const dotRadius = cellSize * 0.45;
-      canvas.width = size;
-      canvas.height = size;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      // Background
-      const surface = getComputedStyle(document.documentElement)
-        .getPropertyValue("--surface")
-        .trim();
-      ctx.fillStyle = surface;
-      ctx.fillRect(0, 0, size, size);
-      // Generate QR matrix
-      const qr = QRCode.create(payload, {
-        errorCorrectionLevel: "H",
-        margin,
-      } as any);
-      const modules = qr.modules.data;
-      const qrSize = qr.modules.size;
-      const primary = getComputedStyle(document.documentElement)
-        .getPropertyValue("--primary")
-        .trim();
-      ctx.fillStyle = primary;
-      for (let row = 0; row < qrSize; row++) {
-        for (let col = 0; col < qrSize; col++) {
-          if (modules[row * qrSize + col]) {
-            const cx = (col + margin) * cellSize + cellSize / 2;
-            const cy = (row + margin) * cellSize + cellSize / 2;
-            ctx.beginPath();
-            ctx.arc(cx, cy, dotRadius, 0, Math.PI * 2);
-            ctx.fill();
-          }
-        }
-      }
-    })();
-  }, [open, tab, identity]);
+  const myCodeID = identity
+    ? `uqz1.${encodeBytes(identity.encryptionPublicKey)}`
+    : "";
 
   // Reset when opening
   useEffect(() => {
@@ -89,35 +37,58 @@ export default function AddContactModal({
       setNickname("");
       setCopied(false);
       setSaving(false);
+      setError(null);
     }
   }, [open]);
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(myCodeKey);
+      await navigator.clipboard.writeText(myCodeID);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
       // ignore
     }
-  }, [myCodeKey]);
+  }, [myCodeID]);
 
   const handleSaveContact = async () => {
     setError(null);
-    const trimmed = hexKey.trim()
-      .replace(/[\s\u200B-\u200D\uFEFF]/g, "")
-      .replace(/^(?:cloak:|uqz1\.)/i, "");
-    if (!trimmed || trimmed.length < 43) {
-      setError("Enter a valid Base64 public key.");
+    const alias = nickname.trim();
+    if (alias.length < 1 || alias.length > 40) {
+      setError("Nickname must be 1–40 characters.");
       return;
     }
-    if (!nickname.trim()) {
-      setError("Enter a nickname.");
+    const pastedKey = hexKey.trim().replace(/[\s\u200B-\u200D\uFEFF]/g, "");
+    const isShareID = /^uqz1\./i.test(pastedKey);
+    const encodedKey = pastedKey.replace(/^(?:cloak:|uqz1\.)/i, "");
+    let publicKey: Uint8Array;
+    try {
+      publicKey = !isShareID && /^[0-9a-f]{64}$/i.test(encodedKey)
+        ? Uint8Array.from(encodedKey.match(/.{2}/g) ?? [], (byte) => Number.parseInt(byte, 16))
+        : decodeBytes(encodedKey);
+    } catch {
+      setError("Enter a valid uqz1. ID or public key.");
+      return;
+    }
+    if (publicKey.length !== 32) {
+      setError("Enter a valid uqz1. ID or public key.");
+      return;
+    }
+    if (
+      identity &&
+      publicKey.every((byte, index) => byte === identity.encryptionPublicKey[index])
+    ) {
+      setError("You cannot add your own identity as a contact.");
+      return;
+    }
+    const normalizedKey = encodeBytes(publicKey);
+    if (chats.some((chat) => chat.recipientPubKey === normalizedKey)) {
+      setError("This contact is already in your contacts.");
       return;
     }
     setSaving(true);
     try {
-      const chat = await addContact(nickname.trim(), trimmed);
+      const chat = await addContact(alias, normalizedKey);
       showToast({ id: crypto.randomUUID(), message: `Contact "${chat.alias}" added.`, type: "success" });
       setHexKey("");
       setNickname("");
@@ -190,16 +161,16 @@ export default function AddContactModal({
             <div className="flex flex-col items-center gap-4">
               {/* QR with center IconKey */}
               <div className="relative rounded-xl border border-hairline bg-surface-container p-3">
-                {myCodeKey && (
-                  <BoxQRCode payload={`cloak:${myCodeKey}`} size={192} />
+                {myCodeID && (
+                  <BoxQRCode payload={myCodeID} size={192} />
                 )}
               </div>
 
-              {/* Hex key + copy */}
-              {myCodeKey && (
+              {/* Share ID + copy */}
+              {myCodeID && (
                 <div className="flex w-full items-center gap-2 rounded-xl border border-hairline bg-surface-container px-3 py-2">
                   <code className="flex-1 truncate font-mono text-xs text-on-surface">
-                    {myCodeKey}
+                    {myCodeID}
                   </code>
                   <button
                     onClick={handleCopy}
@@ -219,7 +190,7 @@ export default function AddContactModal({
             <div className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-medium text-on-surface-variant">
-                  Contact Public Key (Base64)
+                  Contact Share ID or Public Key
                 </span>
                 <div className="flex gap-2">
                   <input
@@ -228,30 +199,6 @@ export default function AddContactModal({
                     placeholder="uqz1. ID or Base64 public key"
                     className="flex-1 rounded-xl border border-hairline bg-surface-container px-3 py-2.5 font-mono text-sm text-on-surface outline-none focus:border-primary"
                   />
-                  <button
-                    type="button"
-                    onClick={() => alert("QR scanning would open the device camera here.")}
-                    className="rounded-xl border border-hairline bg-surface-container px-3 py-2.5 text-on-surface-variant transition hover:border-primary hover:text-primary"
-                    title="Scan QR Code"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="3" width="7" height="7" rx="1" />
-                      <rect x="14" y="3" width="7" height="7" rx="1" />
-                      <rect x="3" y="14" width="7" height="7" rx="1" />
-                      <path d="M21 14v3a2 2 0 0 1-2 2h-3" />
-                      <path d="M14 21h-3a2 2 0 0 1-2-2v-3" />
-                    </svg>
-                  </button>
                 </div>
               </label>
 
@@ -261,6 +208,7 @@ export default function AddContactModal({
                 </span>
                 <input
                   value={nickname}
+                  maxLength={40}
                   onChange={(e) => setNickname(e.target.value)}
                   placeholder="How you know them"
                   className="w-full rounded-xl border border-hairline bg-surface-container px-3 py-2.5 text-sm text-on-surface outline-none focus:border-primary"
