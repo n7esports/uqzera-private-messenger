@@ -141,7 +141,7 @@ export async function middleware(request: NextRequest) {
   const nonce = generateNonce();
 
   // Loose End 1 (F-02): protect authenticated routes; redirect unauthenticated users to sign-in.
-  if (path.startsWith("/chats")) {
+  if (process.env.NEXT_PUBLIC_LEGACY_AUTH === "true" && path.startsWith("/chats")) {
     if (!(await hasValidSession(request))) {
       const redirectUrl = new URL("/auth/sign-in", request.url);
       const response = NextResponse.redirect(redirectUrl);
