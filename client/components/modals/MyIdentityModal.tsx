@@ -24,7 +24,11 @@ export function MyIdentityModal({
     if (!identity) return "";
     return encodeBytes(identity.encryptionPublicKey);
   }, [identity]);
-  const publicID = publicKey ? `uqz1.${publicKey}` : "";
+  const publicID = identity
+    ? `uqz1.${[...identity.encryptionPublicKey, ...identity.signingPublicKey]
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("")}`
+    : "";
 
   // QR payload rotates on a 5-minute timer so the canvas re-renders with a
   // fresh timestamp. shortcut: visible QR doesn't change, only the embedded ts.
