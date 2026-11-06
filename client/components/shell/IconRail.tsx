@@ -1,33 +1,23 @@
 "use client";
 
-import { useVaultStore } from "../../store/useVaultStore";
 import IconSearch from "../icons/IconSearch";
 import IconChat from "../icons/IconChat";
 import IconSettings from "../icons/IconSettings";
 
-export default function IconRail() {
-  const profile = useVaultStore((state) => state.profile);
-
-  const initials = (alias: string) =>
-    alias
-      .split(/\s+/)
-      .map((word) => word[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
-
+export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
   return (
     <nav
       aria-label="Icon rail"
       className="flex h-screen w-16 flex-col items-center gap-2 border-r border-border bg-transparent py-3 glass"
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-sm font-semibold text-white">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent border border-border text-sm font-semibold text-white">
         U
       </div>
       <div className="my-1 h-px w-8 bg-border" />
       <button
         type="button"
         aria-label="Search chats"
+        onClick={onSearchClick}
         className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
       >
         <IconSearch size={18} />
@@ -47,13 +37,6 @@ export default function IconRail() {
         >
           <IconSettings size={18} />
         </a>
-        <button
-          type="button"
-          aria-label="Profile"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-panel text-xs font-medium text-text-primary"
-        >
-          {initials(profile?.name ?? "")}
-        </button>
       </div>
     </nav>
   );

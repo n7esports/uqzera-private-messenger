@@ -9,6 +9,7 @@ import IconSettings from "../icons/IconSettings";
 import AddContactModal from "../modals/AddContactModal";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
+import Image from "next/image";
 import ChatList from "../chatList/ChatList";
 import IconRail from "./IconRail";
 
@@ -39,6 +40,7 @@ export default function AppShell({
   const isUnlocked = useVaultStore((s) => s.isUnlocked);
   const profile = useVaultStore((s) => s.profile);
   const loadChats = useChatStore((s: ChatState) => s.loadChats);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -57,26 +59,22 @@ export default function AppShell({
 
   return (
     <div className="flex h-screen w-full">
-      <IconRail />
+      <IconRail onSearchClick={() => searchInputRef.current?.focus()} />
       <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col glass">
         {/* Logo / brand */}
-      <div className="flex h-14 items-center gap-3 bg-bg-sidebar px-4">
-        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#dfe2ee"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
+      <div className="flex h-14 items-center justify-between gap-3 bg-bg-sidebar px-4 glass">
+        <div className="flex items-center gap-3">
+          <Image src="/logo-withoutbg.png" alt="UQZERA" width={28} height={28} />
+          <span className="text-base font-semibold text-text-primary">UQZERA</span>
         </div>
-        <span className="text-base font-semibold text-text-primary">UQZERA</span>
+        <button
+          type="button"
+          aria-label="New chat"
+          onClick={() => setShowAddContact(true)}
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
+        >
+          <IconPlus size={18} />
+        </button>
       </div>
 
       {/* Divider after logo */}
@@ -92,6 +90,7 @@ export default function AppShell({
             className="text-text-secondary"
           />
           <input
+            ref={searchInputRef}
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

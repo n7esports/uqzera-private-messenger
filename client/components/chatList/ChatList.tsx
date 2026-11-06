@@ -331,19 +331,21 @@ export default function ChatList({
         )}
       </section>
 
-      <details className="group border-t border-hairline">
-        <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs font-semibold text-on-surface-variant hover:bg-surface">
-          <span>Archived</span>
-          <span>{archivedChats.length}</span>
-        </summary>
-        {archivedChats.length === 0 ? (
-          <p className="px-4 pb-3 text-xs text-on-surface-variant">
-            No archived chats
-          </p>
-        ) : (
-          <ul>{archivedChats.map(renderChat)}</ul>
-        )}
-      </details>
+      {archivedChats.length > 0 && (
+        <details className="group border-t border-hairline">
+          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs font-semibold text-on-surface-variant hover:bg-surface">
+            <span>Archived</span>
+            <span>{archivedChats.length}</span>
+          </summary>
+          {archivedChats.length === 0 ? (
+            <p className="px-4 pb-3 text-xs text-on-surface-variant">
+              No archived chats
+            </p>
+          ) : (
+            <ul>{archivedChats.map(renderChat)}</ul>
+          )}
+        </details>
+      )}
     </div>
   );
 }
