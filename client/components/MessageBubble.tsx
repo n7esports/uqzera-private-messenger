@@ -88,16 +88,16 @@ export default function MessageBubble({
           </div>
         )}
 
-        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-text-primary">
+        <p className="whitespace-pre-wrap break-words text-[14px] leading-relaxed text-text-primary">
           {message.content}
         </p>
 
         <div className="mt-1 flex items-center justify-end gap-2">
           {isMe && <DeliveryStatus status={status} />}
-          <span className="text-[10px] text-text-secondary">
+          <span className="text-[13px] text-text-secondary tabular-nums">
             {isMe ? "You" : message.senderPubKey.slice(0, 8)}
           </span>
-          <span className="text-[10px] text-text-secondary">
+          <span className="text-[13px] text-text-secondary tabular-nums">
             {new Date(message.timestamp).toLocaleTimeString([], {
               hour: "numeric",
               minute: "2-digit",
