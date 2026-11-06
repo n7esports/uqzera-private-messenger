@@ -139,7 +139,7 @@ export default function OnboardingPage() {
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-base px-4 py-8">
-      <section className="bg-panel border border-default w-full max-w-xl rounded-2xl px-8 py-10">
+      <section className="bg-panel border border-default w-full max-w-[400px] rounded-2xl px-6 py-8">
         {step === "welcome" && (
           <>
             <h1 className="font-sans text-2xl font-semibold text-primary">Welcome to UQZERA</h1>

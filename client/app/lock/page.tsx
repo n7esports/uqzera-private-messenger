@@ -74,7 +74,7 @@ export default function LockPage() {
   const remainingSeconds = Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000));
   return (
     <main className="flex h-screen w-full items-center justify-center bg-base px-4">
-      <section className="bg-panel border border-default w-full max-w-sm rounded-2xl px-8 py-10">
+      <section className="bg-panel border border-default w-full max-w-[400px] rounded-2xl px-6 py-8">
         <h1 className="font-sans text-2xl font-semibold text-primary">Unlock your vault</h1>
         <p className="mt-2 text-sm text-secondary">Enter your PIN or passphrase.</p>
         <div className="mt-5 flex gap-2">
