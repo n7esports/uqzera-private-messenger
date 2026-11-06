@@ -185,9 +185,9 @@ export function ChatView({
         </div>
       )}
 
-      <div className="flex-shrink-0 border-t border-border-default bg-surface">
+      <div className="flex-shrink-0 border-t border-border bg-bg-sidebar">
         {replyTo && (
-          <div className="flex items-center gap-2 border-b border-border-default bg-surface/40 px-4 py-2">
+          <div className="flex items-center gap-2 border-b border-border bg-bg-sidebar px-4 py-2">
             <IconReply size={14} />
             <span className="flex-1 truncate text-xs text-text-secondary">
               Replying to {replyTo.alias}: {replyTo.excerpt}
@@ -195,50 +195,45 @@ export function ChatView({
             <button
               onClick={() => setReplyTo(null)}
               aria-label="Cancel reply"
-              className="rounded p-1 hover:bg-surface-high"
+              className="rounded p-1 hover:bg-bg-hover"
             >
               <IconX size={14} />
             </button>
           </div>
         )}
-        <div className="p-4">
-          <div className="flex items-end gap-2">
-            <button
-              onClick={cycleEphemeralTtl}
-              title="Ephemeral TTL"
-              className="rounded-lg border border-border-default bg-surface-container p-2 text-xs text-text-secondary transition hover:text-text-primary"
-            >
-              <IconClock size={16} />
-            </button>
-            <textarea
-              value={content}
-              onChange={(event) => {
-                setContent(event.target.value);
-                broadcastTyping(chatId, true);
-              }}
-              aria-label="Message"
-              placeholder="Write encrypted message..."
-              rows={1}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  void handleSend();
-                }
-              }}
-              className="h-11 flex-1 resize-none rounded-[10px] border border-border-default bg-surface-container px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary"
-            />
-            <button
-              onClick={() => void handleSend()}
-              disabled={!content.trim()}
-              aria-label="Send message"
-              className="h-11 rounded-[10px] bg-emerald-500 px-4 text-sm font-medium text-white transition hover:bg-emerald-600 disabled:opacity-40"
-            >
-              <span className="flex items-center gap-1.5">
-                <IconSend size={16} />
-                Send
-              </span>
-            </button>
-          </div>
+        <div className="flex items-center gap-2 px-4 py-2">
+          <button
+            onClick={cycleEphemeralTtl}
+            title="Ephemeral TTL"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
+          >
+            <IconClock size={16} />
+          </button>
+          <textarea
+            value={content}
+            onChange={(event) => {
+              setContent(event.target.value);
+              broadcastTyping(chatId, true);
+            }}
+            aria-label="Message"
+            placeholder="Write encrypted message..."
+            rows={1}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                void handleSend();
+              }
+            }}
+            className="h-10 flex-1 resize-none rounded-[20px] border-0 bg-bg-panel px-4 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:ring-2 focus:ring-accent"
+          />
+          <button
+            onClick={() => void handleSend()}
+            disabled={!content.trim()}
+            aria-label="Send message"
+            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent text-white transition hover:bg-accent-hover disabled:opacity-40"
+          >
+            <IconSend size={16} />
+          </button>
         </div>
       </div>
     </div>
