@@ -157,20 +157,18 @@ export default function ChatList({
             type="button"
             onClick={() => selectChat(chat.id)}
             aria-pressed={activeChatId === chat.id}
-            className={`flex min-w-0 flex-1 items-center gap-3 px-4 py-3 text-left transition ${
-              activeChatId === chat.id
-                ? "bg-surface-high"
-                : "hover:bg-surface"
+            className={`flex h-[72px] min-w-0 flex-1 items-center gap-3 px-4 py-0 text-left transition focus:ring-2 focus:ring-accent ${
+              activeChatId === chat.id ? "bg-bg-selected" : "hover:bg-bg-hover"
             }`}
           >
-            <span className="relative flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-surface-high">
-              <span className="text-sm font-semibold text-on-surface">
+            <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">
+              <span className="text-base font-medium text-text-primary">
                 {initials(chat.alias)}
               </span>
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">
-                <span className="flex min-w-0 items-center gap-1 truncate text-sm font-semibold text-on-surface">
+                <span className="flex min-w-0 items-center gap-1 truncate text-base font-normal text-text-primary">
                   <span className="truncate">{chat.alias}</span>
                   {muted && (
                     <span title="Muted" aria-label="Muted" className="flex-shrink-0">
@@ -181,19 +179,19 @@ export default function ChatList({
                 <time
                   dateTime={new Date(timestamp).toISOString()}
                   aria-label={`${chat.alias} last message time`}
-                  className="flex-shrink-0 text-[10px] text-on-surface-variant"
+                  className="flex-shrink-0 text-xs tabular-nums text-text-secondary"
                 >
                   {formatTime(timestamp)}
                 </time>
               </span>
               <span className="mt-0.5 flex items-center justify-between gap-2">
-                <span className="truncate text-xs text-on-surface-variant">
+                <span className="truncate text-sm text-text-secondary">
                   {lastMessage?.outgoing ? `You: ${preview}` : preview}
                 </span>
                 {chat.unreadCount > 0 && (
                   <span
                     aria-label={`${chat.unreadCount} unread messages`}
-                    className="flex-shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-on-primary"
+                    className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-white"
                   >
                     {chat.unreadCount > 99 ? "99+" : chat.unreadCount}
                   </span>
