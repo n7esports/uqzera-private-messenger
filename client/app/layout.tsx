@@ -1,9 +1,17 @@
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { Inter } from "next/font/google";
 import { Providers } from "./providers";
 import "./globals.css";
 import "../styles/tokens.css";
 import CookieConsent from "@/components/CookieConsent";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  weight: ["400", "500", "600"],
+});
 
 export const metadata: Metadata = {
   title: "UQZERA",
@@ -22,7 +30,7 @@ export default async function RootLayout({
   const nonce = (await headers()).get("x-nonce");
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={`dark ${inter.variable}`}>
       <head>
         {nonce && <meta name="x-nonce" content={nonce} />}
       </head>
