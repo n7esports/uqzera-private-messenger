@@ -12,10 +12,13 @@ class MockWebSocket {
   onopen: (() => void) | null = null;
   onclose: (() => void) | null = null;
   onerror: (() => void) | null = null;
-  onmessage: ((event: { data: unknown }) => void) | null = null;
+  onmessage: ((_event: { data: unknown }) => void) | null = null;
   send = vi.fn();
 
-  constructor(readonly url: string) {
+  readonly url: string;
+
+  constructor(url: string) {
+    this.url = url;
     MockWebSocket.instances.push(this);
   }
 
@@ -36,6 +39,27 @@ class MockWebSocket {
 
 function sentMessages(socket: MockWebSocket): Array<Record<string, string>> {
   return socket.send.mock.calls.map(([message]) => JSON.parse(message as string));
+}
+
+function makeSignedEnvelopePacket(
+  id: string,
+  recipientPubKey: string,
+): Record<string, unknown> {
+  return {
+    type: "message",
+    id,
+    senderPubKey: `uqz1.${"b2".repeat(64)}`,
+    senderEncryptionPubKey: `uqz1.${"c3".repeat(64)}`,
+    signature: "test-signature",
+    envelope: {
+      recipientPubKey,
+      ephemeralPubKey: `uqz1.${"d4".repeat(64)}`,
+      nonce: "test-nonce",
+      ciphertext: "test-ciphertext",
+      timestamp: 1_800_000_000_000,
+      counter: 0,
+    },
+  };
 }
 
 beforeEach(() => {
@@ -70,27 +94,36 @@ describe("WebSocketRelayClient", () => {
     const onMessage = vi.fn();
     client.subscribe("channel-1", onMessage);
     const socket = MockWebSocket.instances[0];
+    const packet = makeSignedEnvelopePacket("message-1", "channel-1");
 
     expect(socket.url).toBe("wss://relay.example.test");
     socket.open();
     await connection;
-    await client.publish("channel-1", "sealed-data");
-    await client.ack("message-1");
-    const envelope = {
-      id: "message-1",
-      type: "msg",
-      fromShareKey: `uqz1.${"a1".repeat(64)}`,
-      body: { sealed: "sealed-data" },
-      ts: 1_800_000_000_000,
-    };
-    socket.message(JSON.stringify({ type: "message", channelId: "channel-1", envelope }));
+    const publish = client.publish("channel-1", JSON.stringify(packet));
+    const publishRequest = sentMessages(socket)[1];
+    socket.message(JSON.stringify({ id: publishRequest.id, status: "ok" }));
+    await publish;
+    socket.message(JSON.stringify({ type: "message", packet }));
+    const acknowledge = client.ack("message-1");
+    const ackRequest = sentMessages(socket)[2];
+    socket.message(JSON.stringify({ id: ackRequest.id, status: "ok" }));
+    await acknowledge;
 
     expect(sentMessages(socket)).toEqual([
-      { type: "subscribe", channelId: "channel-1" },
-      { type: "publish", channelId: "channel-1", sealed: "sealed-data" },
-      { type: "ack", msgId: "message-1" },
+      {
+        type: "subscribe",
+        id: expect.any(String),
+        recipientPubKey: "channel-1",
+      },
+      { type: "publish", id: expect.any(String), packet },
+      {
+        type: "ack",
+        id: expect.any(String),
+        messageId: "message-1",
+        recipientPubKey: "channel-1",
+      },
     ]);
-    expect(onMessage).toHaveBeenCalledWith("sealed-data");
+    expect(onMessage).toHaveBeenCalledWith(JSON.stringify(packet));
   });
 
   it("reports connection status changes and lets listeners unsubscribe", () => {
@@ -130,19 +163,23 @@ describe("WebSocketRelayClient", () => {
     expect(MockWebSocket.instances).toHaveLength(3);
     MockWebSocket.instances[2].open();
     expect(sentMessages(MockWebSocket.instances[2])).toEqual([
-      { type: "subscribe", channelId: "channel-1" },
+      {
+        type: "subscribe",
+        id: expect.any(String),
+        recipientPubKey: "channel-1",
+      },
     ]);
   });
 
-  it("queues publishes while connecting and flushes them after reconnecting", () => {
+  it("rejects publishes while connecting", async () => {
     const client = new WebSocketRelayClient("wss://relay.example.test");
-    client.publish("channel-1", "sealed-data");
+    const packet = makeSignedEnvelopePacket("message-1", "channel-1");
+    const publish = client.publish("channel-1", JSON.stringify(packet));
     const socket = MockWebSocket.instances[0];
 
+    await expect(publish).rejects.toThrow("Relay is not connected.");
     socket.open();
 
-    expect(sentMessages(socket)).toEqual([
-      { type: "publish", channelId: "channel-1", sealed: "sealed-data" },
-    ]);
+    expect(sentMessages(socket)).toEqual([]);
   });
 });

@@ -18,7 +18,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../../store/useChatStore", () => ({
-  useChatStore: (selector: (state: Record<string, unknown>) => unknown) =>
+  useChatStore: (selector: (_state: Record<string, unknown>) => unknown) =>
     selector({
       ...mocks.state,
       setActiveChat: mocks.setActiveChat,

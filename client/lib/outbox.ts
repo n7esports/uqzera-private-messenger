@@ -3,6 +3,7 @@ import {
   getOutboxRetryDelay,
   hasOutboxExpired,
   OutboxStatus,
+  OUTBOX_STATUSES,
 } from "./contracts/outbox";
 import {
   findEncryptedRowsByScope,
@@ -41,7 +42,7 @@ function isOutboxItem(value: unknown): value is OutboxItem {
     "recipientPubKey" in value.packet.envelope &&
     typeof value.packet.envelope.recipientPubKey === "string" &&
     "status" in value &&
-    Object.values(OutboxStatus).includes(value.status as OutboxStatus) &&
+    OUTBOX_STATUSES.includes(value.status as (typeof OUTBOX_STATUSES)[number]) &&
     "attempts" in value &&
     typeof value.attempts === "number" &&
     Number.isSafeInteger(value.attempts) &&
@@ -57,9 +58,9 @@ function isOutboxItem(value: unknown): value is OutboxItem {
 
 export class EncryptedOutbox {
   private readonly dek: Uint8Array;
-  private readonly publish: (packet: SignedEnvelope) => Promise<void>;
-  private readonly onPublished: (messageId: string) => void;
-  private readonly onFailed: (messageId: string) => void;
+  private readonly publish: (_packet: SignedEnvelope) => Promise<void>;
+  private readonly onPublished: (_messageId: string) => void;
+  private readonly onFailed: (_messageId: string) => void;
   private items: OutboxItem[] = [];
   private loaded = false;
   private started = false;
@@ -69,10 +70,10 @@ export class EncryptedOutbox {
 
   constructor(
     dek: Uint8Array,
-    publish: (packet: SignedEnvelope) => Promise<void>,
+    publish: (_packet: SignedEnvelope) => Promise<void>,
     callbacks: {
-      onPublished?: (messageId: string) => void;
-      onFailed?: (messageId: string) => void;
+      onPublished?: (_messageId: string) => void;
+      onFailed?: (_messageId: string) => void;
     } = {},
   ) {
     this.dek = dek.slice();
