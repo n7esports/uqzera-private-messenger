@@ -41,7 +41,7 @@ export type GuideSection = {
 };
 
 export const guideIntro =
-  "Hi, I'm your UQZERA guide. There is no sign-up, no passphrase and no account — the app opens straight into your encrypted chats. Everything below is grouped so you can find a feature fast.";
+  "Hi, I'm your UQZERA guide. There is no sign-up and no account — your vault is protected by a 6-digit PIN or passphrase. Everything below is grouped so you can find a feature fast.";
 
 export const guideSections: GuideSection[] = [
   {
@@ -70,18 +70,18 @@ export const guideSections: GuideSection[] = [
   },
   {
     heading: "Your vault",
-    caption: "No passphrase, encrypted on this device",
+    caption: "PIN or passphrase, encrypted on this device",
     items: [
       {
         icon: IconLock,
-        title: "Opens without a passphrase",
-        body: "There is no login screen. UQZERA creates a random device key the first time you open it and unlocks your vault silently, so your chats stay encrypted at rest.",
+        title: "Vault lock",
+        body: "Your vault is protected by a 6-digit PIN (default) or a passphrase of 8+ characters. Enter it on the lock screen to unlock. If you forget it, use your 24-word recovery phrase.",
         action: { label: "Lock now", href: "/lock" },
       },
       {
         icon: IconKey,
         title: "Your keys never leave",
-        body: "Your identity is generated here and never uploaded. The device key in this browser encrypts your identity, chats, notes and attachments.",
+        body: "Your identity is generated here and never uploaded. Your vault stays encrypted at rest on this device.",
       },
       {
         icon: IconDevice,
@@ -97,7 +97,7 @@ export const guideSections: GuideSection[] = [
       {
         icon: IconTimer,
         title: "Self-destructing messages",
-        body: "Attach a timer when you send (5s to 7 days). The message deletes itself from both sides once the countdown ends.",
+        body: "Attach a timer when you send (1 minute to 1 hour, or Off). The message deletes itself from both sides once the countdown ends.",
         action: { label: "Compose with a timer", href: "/chats?compose=1&timer=60000" },
       },
       {
