@@ -22,7 +22,7 @@ export function Header({
  const meta = STATUS_META[relayStatus] || STATUS_META.disconnected;
 
  return (
- <header className="flex items-center justify-between border-b border-outline-variant/60 bg-surface/40 px-4 py-3 backdrop-blur-md">
+ <header className="flex items-center justify-between border-b border-border bg-surface/40 px-4 py-3 backdrop-blur-md">
  <div className="flex items-center gap-3">
  {onMenuClick && (
  <button

@@ -93,7 +93,7 @@ export default function ChatMenu({ chatId, onClose }: ChatMenuProps) {
         <div
           role="menu"
           aria-label={`Chat options for ${chat.alias}`}
-          className="absolute right-0 z-30 mt-1 min-w-48 rounded-lg border border-border-default bg-surface p-2 shadow-lg"
+          className="absolute right-0 z-30 mt-1 min-w-48 rounded-lg border border-border bg-surface p-2 shadow-lg"
         >
           <button
             type="button"

@@ -132,7 +132,7 @@ export function ChatView({
         <button
           onClick={cycleEphemeralTtl}
           title="Click to change TTL"
-          className="inline-flex items-center gap-1.5 rounded-full border border-border-default bg-surface-container px-3 py-1 text-xs text-text-secondary transition hover:bg-surface-high"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-container px-3 py-1 text-xs text-text-secondary transition hover:bg-surface-high"
         >
           <IconClock size={12} />
           Messages auto-shred after{" "}

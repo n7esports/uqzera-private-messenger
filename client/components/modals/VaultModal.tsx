@@ -89,7 +89,7 @@ export function VaultModal() {
  </button>
  </div>
 
- <div className="mt-4 border-t border-outline-variant/60 pt-4">
+ <div className="mt-4 border-t border-border pt-4">
  <p className="text-xs uppercase tracking-widest text-outline">
  Danger zone
  </p>
