@@ -94,34 +94,35 @@ export function ChatView({
 
   return (
     <div className="flex h-full w-full flex-col bg-surface">
-      <header className="flex items-center justify-between border-b border-border-default bg-surface px-4 py-3">
+      <header className="flex h-14 items-center justify-between border-b border-border bg-bg-sidebar px-4">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
               onClick={onBack}
-              className="rounded-lg border border-border-default px-2 py-1 text-xs text-text-secondary md:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
             >
-              Back
+              <span className="text-lg">←</span>
             </button>
           )}
-          <div className="flex items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-on-surface">{chat.alias}</h3>
-            <span className="inline-block h-2.5 w-2.5 rounded-full bg-primary" title="Online" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-sm font-medium text-text-primary">
+            {chat.alias.slice(0, 2).toUpperCase()}
           </div>
-          <span className="text-xs text-on-surface-variant">E2EE Direct</span>
-          <span className="text-[10px] text-on-surface-variant">
-            Last seen{" "}
-            {new Date(chat.updatedAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-medium text-text-primary">{chat.alias}</h3>
+            <p className="truncate text-xs text-text-secondary">
+              E2EE Direct · Last seen{" "}
+              {new Date(chat.updatedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="rounded-md p-2 hover:bg-surface-high" title="Search messages">
+          <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="Search messages">
             <IconSearch size={18} />
           </button>
-          <button className="rounded-md p-2 hover:bg-surface-high" title="More options">
+          <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="More options">
             <IconMoreVertical size={18} />
           </button>
         </div>
@@ -224,13 +225,13 @@ export function ChatView({
                   void handleSend();
                 }
               }}
-              className="flex-1 resize-none rounded-xl border border-border-default bg-surface-container px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary"
+              className="h-11 flex-1 resize-none rounded-[10px] border border-border-default bg-surface-container px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary"
             />
             <button
               onClick={() => void handleSend()}
               disabled={!content.trim()}
               aria-label="Send message"
-              className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-on-primary transition hover:bg-primary/90 disabled:opacity-40"
+              className="h-11 rounded-[10px] bg-emerald-500 px-4 text-sm font-medium text-white transition hover:bg-emerald-600 disabled:opacity-40"
             >
               <span className="flex items-center gap-1.5">
                 <IconSend size={16} />
