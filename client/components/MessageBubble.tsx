@@ -65,13 +65,14 @@ export default function MessageBubble({
 }) {
   const alignment = isMe ? "justify-end" : "justify-start";
   const bubbleMargin = isMe ? "ml-auto" : "mr-auto";
-  const bubbleBg = isMe ? "bg-primary/20 text-on-surface" : "bg-surface-container";
+  const bubbleBg = isMe ? "bg-bubble-out" : "bg-bubble-in";
+  const bubbleRadius = isMe ? "rounded-[16px] rounded-br-[4px]" : "rounded-[16px] rounded-bl-[4px]";
   const status = message.status as DisplayStatus;
 
   return (
     <div className={`relative flex ${alignment} gap-2`}>
       <motion.div
-        className={`max-w-[75%] rounded-xl px-4 py-2 ${bubbleMargin} ${bubbleBg}`}
+        className={`max-w-[70%] ${bubbleRadius} px-3 py-2 ${bubbleMargin} ${bubbleBg} break-words text-text-primary`}
         drag={isMe ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={(_, info) => {
@@ -93,16 +94,16 @@ export default function MessageBubble({
           </div>
         )}
 
-        <p className="whitespace-pre-wrap break-words text-[14px] leading-relaxed text-text-primary">
+        <p className="whitespace-pre-wrap break-words text-sm leading-[1.4] text-text-primary">
           {message.content}
         </p>
 
-        <div className="mt-1 flex items-center justify-end gap-2">
+        <div className="mt-1 flex items-center justify-end gap-1">
           {isMe && <DeliveryStatus status={status} />}
-          <span className="text-[13px] text-text-secondary tabular-nums">
+          <span className="text-[11px] text-text-secondary tabular-nums">
             {isMe ? "You" : message.senderPubKey.slice(0, 8)}
           </span>
-          <span className="text-[13px] text-text-secondary tabular-nums">
+          <span className="text-[11px] text-text-secondary tabular-nums">
             {new Date(message.timestamp).toLocaleTimeString([], {
               hour: "numeric",
               minute: "2-digit",
