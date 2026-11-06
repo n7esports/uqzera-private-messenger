@@ -1,10 +1,20 @@
 "use client";
 
+import { useVaultStore } from "../../store/useVaultStore";
 import IconSearch from "../icons/IconSearch";
 import IconChat from "../icons/IconChat";
 import IconSettings from "../icons/IconSettings";
 
 export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
+  const profile = useVaultStore((state) => state.profile);
+
+  const initials = (alias: string) =>
+    alias
+      .split(/\s+/)
+      .map((word) => word[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "?";
   return (
     <nav
       aria-label="Icon rail"
@@ -30,6 +40,13 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
         <IconChat size={18} />
       </button>
       <div className="mt-auto flex flex-col items-center gap-2">
+        <a
+          href="/settings"
+          aria-label="Profile"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-panel text-xs font-medium text-text-primary"
+        >
+          {initials(profile?.name ?? "") || "?"}
+        </a>
         <a
           href="/settings"
           aria-label="Settings"

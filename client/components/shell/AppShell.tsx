@@ -59,7 +59,6 @@ export default function AppShell({
             }}
             aria-label="UQZERA"
           />
-          <span className="text-base font-semibold text-text-primary">UQZERA</span>
         </div>
         <button
           type="button"
