@@ -65,14 +65,15 @@ export default function MessageBubble({
 }) {
   const alignment = isMe ? "justify-end" : "justify-start";
   const bubbleMargin = isMe ? "ml-auto" : "mr-auto";
-  const bubbleBg = isMe ? "bg-bubble-out" : "bg-bubble-in";
+  const bubbleBg = isMe ? "bg-bubble-out" : "text-text-primary";
+  const bubbleGlass = isMe ? "" : "glass";
   const bubbleRadius = isMe ? "rounded-[16px] rounded-br-[4px]" : "rounded-[16px] rounded-bl-[4px]";
   const status = message.status as DisplayStatus;
 
   return (
     <div className={`relative flex ${alignment} gap-2`}>
       <motion.div
-        className={`max-w-[70%] ${bubbleRadius} px-3 py-2 ${bubbleMargin} ${bubbleBg} break-words text-text-primary`}
+        className={`max-w-[70%] ${bubbleRadius} px-3 py-2 ${bubbleMargin} ${bubbleBg} ${bubbleGlass} break-words text-text-primary`}
         drag={isMe ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={(_, info) => {

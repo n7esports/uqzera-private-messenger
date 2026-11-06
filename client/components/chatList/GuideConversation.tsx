@@ -45,7 +45,7 @@ export default function GuideConversation({
                     return (
                       <article
                         key={item.title}
-                        className="rounded-xl border border-border bg-bg-panel p-4 glass"
+                        className="rounded-xl border border-border p-4 glass"
                       >
                         <div className="flex items-center gap-2">
                           <ItemIcon
