@@ -131,4 +131,16 @@
   *::-webkit-scrollbar-button {
     display: none;
   }
+  /* Dark form fields */
+  input, textarea, select {
+    background-color: var(--bg-panel);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+  }
+  input:-webkit-autofill,
+  textarea:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--bg-panel) inset;
+    -webkit-text-fill-color: var(--text-primary);
+    caret-color: var(--text-primary);
+  }
 }
