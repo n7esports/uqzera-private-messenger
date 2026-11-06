@@ -10,6 +10,7 @@ import AddContactModal from "../modals/AddContactModal";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
 import ChatList from "../chatList/ChatList";
+import IconRail from "./IconRail";
 
 export default function AppShell({
   onOpenIdentity,
@@ -55,8 +56,10 @@ export default function AppShell({
   }, [isUnlocked, loadChats]);
 
   return (
-    <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col glass">
-      {/* Logo / brand */}
+    <div className="flex h-screen w-full">
+      <IconRail />
+      <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col glass">
+        {/* Logo / brand */}
       <div className="flex h-14 items-center gap-3 bg-bg-sidebar px-4">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
           <svg
@@ -198,5 +201,6 @@ export default function AppShell({
       />
 
     </aside>
+    </div>
   );
 }
