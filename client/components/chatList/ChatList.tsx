@@ -7,6 +7,7 @@ import {
   type ChatSummary,
 } from "../../store/useChatStore";
 import IconBellOff from "../icons/IconBellOff";
+import IconLock from "../icons/IconLock";
 import IconChat from "../icons/IconChat";
 import IconMoreVertical from "../icons/IconMoreVertical";
 import IconTrash from "../icons/IconTrash";
@@ -162,9 +163,13 @@ export default function ChatList({
             }`}
           >
             <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">
-              <span className="text-base font-medium text-text-primary">
-                {initials(chat.alias)}
-              </span>
+              {chat.alias === "Private Notes" ? (
+                <IconLock size={22} className="text-accent" />
+              ) : (
+                <span className="text-base font-medium text-text-primary">
+                  {initials(chat.alias)}
+                </span>
+              )}
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">

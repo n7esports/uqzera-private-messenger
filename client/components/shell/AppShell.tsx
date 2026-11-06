@@ -9,12 +9,11 @@ import IconSettings from "../icons/IconSettings";
 import AddContactModal from "../modals/AddContactModal";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
-import Image from "next/image";
 import ChatList from "../chatList/ChatList";
 import IconRail from "./IconRail";
 
 export default function AppShell({
-  onOpenIdentity,
+  onOpenIdentity: _onOpenIdentity,
   onOpenChat,
   onOpenGuide,
   guideActive = false,
@@ -25,33 +24,14 @@ export default function AppShell({
   guideActive?: boolean;
 }) {
 
-  const initials = (alias: string) =>
-    alias
-      .split(/\s+/)
-      .map((w) => w[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase();
-
   const [showAddContact, setShowAddContact] = useState(false);
   const [acceptRequest, setAcceptRequest] = useState<{ senderKey: string; packet: unknown } | null>(null);
   const pendingRequests = useChatStore((s: ChatState) => s.pendingRequests);
   const dismissPendingRequest = useChatStore((s: ChatState) => s.dismissPendingRequest);
   const isUnlocked = useVaultStore((s) => s.isUnlocked);
-  const profile = useVaultStore((s) => s.profile);
   const loadChats = useChatStore((s: ChatState) => s.loadChats);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const settingsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handle(e: MouseEvent) {
-      if (settingsRef.current && !settingsRef.current.contains(e.target as Node)) setIsSettingsOpen(false);
-    }
-    document.addEventListener("click", handle);
-    return () => document.removeEventListener("click", handle);
-  }, []);
 
   useEffect(() => {
     if (isUnlocked) void loadChats().catch(() => {});
@@ -64,7 +44,21 @@ export default function AppShell({
         {/* Logo / brand */}
       <div className="flex h-14 items-center justify-between gap-3 bg-bg-sidebar px-4 glass">
         <div className="flex items-center gap-3">
-          <Image src="/logo-withoutbg.png" alt="UQZERA" width={28} height={28} />
+          <div
+            className="h-11 w-11 bg-accent"
+            style={{
+              maskImage: "url(/logo-withoutbg.png)",
+              WebkitMaskImage: "url(/logo-withoutbg.png)",
+              maskSize: "contain",
+              WebkitMaskSize: "contain",
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskPosition: "center",
+              WebkitMaskPosition: "center",
+              filter: "drop-shadow(0 0 0.5px var(--accent))",
+            }}
+            aria-label="UQZERA"
+          />
           <span className="text-base font-semibold text-text-primary">UQZERA</span>
         </div>
         <button
@@ -144,48 +138,15 @@ export default function AppShell({
       {/* Divider above bottom section */}
       <div className="mx-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
-      {/* Bottom fixed area */}
-      <div className="flex flex-col border-t border-border">
-        <div className="flex h-16 items-center justify-between border-t border-border px-4">
-          <button
-            onClick={onOpenIdentity}
-            aria-label="My Identity"
-            className="flex items-center gap-3 text-left transition hover:bg-bg-hover"
-          >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-base font-medium text-text-primary">
-              {initials(profile?.name ?? "")}
-            </div>
-            <div className="min-w-0">
-              <span className="block truncate text-base font-medium text-text-primary">
-                {profile?.name || "Your profile"}
-              </span>
-              <span className="block font-mono text-[11px] text-text-secondary">
-                ID 0x4F2A_C91D
-              </span>
-            </div>
-          </button>
-          <div ref={settingsRef} className="relative">
-            <button
-              onClick={() => setIsSettingsOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
-            >
-              <IconSettings size={18} />
-            </button>
-            {isSettingsOpen && (
-              <div className="absolute bottom-10 right-0 z-50 w-48 rounded-xl border border-border bg-bg-panel py-1 shadow-panel">
-                {["Linked Devices", "Account", "Appearance", "Notifications", "Privacy"].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => setIsSettingsOpen(false)}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-text-primary hover:bg-bg-hover"
-                  >
-                    {item}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Settings below chats */}
+      <div className="px-4 py-3">
+        <a
+          href="/settings"
+          aria-label="Settings"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
+        >
+          <IconSettings size={18} />
+        </a>
       </div>
 
       <AddContactModal
