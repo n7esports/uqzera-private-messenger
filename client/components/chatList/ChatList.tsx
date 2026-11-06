@@ -275,7 +275,7 @@ export default function ChatList({
       ref={listRef}
       role="region"
       aria-label="Chat list"
-      className="flex-1 overflow-y-auto"
+      className="flex-1 overflow-y-auto no-scrollbar"
     >
       <section aria-labelledby="pinned-heading">
         <h2
