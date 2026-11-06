@@ -234,7 +234,7 @@ export function ChatView({
             >
               <span className="flex items-center gap-1.5">
                 <IconSend size={16} />
-                Encrypt &amp; Send
+                Send
               </span>
             </button>
           </div>
