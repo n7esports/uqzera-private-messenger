@@ -293,18 +293,18 @@ export default function ChatList({
                 setMenuChatId(null);
               }}
               aria-pressed={guideActive}
-              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
-                guideActive ? "bg-surface-high" : "hover:bg-surface"
+              className={`flex h-[72px] w-full items-center gap-3 px-4 py-0 text-left transition ${
+                guideActive ? "bg-bg-selected" : "hover:bg-bg-hover"
               }`}
             >
-              <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-surface-high text-primary">
-                <IconChat size={18} aria-hidden="true" />
+              <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
+                <IconChat size={20} aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-on-surface">
+                <span className="block truncate text-base font-normal text-text-primary">
                   Guide
                 </span>
-                <span className="block truncate text-xs text-on-surface-variant">
+                <span className="block truncate text-sm text-text-secondary">
                   Your quick-start guide
                 </span>
               </span>

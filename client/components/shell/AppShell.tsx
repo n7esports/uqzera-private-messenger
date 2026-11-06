@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useChatStore, type ChatState } from "../../store/useChatStore";
 import IconChat from "../icons/IconChat";
-import IconChannel from "../icons/IconChannel";
 import IconPlus from "../icons/IconPlus";
 import IconSearch from "../icons/IconSearch";
 import IconSettings from "../icons/IconSettings";
@@ -144,45 +143,39 @@ export default function AppShell({
       <div className="mx-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
       {/* Bottom fixed area */}
-      <div className="flex flex-col border-t border-hairline">
-        <button
-          className="flex items-center gap-2 px-4 py-3 text-sm transition-colors"
-          style={{ color: "var(--text-secondary)" }}
-          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#181c24")}
-          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
-        >
-          <IconChannel size={18} />
-          <span>Channels</span>
-        </button>
-
-        <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex flex-col border-t border-border">
+        <div className="flex h-16 items-center justify-between border-t border-border px-4">
           <button
             onClick={onOpenIdentity}
             aria-label="My Identity"
-            className="flex items-center gap-3 text-left transition hover:bg-surface"
+            className="flex items-center gap-3 text-left transition hover:bg-bg-hover"
           >
-            <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-on-primary">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-base font-medium text-text-primary">
               {initials(profile?.name ?? "")}
             </div>
-            <span className="text-sm font-medium text-on-surface">{profile?.name || "Your profile"}</span>
+            <div className="min-w-0">
+              <span className="block truncate text-base font-medium text-text-primary">
+                {profile?.name || "Your profile"}
+              </span>
+              <span className="block font-mono text-[11px] text-text-secondary">
+                ID 0x4F2A_C91D
+              </span>
+            </div>
           </button>
           <div ref={settingsRef} className="relative">
             <button
               onClick={() => setIsSettingsOpen((v) => !v)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition"
-              style={{ color: "var(--text-secondary)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#181c24")}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
             >
               <IconSettings size={18} />
             </button>
             {isSettingsOpen && (
-              <div className="absolute bottom-10 right-0 z-50 w-48 rounded-xl border border-hairline bg-surface-container py-1 shadow-panel">
+              <div className="absolute bottom-10 right-0 z-50 w-48 rounded-xl border border-border bg-bg-panel py-1 shadow-panel">
                 {["Linked Devices", "Account", "Appearance", "Notifications", "Privacy"].map((item) => (
                   <button
                     key={item}
                     onClick={() => setIsSettingsOpen(false)}
-                    className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-on-surface hover:bg-surface-high"
+                    className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-text-primary hover:bg-bg-hover"
                   >
                     {item}
                   </button>
@@ -190,9 +183,6 @@ export default function AppShell({
               </div>
             )}
           </div>
-        </div>
-        <div className="px-4 pb-3">
-          <p className="text-[10px] font-mono text-on-surface-variant">ID 0x4F2A_C91D</p>
         </div>
       </div>
 
