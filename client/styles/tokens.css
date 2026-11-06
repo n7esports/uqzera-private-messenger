@@ -1,45 +1,51 @@
 :root {
-  /* UQZERA Brand */
-  --accent-emerald: #10B981;
-  --accent-hover: #059669;
+  /* WhatsApp-style dark design system */
+  --bg-app: #0B141A;
+  --bg-sidebar: #111B21;
+  --bg-panel: #202C33;
+  --bg-hover: #2A3942;
+  --bg-selected: #2A3942;
+  --accent: #00A884;
+  --accent-hover: #008F72;
+  --bubble-out: #005C4B;
+  --bubble-in: #202C33;
+  --text-primary: #E9EDEF;
+  --text-secondary: #8696A0;
+  --border: #222D34;
+  --danger: #F15C6D;
+  --warning: #FFB02E;
+
+  /* Backward-compatible existing tokens */
+  --accent-emerald: var(--accent);
   --accent-soft: #34D399;
-  --accent-subtle: rgba(16, 185, 129, 0.10);
+  --accent-subtle: rgba(0, 168, 132, 0.10);
 
-  /* Backgrounds */
-  --bg-base: #0F131C;
-  --bg-panel: #181C24;
-  --bg-card: #1C2028;
-  --bg-elevated: #222833;
-  --bg-input: #141922;
-  --bg-hover: #252C36;
+  --bg-base: var(--bg-app);
+  --bg-card: var(--bg-panel);
+  --bg-elevated: var(--bg-panel);
+  --bg-input: var(--bg-panel);
 
-  /* Text */
-  --text-primary: #E5E7EB;
-  --text-secondary: #A7B0BC;
-  --text-muted: #6B7280;
+  --text-muted: var(--text-secondary);
   --text-disabled: #505967;
-  --text-inverse: #0F131C;
+  --text-inverse: #0B141A;
 
-  /* Borders */
-  --border-subtle: #2A313C;
-  --border-default: #303946;
+  --border-subtle: var(--border);
+  --border-default: var(--border);
   --border-strong: #465160;
   --border-separator: #202630;
 
-  /* Status */
-  --status-success: #10B981;
-  --status-warning: #F59E0B;
-  --status-danger: #EF6464;
+  --status-success: var(--accent);
+  --status-warning: var(--warning);
+  --status-danger: var(--danger);
   --status-info: #60A5FA;
 
-  /* Chat */
-  --chat-sent: #123B31;
-  --chat-received: #1C2028;
+  --chat-sent: var(--bubble-out);
+  --chat-received: var(--bubble-in);
 
   /* Shape */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   --radius-xl: 18px;
 
   /* Space */
