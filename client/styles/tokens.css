@@ -16,12 +16,12 @@
   /* Text */
   --text-primary: #E5E7EB;
   --text-secondary: #A7B0BC;
-  --text-muted: #737E8C;
+  --text-muted: #6B7280;
   --text-disabled: #505967;
   --text-inverse: #0F131C;
 
   /* Borders */
-  --border-subtle: #252C36;
+  --border-subtle: #2A313C;
   --border-default: #303946;
   --border-strong: #465160;
   --border-separator: #202630;
