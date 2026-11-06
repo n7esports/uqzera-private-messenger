@@ -175,7 +175,7 @@ export default function OnboardingPage() {
                 className="mt-2 w-full rounded-xl border border-default bg-input px-4 py-3 text-primary"
               />
             </label>
-            <button onClick={advance} className="mt-6 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={advance} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
               Continue
             </button>
           </>
@@ -278,7 +278,7 @@ export default function OnboardingPage() {
                 setError(null);
                 setStep("recovery");
               }}
-              className="mt-3 w-full text-sm text-secondary underline"
+              className="mt-3 w-full text-sm text-accent"
             >
               Go back and check
             </button>
@@ -321,7 +321,7 @@ export default function OnboardingPage() {
                   onChange={(event) => setLockValue(lockType === "pin"
                     ? event.target.value.replace(/\D/g, "")
                     : event.target.value)}
-                  className="min-w-0 flex-1 rounded-xl border border-default bg-input px-4 py-3 text-primary"
+                  className={`min-w-0 flex-1 h-11 rounded-lg bg-bg-panel px-4 text-text-primary text-center text-base focus:ring-2 focus:ring-accent ${lockType === "pin" ? "tracking-[0.2em]" : ""}`}
                 />
                 {lockType === "passphrase" && (
                   <button
@@ -334,7 +334,7 @@ export default function OnboardingPage() {
                 )}
               </span>
             </label>
-            <button onClick={() => void createIdentity()} className="mt-6 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={() => void createIdentity()} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
               Create vault
             </button>
           </>
@@ -354,7 +354,7 @@ export default function OnboardingPage() {
             <button onClick={() => void shareID()} className="mt-3 w-full rounded-xl border border-default py-3 text-sm text-primary">
               Share ID
             </button>
-            <button onClick={() => router.replace("/chats")} className="mt-3 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={() => router.replace("/chats")} className="mt-3 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
               Continue
             </button>
           </>

@@ -111,7 +111,7 @@ export default function LockPage() {
                   : event.target.value)}
                 type={showLockValue ? "text" : "password"}
                 value={lockValue}
-                className="h-12 min-w-0 flex-1 rounded-xl border border-default bg-input px-4 text-primary"
+                className={`h-11 min-w-0 flex-1 rounded-lg bg-bg-panel px-4 text-text-primary text-center focus:ring-2 focus:ring-accent ${lockType === "pin" ? "tracking-[0.2em]" : ""}`}
               />
               {lockType === "passphrase" && (
                 <button
@@ -133,7 +133,7 @@ export default function LockPage() {
           <button
             type="submit"
             disabled={busy || remainingSeconds > 0}
-            className="h-12 w-full rounded-xl accent-emerald text-sm font-medium disabled:opacity-50"
+            className="h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
           >
             {busy ? "Unlocking…" : "Unlock"}
           </button>
@@ -141,7 +141,7 @@ export default function LockPage() {
         <button
           type="button"
           onClick={() => router.push("/unlock/recovery")}
-          className="mt-5 w-full text-sm text-secondary underline"
+          className="mt-5 w-full text-sm text-accent"
         >
           Forgot PIN or passphrase?
         </button>
