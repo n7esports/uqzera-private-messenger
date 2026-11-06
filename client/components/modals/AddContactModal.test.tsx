@@ -14,7 +14,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("../../store/useChatStore", () => ({
-  useChatStore: (selector: (state: unknown) => unknown) =>
+  useChatStore: (selector: (_state: unknown) => unknown) =>
     selector({
       chats: mocks.chats,
       addContact: mocks.addContact,
@@ -23,7 +23,7 @@ vi.mock("../../store/useChatStore", () => ({
 }));
 
 vi.mock("../../store/useVaultStore", () => ({
-  useVaultStore: (selector: (state: unknown) => unknown) =>
+  useVaultStore: (selector: (_state: unknown) => unknown) =>
     selector({
       identity: {
         encryptionPublicKey: mocks.identityKey,

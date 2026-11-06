@@ -16,6 +16,11 @@ function DeliveryStatus({ status }: { status: DisplayStatus }) {
       className: "text-text-secondary",
       icon: <IconClock size={14} />,
     },
+    relayAccepted: {
+      label: "Relay accepted",
+      className: "text-text-secondary",
+      icon: <IconCheckDouble size={14} />,
+    },
     sent: {
       label: "Sent",
       className: "text-text-secondary",
@@ -28,7 +33,7 @@ function DeliveryStatus({ status }: { status: DisplayStatus }) {
     },
     read: {
       label: "Read",
-      className: "text-primary",
+      className: "text-text-secondary",
       icon: <IconCheckDouble size={14} />,
     },
     failed: {
