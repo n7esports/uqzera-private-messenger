@@ -79,7 +79,7 @@ export function MyIdentityModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-sm bg-surface-container border border-hairline rounded-2xl p-6 shadow-panel">
+      <div className="w-full max-w-sm bg-surface-container border border-hairline rounded-2xl p-6 shadow-panel glass-strong">
         <div className="mb-4">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-on-surface">Identity</h2>

@@ -39,7 +39,7 @@ export default function AcceptContactModal({ open, senderEncryptionPubKey, packe
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="flex w-full max-w-md flex-col rounded-lg border border-hairline bg-surface-container shadow-panel">
+      <div className="flex w-full max-w-md flex-col rounded-lg border border-hairline bg-surface-container shadow-panel glass-strong">
         <div className="flex items-center justify-between border-b border-hairline px-5 py-4">
           <h3 className="font-sans text-base font-semibold text-on-surface">Accept Contact</h3>
           <button onClick={onClose} className="rounded-lg p-1.5 text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface">

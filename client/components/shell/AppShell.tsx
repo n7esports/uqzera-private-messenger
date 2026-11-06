@@ -55,7 +55,7 @@ export default function AppShell({
   }, [isUnlocked, loadChats]);
 
   return (
-    <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col border-r border-hairline bg-surface-container">
+    <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col border-r border-hairline bg-surface-container glass">
       {/* Logo / brand */}
       <div className="flex h-14 items-center gap-3 bg-bg-sidebar px-4">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary">

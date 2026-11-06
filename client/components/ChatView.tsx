@@ -94,7 +94,7 @@ export function ChatView({
 
   return (
     <div className="flex h-full w-full flex-col bg-surface">
-      <header className="flex h-14 items-center justify-between border-b border-border bg-bg-sidebar px-4">
+      <header className="flex h-14 items-center justify-between border-b border-border bg-bg-sidebar px-4 glass-strong">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
@@ -185,7 +185,7 @@ export function ChatView({
         </div>
       )}
 
-      <div className="flex-shrink-0 border-t border-border bg-bg-sidebar">
+      <div className="flex-shrink-0 border-t border-border bg-bg-sidebar glass-strong">
         {replyTo && (
           <div className="flex items-center gap-2 border-b border-border bg-bg-sidebar px-4 py-2">
             <IconReply size={14} />

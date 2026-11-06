@@ -58,5 +58,11 @@
   /* Effects */
   --shadow-panel: 0 8px 32px 0 rgba(0, 0, 0, 0.60);
   --inner-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --glass-bg: rgba(18, 22, 31, 0.6);
+  --glass-bg-strong: rgba(18, 22, 31, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  --glass-blur: blur(16px) saturate(140%);
   --hairline: rgba(255, 255, 255, 0.08);
 }
