@@ -10,16 +10,13 @@ import {
 import {
   EPHEMERAL_TIMERS,
   buildEnvelope,
-  buildTypingSignal,
   createRatchetSession,
   decodeBytes,
   deriveAndSkipReceiveKey,
-  describeAttachment,
   encodeBytes,
   getExpiredMessageIds,
   isValidAttachment,
   openEnvelope,
-  openTypingSignal,
   rotateSessionKey,
   signEnvelope,
   verifySignedEnvelope,
@@ -27,7 +24,6 @@ import {
   type MessageAttachment,
   type RatchetSession,
   type SignedEnvelope,
-  type TypingSignal,
 } from "../lib/protocol";
 import {
   transportManager,
@@ -39,7 +35,6 @@ import {
   type EncryptedChatRecord,
   type EncryptedMessageRecord,
 } from "../lib/vault";
-import { supabase } from "../lib/supabase";
 import {
   registerMemoryKeyCleanup,
   useVaultStore,
@@ -52,7 +47,12 @@ let encryptedOutbox: EncryptedOutbox | null = null;
 export const PRIVATE_NOTES_CHAT_ID = "private-notes";
 export const WELCOME_CHAT_ID = "welcome-guide";
 
-export type MessageStatus = "queued" | "sent" | "delivered" | "read";
+export type MessageStatus =
+  | "queued"
+  | "relayAccepted"
+  | "sent"
+  | "delivered"
+  | "read";
 export type ChatKind = "direct" | "system" | "notes";
 
 export interface ChatSummary {
@@ -119,8 +119,6 @@ export interface ChatState {
   transportError: string | null;
   typingByChat: Record<string, boolean>;
   peerTypingByChat: Record<string, boolean>;
-  peerTypingAtByChat: Record<string, number>;
-  typingSentAt: Record<string, number>;
   isLoading: boolean;
   error: string | null;
   // Phase 2: New state slices
@@ -133,49 +131,47 @@ export interface ChatState {
   vaultModalOpen: boolean;
   sidebarOpen: boolean;
   replyTo: MessageReplyRef | null;
-  setSidebarOpen: (open: boolean) => void;
-  setEphemeralTtl: (ttl: number | null) => void;
-  setGlobalSearch: (search: string) => void;
-  setVaultModalOpen: (open: boolean) => void;
-  setReplyTo: (reply: MessageReplyRef | null) => void;
+  setSidebarOpen: (_open: boolean) => void;
+  setEphemeralTtl: (_ttl: number | null) => void;
+  setGlobalSearch: (_search: string) => void;
+  setVaultModalOpen: (_open: boolean) => void;
+  setReplyTo: (_reply: MessageReplyRef | null) => void;
   // Phase 2: New actions
-  addChannel: (channel: Channel) => void;
-  removeDevice: (deviceId: string) => void;
+  addChannel: (_channel: Channel) => void;
+  removeDevice: (_deviceId: string) => void;
   panicShred: () => void;
-  showToast: (toast: ToastNotification) => void;
-  dismissToast: (toastId: string) => void;
+  showToast: (_toast: ToastNotification) => void;
+  dismissToast: (_toastId: string) => void;
   // Existing actions
-  acceptPendingRequest: (senderKey: string, nickname?: string) => Promise<void>;
-  dismissPendingRequest: (senderKey: string) => void;
-  setRelayStatus: (status: RelayStatus) => void;
-  setActiveChat: (chatId: string | null) => void;
-  addContact: (alias: string, recipientPubKey: string) => Promise<ChatSummary>;
+  acceptPendingRequest: (_senderKey: string, _nickname?: string) => Promise<void>;
+  dismissPendingRequest: (_senderKey: string) => void;
+  setRelayStatus: (_status: RelayStatus) => void;
+  setActiveChat: (_chatId: string | null) => void;
+  addContact: (_alias: string, _recipientPubKey: string) => Promise<ChatSummary>;
   sendMessage: (
-    content: string,
-    type?: InnerPayload["type"],
-    ephemeralTimer?: number,
-    attachment?: MessageAttachment,
-    replyTo?: MessageReplyRef,
+    _content: string,
+    _type?: InnerPayload["type"],
+    _ephemeralTimer?: number,
+    _attachment?: MessageAttachment,
+    _replyTo?: MessageReplyRef,
   ) => Promise<ChatMessage>;
-  receiveMessage: (packet: SignedEnvelope) => Promise<void>;
-  receiveTyping: (signal: TypingSignal) => Promise<void>;
-  broadcastTyping: (chatId: string, isTyping: boolean) => void;
-  markAsRead: (chatId: string) => Promise<void>;
-  setTyping: (chatId: string, isTyping: boolean) => void;
+  receiveMessage: (_packet: SignedEnvelope) => Promise<void>;
+  broadcastTyping: (_chatId: string, _isTyping: boolean) => void;
+  markAsRead: (_chatId: string) => Promise<void>;
+  setTyping: (_chatId: string, _isTyping: boolean) => void;
   loadChats: () => Promise<void>;
   ensurePrivateNotes: () => Promise<ChatSummary>;
-  updateChat: (chatId: string, patch: Partial<ChatSummary>) => Promise<ChatSummary | null>;
-  clearChatMessages: (chatId: string) => Promise<void>;
-  deleteMessages: (messageIds: string[]) => Promise<void>;
+  updateChat: (_chatId: string, _patch: Partial<ChatSummary>) => Promise<ChatSummary | null>;
+  clearChatMessages: (_chatId: string) => Promise<void>;
+  deleteMessages: (_messageIds: string[]) => Promise<void>;
   updateMessage: (
-    messageId: string,
-    patch: Partial<Pick<ChatMessage, "starred" | "pinned" | "reactions">>,
+    _messageId: string,
+    _patch: Partial<Pick<ChatMessage, "starred" | "pinned" | "reactions">>,
   ) => Promise<void>;
-  deleteChat: (chatId: string) => Promise<void>;
+  deleteChat: (_chatId: string) => Promise<void>;
   updateDeliveryStatus: (
-    messageId: string,
-    status: Exclude<MessageStatus, "queued">,
-    signerEncryptionPubKey?: string,
+    _messageId: string,
+    _status: Exclude<MessageStatus, "queued">,
   ) => Promise<void>;
 }
 
@@ -195,14 +191,12 @@ interface StoredMessage {
 
 const messageStatusRank: Record<MessageStatus, number> = {
   queued: 0,
+  relayAccepted: 1,
   sent: 1,
   delivered: 2,
   read: 3,
 };
 const ephemeralExpiryTimers = new Map<string, ReturnType<typeof setTimeout>>();
-const TYPING_THROTTLE_MS = 2_500;
-const TYPING_EXPIRY_MS = 6_000;
-
 // Per-chat async mutex: serialize ratchet operations so concurrent sends/
 // receives on the same chat cannot read the same chain key and overwrite
 // each other's counters.
@@ -279,7 +273,7 @@ function getEncryptedOutbox(vaultKey: Uint8Array): EncryptedOutbox {
         onPublished: (messageId) => {
           void useChatStore
             .getState()
-            .updateDeliveryStatus(messageId, "sent")
+            .updateDeliveryStatus(messageId, "relayAccepted")
             .catch((error: unknown) =>
               useChatStore.setState({
                 transportError:
@@ -369,6 +363,7 @@ function isStoredMessage(value: unknown): value is StoredMessage {
       value.type === "system") &&
     "status" in value &&
     (value.status === "queued" ||
+      value.status === "relayAccepted" ||
       value.status === "sent" ||
       value.status === "delivered" ||
       value.status === "read") &&
@@ -718,8 +713,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
   transportError: null,
   typingByChat: {},
   peerTypingByChat: {},
-  peerTypingAtByChat: {},
-  typingSentAt: {},
   isLoading: false,
   error: null,
   // Phase 2: New state slices
@@ -766,8 +759,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       replyTo: null,
       typingByChat: {},
       peerTypingByChat: {},
-      peerTypingAtByChat: {},
-      typingSentAt: {},
       transportError: null,
     });
     // Also clear persistent storage
@@ -982,11 +973,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
           }));
           scheduleMessageExpiry(base);
           await getEncryptedOutbox(vaultKey).enqueue(packet);
-          if (chat.kind === "direct") {
-            void buildTypingSignal("stop", identity, recipientPublicKey)
-              .then((signal) => transportManager.sendTyping(signal))
-              .catch(() => {});
-          }
         } finally {
           rotated.messageKey.fill(0);
           session.sendChainKey.fill(0);
@@ -1016,19 +1002,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         throw new Error("Incoming message signature is invalid.");
       }
       // M5: drop a message we have already ingested this session.
-      if (!markMessageSeen(packet.id)) {
-        try {
-          await transportManager.publishReceipt(
-            packet.id,
-            "delivered",
-            senderKey,
-            identity,
-          );
-        } catch {
-          // Acknowledgement is best-effort for already-seen messages.
-        }
-        return;
-      }
+      if (!markMessageSeen(packet.id)) return;
       // P7: reject a replayed or clock-skewed envelope. The timestamp is part
       // of the signed payload, so it is authenticated. A generous 24h window
       // tolerates a device with a bad clock while bounding replay.
@@ -1044,23 +1018,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // P7: check the already-persisted store BEFORE mutating any state, so a
       // replay cannot create a phantom contact or advance a ratchet.
       const alreadyPersisted = await database.messages.get(packet.id);
-      if (alreadyPersisted) {
-        await transportManager.publishReceipt(packet.id, "delivered", senderKey, identity);
-        return;
-      }
-      // Silently drop anything from a blocked contact, but still acknowledge it
-      // so the sender's delivery state does not hang.
+      if (alreadyPersisted) return;
+      // Silently drop anything from a blocked contact.
       const blockedChat = get().chats.find(
         (entry) => entry.kind === "direct" && entry.recipientPubKey === senderKey,
       );
-      if (blockedChat?.blocked) {
-        try {
-          await transportManager.publishReceipt(packet.id, "delivered", senderKey, identity);
-        } catch {
-          // Acknowledgement is best-effort for dropped messages.
-        }
-        return;
-      }
+      if (blockedChat?.blocked) return;
       let chat = get().chats.find(
         (entry) =>
           entry.kind === "direct" && entry.recipientPubKey === senderKey,
@@ -1171,22 +1134,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
       if (!isActive) {
         notifyIncoming(updatedChat);
       }
-      try {
-        await transportManager.publishReceipt(packet.id, "delivered", senderKey, identity);
-        if (isActive) {
-          await transportManager.publishReceipt(packet.id, "read", senderKey, identity);
-        }
-      } catch (error) {
-        set({
-          transportError:
-            error instanceof Error ? error.message : "Could not acknowledge incoming message.",
-        });
-      }
     });
   },
 
   markAsRead: async (chatId) => {
-    const { identity, vaultKey } = getVaultMaterial();
+    const { vaultKey } = getVaultMaterial();
     const chat = get().chats.find((entry) => entry.id === chatId);
     if (!chat) return;
     const incoming = (get().messagesMap[chatId] ?? []).filter(
@@ -1205,21 +1157,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         { ...message, status: "read" },
         vaultKey,
       );
-      if (chat.kind === "direct") {
-        try {
-          await transportManager.publishReceipt(
-            message.id,
-            "read",
-            chat.recipientPubKey,
-            identity,
-          );
-        } catch (error) {
-          set({
-            transportError:
-              error instanceof Error ? error.message : "Could not send read receipt.",
-          });
-        }
-      }
     }
     set((state) => ({
       chats: replaceChat(state.chats, updated),
@@ -1234,58 +1171,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         : { typingByChat: { ...state.typingByChat, [chatId]: isTyping } },
     ),
 
-  broadcastTyping: (chatId, isTyping) => {
-    const { identity, vaultKey } = useVaultStore.getState();
-    if (!identity || !vaultKey) return;
-    const chat = get().chats.find((entry) => entry.id === chatId);
-    if (!chat || chat.kind !== "direct") return;
-    const now = Date.now();
-    const lastSent = get().typingSentAt[chatId] ?? 0;
-    // Throttle BOTH directions so a burst of keystrokes (including backspace,
-    // which emits "stop" on every key) cannot flood the channel. A single
-    // in-flight "stop" per chat is enough — the peer only needs the latest.
-    if (now - lastSent < TYPING_THROTTLE_MS) return;
-    set((state) => ({
-      typingSentAt: { ...state.typingSentAt, [chatId]: now },
-    }));
-    void buildTypingSignal(
-      isTyping ? "typing" : "stop",
-      identity,
-      decodeBytes(chat.recipientPubKey),
-    )
-      .then((signal) => transportManager.sendTyping(signal))
-      .catch(() => {
-        // Typing is best-effort and must never surface as a transport error.
-      });
-  },
-
-  receiveTyping: async (signal) => {
-    const { identity, vaultKey } = useVaultStore.getState();
-    if (!identity || !vaultKey) return;
-    const opened = await openTypingSignal(signal, identity);
-    const senderKey = opened.senderEncryptionPubKey;
-    const chat = get().chats.find(
-      (entry) => entry.kind === "direct" && entry.recipientPubKey === senderKey,
-    );
-    // Do not auto-create a contact from a typing signal, and bind the signer
-    // to the recorded identity so a forged signal cannot spoof a peer.
-    if (!chat) return;
-    if (chat.peerSigningPubKey && chat.peerSigningPubKey !== signal.senderPubKey) {
-      return;
-    }
-    // The remote peer's typing state is kept separate from our own draft state
-    // so the indicator only ever reflects the other person.
-    set((state) => ({
-      peerTypingByChat: {
-        ...state.peerTypingByChat,
-        [chat.id]: opened.state === "typing",
-      },
-      peerTypingAtByChat: {
-        ...state.peerTypingAtByChat,
-        [chat.id]: Date.now(),
-      },
-    }));
-  },
+  broadcastTyping: () => {},
 
   ensurePrivateNotes: async () => {
     const { vaultKey } = getVaultMaterial();
@@ -1493,7 +1379,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  updateDeliveryStatus: async (messageId, status, signerEncryptionPubKey) => {
+  updateDeliveryStatus: async (messageId, status) => {
     const { vaultKey } = getVaultMaterial();
     const chatId = Object.keys(get().messagesMap).find((key) =>
       get().messagesMap[key].some((message) => message.id === messageId),
@@ -1504,17 +1390,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       // is not lost, and surface it on the next loadChats.
       const record = await database.messages.get(messageId);
       if (!record) return;
-      const chat = get().chats.find((entry) => entry.id === record.chatId);
-      // Bind the receipt signer to the expected peer of this message so a
-      // forged receipt from any other identity cannot move delivery state.
-      if (
-        signerEncryptionPubKey !== undefined &&
-        chat &&
-        chat.kind === "direct" &&
-        chat.recipientPubKey !== signerEncryptionPubKey
-      ) {
-        return;
-      }
       const payload = await decryptRecord<StoredMessage>(
         record.ciphertext,
         record.nonce,
@@ -1547,17 +1422,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         },
         vaultKey,
       );
-      return;
-    }
-    const chat = get().chats.find((entry) => entry.id === chatId);
-    // Bind the receipt signer to the expected peer so a forged receipt from
-    // any other identity cannot move delivery state.
-    if (
-      signerEncryptionPubKey !== undefined &&
-      chat &&
-      chat.kind === "direct" &&
-      chat.recipientPubKey !== signerEncryptionPubKey
-    ) {
       return;
     }
     const current = get().messagesMap[chatId].find(
@@ -1597,8 +1461,6 @@ registerMemoryKeyCleanup(() => {
     transportError: null,
     typingByChat: {},
     peerTypingByChat: {},
-    peerTypingAtByChat: {},
-    typingSentAt: {},
     isLoading: false,
     error: null,
     channels: [],
@@ -1623,22 +1485,6 @@ export function startChatServices(): () => void {
   chatServicesStarted = true;
   transportManager.start(vaultKey, encodeBytes(identity.encryptionPublicKey), {
     onMessage: (packet) => useChatStore.getState().receiveMessage(packet),
-    onTyping: (signal) => useChatStore.getState().receiveTyping(signal),
-    onReceipt: (messageId, status, signerEncryptionPubKey) => {
-      void (async () => {
-        await useChatStore
-          .getState()
-          .updateDeliveryStatus(messageId, status, signerEncryptionPubKey);
-        await encryptedOutbox?.acknowledge(messageId, signerEncryptionPubKey);
-      })().catch((error: unknown) =>
-        useChatStore.setState({
-          transportError:
-            error instanceof Error ? error.message : "Could not process delivery receipt.",
-        }),
-      );
-    },
-    onSent: (messageId) =>
-      void useChatStore.getState().updateDeliveryStatus(messageId, "sent"),
     onConnectionChange: (relayStatus) =>
       useChatStore.getState().setRelayStatus(relayStatus),
     onError: (error) =>

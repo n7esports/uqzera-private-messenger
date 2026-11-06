@@ -1,88 +1,54 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { supabaseMock, vaultMock } = vi.hoisted(() => ({
-  supabaseMock: {
-    channel: vi.fn(),
-    removeChannel: vi.fn(),
-  },
-  vaultMock: {
-    outboxRecords: [] as Array<Record<string, unknown>>,
-    outbox: {
-      orderBy: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(async (id: string) => {
-        vaultMock.outboxRecords = vaultMock.outboxRecords.filter(
-          (record) => record.id !== id,
-        );
-      }),
-      update: vi.fn(),
+const encryptedRows = new Map<string, Uint8Array>();
+
+vi.mock("./dek", () => ({
+  findEncryptedRowsByScope: vi.fn(async () =>
+    Array.from(encryptedRows.entries()).map(([key, plaintext]) => {
+      const rowId = key.split(":")[1] ?? "pending";
+      return { rowId, plaintext: Uint8Array.from(plaintext) };
+    }),
+  ),
+  storeEncryptedRow: vi.fn(
+    async (
+      _dek: Uint8Array,
+      table: string,
+      rowId: string,
+      owner: string,
+      scope: string,
+      plaintext: Uint8Array,
+    ) => {
+      encryptedRows.set(
+        `${table}:${rowId}:${owner}:${scope}`,
+        Uint8Array.from(plaintext),
+      );
     },
-  },
+  ),
 }));
 
-vi.mock("../src/lib/supabaseClient.js", () => ({
-  supabase: supabaseMock,
-}));
-
-vi.mock("./vault", () => ({
-  database: { outbox: vaultMock.outbox },
-}));
-
-vi.mock("./crypto", () => ({
-  decryptVaultPayload: vi.fn(async () => {
-    const packet = vaultMock.outboxRecords[0]?.packet;
-    return new TextEncoder().encode(JSON.stringify(packet));
-  }),
-  encryptVaultPayload: vi.fn(),
-}));
-
+import { TransportManager } from "./transport";
+import { EncryptedOutbox } from "./outbox";
 import {
-  getInboxChannelName,
-  TransportManager,
-} from "./transport";
+  OutboxStatus,
+  OUTBOX_INITIAL_RETRY_DELAY_MS,
+  OUTBOX_MAX_RETRY_DELAY_MS,
+  OUTBOX_MAX_AGE_MS,
+  getOutboxRetryDelay,
+  hasOutboxExpired,
+} from "./contracts/outbox";
+import type { RelayClient, RelayConnectionStatus } from "./contracts/relayClient";
 import { encodeBytes, type SignedEnvelope } from "./protocol";
 
-interface MockChannel {
-  handlers: Map<string, (_event: { payload?: unknown }) => void>;
-  subscribeCallback?: (_status: string, _error?: Error) => void;
-  on: ReturnType<typeof vi.fn>;
-  subscribe: ReturnType<typeof vi.fn>;
-  send: ReturnType<typeof vi.fn>;
-}
-
-const channels = new Map<string, MockChannel>();
 const ownPublicKey = encodeBytes(new Uint8Array(32).fill(7));
 const peerPublicKey = encodeBytes(new Uint8Array(32).fill(9));
 
-function createMockChannel(): MockChannel {
-  const channel: MockChannel = {
-    handlers: new Map(),
-    on: vi.fn(function (
-      this: MockChannel,
-      _type: string,
-      filter: { event: string },
-      handler: (_event: { payload?: unknown }) => void,
-    ) {
-      this.handlers.set(filter.event, handler);
-      return this;
-    }),
-    subscribe: vi.fn(function (
-      this: MockChannel,
-      callback: (_status: string, _error?: Error) => void,
-    ) {
-      this.subscribeCallback = callback;
-      queueMicrotask(() => callback("SUBSCRIBED"));
-      return this;
-    }),
-    send: vi.fn().mockResolvedValue("ok"),
-  };
-  return channel;
-}
-
-function makePacket(recipientPubKey: string): SignedEnvelope {
+function makePacket(
+  recipientPubKey: string,
+  id = `msg-${Math.random().toString(36).slice(2)}`,
+): SignedEnvelope {
   return {
     type: "message",
-    id: "message-id",
+    id,
     senderPubKey: ownPublicKey,
     senderEncryptionPubKey: ownPublicKey,
     signature: "signature",
@@ -97,200 +63,171 @@ function makePacket(recipientPubKey: string): SignedEnvelope {
   };
 }
 
-async function waitForSubscribe(topic = getInboxChannelName(ownPublicKey)): Promise<void> {
-  await vi.waitFor(() => {
-    expect(channels.get(topic)?.subscribeCallback).toBeDefined();
-  });
+type RelayClientMock = RelayClient & {
+  emitStatus: (_status: RelayConnectionStatus) => void;
+  emitMessage: (_channelId: string, _sealed: string) => void;
+};
+
+function createRelayClientMock(): RelayClientMock {
+  const subscriptions = new Map<string, (_sealed: string) => void>();
+  const statusListeners = new Set<(_status: RelayConnectionStatus) => void>();
+
+  const client: RelayClientMock = {
+    connect: vi.fn(async () => {}),
+    publish: vi.fn(async () => {}),
+    subscribe: vi.fn((channelId: string, onMessage: (_sealed: string) => void) => {
+      subscriptions.set(channelId, onMessage);
+      return () => subscriptions.delete(channelId);
+    }),
+    ack: vi.fn(async () => {}),
+    onStatus: vi.fn((callback) => {
+      statusListeners.add(callback);
+      callback("offline");
+      return () => statusListeners.delete(callback);
+    }),
+    emitStatus(status) {
+      for (const handler of statusListeners) handler(status);
+    },
+    emitMessage(channelId, sealed) {
+      const handler = subscriptions.get(channelId);
+      if (handler) handler(sealed);
+    },
+  };
+
+  return client;
 }
 
 beforeEach(() => {
-  channels.clear();
-  vaultMock.outboxRecords = [];
-  vaultMock.outbox.orderBy.mockClear();
-  vaultMock.outbox.put.mockClear();
-  vaultMock.outbox.delete.mockClear();
-  vaultMock.outbox.update.mockClear();
-  vaultMock.outbox.orderBy.mockImplementation(() => ({
-    toArray: vi.fn(async () => vaultMock.outboxRecords),
-  }));
-  supabaseMock.channel.mockImplementation(
-    (name: string, _config: unknown): MockChannel => {
-      const channel = createMockChannel();
-      channels.set(name, channel);
-      return channel;
-    },
-  );
-  supabaseMock.removeChannel.mockResolvedValue("ok");
+  encryptedRows.clear();
+  vi.useRealTimers();
 });
 
 afterEach(() => {
   vi.clearAllMocks();
+  vi.useRealTimers();
 });
 
-describe("Supabase ephemeral relay transport", () => {
-  it("subscribes to the recipient inbox with broadcast self disabled", async () => {
-    const manager = new TransportManager();
-    const onConnectionChange = vi.fn();
-    manager.start(new Uint8Array(32), ownPublicKey, {
+describe("relay transport", () => {
+  it("publish sends the sealed signed packet through relayClient.publish with the recipient channel", async () => {
+    const client = createRelayClientMock();
+    const manager = new TransportManager(client, "ws://relay.test");
+    const callbacks = {
       onMessage: vi.fn(),
-      onReceipt: vi.fn(),
-      onSent: vi.fn(),
-      onConnectionChange,
-      onError: vi.fn(),
-    });
-
-    await waitForSubscribe();
-
-    const topic = getInboxChannelName(ownPublicKey);
-    expect(supabaseMock.channel).toHaveBeenCalledWith(topic, {
-      config: { broadcast: { self: false } },
-    });
-    expect(channels.get(topic)?.on).toHaveBeenCalledWith(
-      "broadcast",
-      { event: "envelope" },
-      expect.any(Function),
-    );
-    expect(onConnectionChange).toHaveBeenCalledWith("connected");
-    expect(vaultMock.outbox.orderBy).toHaveBeenCalledWith("createdAt");
-
-    manager.stop();
-  });
-
-  it("sends signed envelopes through Supabase broadcast channels", async () => {
-    const manager = new TransportManager();
-    manager.start(new Uint8Array(32), ownPublicKey, {
-      onMessage: vi.fn(),
-      onReceipt: vi.fn(),
-      onSent: vi.fn(),
       onConnectionChange: vi.fn(),
       onError: vi.fn(),
-    });
-    await waitForSubscribe();
+    };
+
+    manager.start(new Uint8Array(32), ownPublicKey, callbacks);
+    client.emitStatus("connected");
 
     const packet = makePacket(peerPublicKey);
     await manager.sendEnvelope(packet);
 
-    const outgoingChannel = channels.get(getInboxChannelName(peerPublicKey));
-    expect(outgoingChannel?.send).toHaveBeenCalledWith({
-      type: "broadcast",
-      event: "envelope",
-      payload: { packet },
-    });
+    expect(client.publish).toHaveBeenCalledWith(
+      packet.envelope.recipientPubKey,
+      JSON.stringify(packet),
+    );
+    expect(callbacks.onConnectionChange).toHaveBeenCalledWith("connected");
 
     manager.stop();
   });
 
-  it("decrypts and flushes the encrypted outbox after the inbox is subscribed", async () => {
-    const packet = makePacket(peerPublicKey);
-    vaultMock.outboxRecords = [
-      {
-        id: packet.id,
-        ciphertext: "encrypted",
-        nonce: "nonce",
-        attempts: 0,
-        nextAttemptAt: Date.now(),
-        createdAt: Date.now(),
-        packet,
-      },
-    ];
-    const manager = new TransportManager();
-    const onSent = vi.fn();
+  it("ignores inbound receipt frames and does not change message status", async () => {
+    const client = createRelayClientMock();
+    const onMessage = vi.fn();
+    const manager = new TransportManager(client, "ws://relay.test");
+
     manager.start(new Uint8Array(32), ownPublicKey, {
-      onMessage: vi.fn(),
-      onReceipt: vi.fn(),
-      onSent,
+      onMessage,
       onConnectionChange: vi.fn(),
       onError: vi.fn(),
     });
+    client.emitStatus("connected");
+    client.emitMessage(
+      ownPublicKey,
+      JSON.stringify({ type: "receipt", messageId: "receipt-1" }),
+    );
 
-    await vi.waitFor(() => {
-      expect(channels.get(getInboxChannelName(peerPublicKey))?.send).toHaveBeenCalledWith({
-        type: "broadcast",
-        event: "envelope",
-        payload: { packet },
-      });
-    });
-    expect(vaultMock.outbox.delete).toHaveBeenCalledWith(packet.id);
-    expect(onSent).toHaveBeenCalledWith(packet.id);
+    await Promise.resolve();
+
+    expect(onMessage).not.toHaveBeenCalled();
+    expect(client.ack).not.toHaveBeenCalled();
+    expect(manager.getIgnoredReceiptCount()).toBe(1);
 
     manager.stop();
   });
 
-  it.each(["CHANNEL_ERROR", "TIMED_OUT", "CLOSED"])(
-    "marks a failed inbox subscription (%s) disconnected",
-    async (status) => {
-      const manager = new TransportManager();
-      const onConnectionChange = vi.fn();
+  it("runs in offline mode without throwing when the relay URL is missing", () => {
+    const client = createRelayClientMock();
+    const manager = new TransportManager(client, undefined);
+    const onConnectionChange = vi.fn();
+
+    expect(() =>
       manager.start(new Uint8Array(32), ownPublicKey, {
         onMessage: vi.fn(),
-        onReceipt: vi.fn(),
-        onSent: vi.fn(),
         onConnectionChange,
         onError: vi.fn(),
-      });
-      await waitForSubscribe();
-      const channel = channels.get(getInboxChannelName(ownPublicKey));
-      channel?.subscribeCallback?.(status, new Error("subscription failed"));
-
-      expect(onConnectionChange).toHaveBeenCalledWith("disconnected");
-      manager.stop();
-    },
-  );
-
-  it("dead-letters a queued envelope that keeps failing instead of retrying forever", async () => {
-    // L5 regression: a permanently failing send must eventually drop the
-    // record from the outbox rather than backing off forever.
-    const packet = makePacket(peerPublicKey);
-    vaultMock.outboxRecords = [
-      {
-        id: packet.id,
-        ciphertext: "encrypted",
-        nonce: "nonce",
-        attempts: 9, // one below the cap; this drain attempt is the 10th
-        nextAttemptAt: Date.now(),
-        createdAt: Date.now(),
-        packet,
-      },
-    ];
-    const failingChannel = {
-      ...createMockChannel(),
-      send: vi.fn().mockRejectedValue(new Error("broadcast failed")),
-    };
-    supabaseMock.channel.mockImplementation((name: string): MockChannel => {
-      const channel =
-        name === getInboxChannelName(peerPublicKey)
-          ? (failingChannel as unknown as MockChannel)
-          : createMockChannel();
-      channels.set(name, channel);
-      return channel;
-    });
-
-    const manager = new TransportManager();
-    const onError = vi.fn();
-    manager.start(new Uint8Array(32), ownPublicKey, {
-      onMessage: vi.fn(),
-      onReceipt: vi.fn(),
-      onSent: vi.fn(),
-      onConnectionChange: vi.fn(),
-      onError,
-    });
-
-    await vi.waitFor(() => {
-      expect(vaultMock.outbox.delete).toHaveBeenCalledWith(packet.id);
-    });
-    // It must have reported the failure but NOT scheduled further retries.
-    expect(onError).toHaveBeenCalled();
-    expect(vaultMock.outbox.update).not.toHaveBeenCalled();
+      }),
+    ).not.toThrow();
+    expect(onConnectionChange).toHaveBeenCalledWith("disconnected");
+    expect(client.connect).not.toHaveBeenCalled();
 
     manager.stop();
   });
+});
 
-  it("creates stable URL-safe inbox channel names from public keys", () => {
-    const name = getInboxChannelName(ownPublicKey);
-    expect(name).toMatch(/^UQZERA-inbox-[A-Za-z0-9_-]+$/);
-    expect(getInboxChannelName(ownPublicKey)).toBe(name);
-    expect(() => getInboxChannelName("not-a-key")).toThrow(
-      "Invalid base64-encoded cryptographic data.",
-    );
+describe("relay outbox", () => {
+  it("marks a relay ACK as relay accepted, not delivered", async () => {
+    const dek = new Uint8Array(32).fill(3);
+    const packet = makePacket(peerPublicKey, "relay-ack-test");
+    const publish = vi.fn(async () => {});
+    const outbox = new EncryptedOutbox(dek, publish);
+
+    await outbox.start();
+    await outbox.enqueue(packet);
+
+    const state = (outbox as unknown as { items: Array<{ status: string }> }).items;
+    expect(publish).toHaveBeenCalledTimes(1);
+    expect(state[0]?.status).toBe(OutboxStatus.RelayAccepted);
+    expect(state[0]?.status).not.toBe(OutboxStatus.Delivered);
+
+    outbox.stop();
+  });
+
+  it("uses the outbox retry schedule with a 30s base and 10 minute cap", () => {
+    expect(getOutboxRetryDelay(0)).toBe(OUTBOX_INITIAL_RETRY_DELAY_MS);
+    expect(getOutboxRetryDelay(1)).toBe(OUTBOX_INITIAL_RETRY_DELAY_MS * 2);
+    expect(getOutboxRetryDelay(8)).toBe(OUTBOX_MAX_RETRY_DELAY_MS);
+    expect(getOutboxRetryDelay(99)).toBe(OUTBOX_MAX_RETRY_DELAY_MS);
+  });
+
+  it("expires queued messages after 7 days, not after a fixed retry count", () => {
+    const now = Date.now();
+
+    expect(hasOutboxExpired(now - OUTBOX_MAX_AGE_MS - 1)).toBe(true);
+    expect(hasOutboxExpired(now - OUTBOX_MAX_AGE_MS)).toBe(true);
+    expect(hasOutboxExpired(now - OUTBOX_MAX_AGE_MS + 1)).toBe(false);
+  });
+
+  it("survives a simulated restart and retries until an ACK removes the item", async () => {
+    vi.useFakeTimers();
+
+    const dek = new Uint8Array(32).fill(9);
+    const packet = makePacket(peerPublicKey, "persisted-msg");
+    const publish = vi.fn(async () => {});
+
+    const first = new EncryptedOutbox(dek, publish);
+    await first.start();
+    await first.enqueue(packet);
+    first.stop();
+
+    const restarted = new EncryptedOutbox(dek, publish);
+    await restarted.start();
+    await restarted.acknowledge(packet.id, peerPublicKey);
+
+    expect((restarted as unknown as { items: Array<{ status: string }> }).items).toHaveLength(0);
+
+    restarted.stop();
+    vi.useRealTimers();
   });
 });
