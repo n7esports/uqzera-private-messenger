@@ -259,6 +259,7 @@ export default function ChatList({
             <button
               type="button"
               onClick={() => {
+                if (!window.confirm(`Delete the chat with ${chat.alias}? This cannot be undone.`)) return;
                 void deleteChat(chat.id).then(() => setMenuChatId(null));
               }}
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-error hover:bg-surface-high"
