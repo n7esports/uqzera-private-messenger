@@ -39,7 +39,6 @@ export default function AppShell({
   const isUnlocked = useVaultStore((s) => s.isUnlocked);
   const profile = useVaultStore((s) => s.profile);
   const loadChats = useChatStore((s: ChatState) => s.loadChats);
-  const [searchFocused, setSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -59,7 +58,7 @@ export default function AppShell({
   return (
     <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col border-r border-hairline bg-surface-container">
       {/* Logo / brand */}
-      <div className="flex items-center gap-3 px-4 py-3">
+      <div className="flex h-14 items-center gap-3 bg-bg-sidebar px-4">
         <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +74,7 @@ export default function AppShell({
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           </svg>
         </div>
-        <span className="text-base font-semibold text-on-surface">UQZERA</span>
+        <span className="text-base font-semibold text-text-primary">UQZERA</span>
       </div>
 
       {/* Divider after logo */}
@@ -84,26 +83,19 @@ export default function AppShell({
       {/* Search bar */}
       <div className="px-4 pb-2">
         <div
-          className="flex items-center gap-2 rounded-lg border px-3 py-1.5 transition-colors"
-          style={{
-            backgroundColor: "#181c24",
-            borderColor: searchFocused ? "#10B981" : "rgba(255,255,255,0.08)",
-          }}
+          className="flex h-[35px] items-center gap-2 rounded-lg bg-bg-panel px-3"
         >
           <IconSearch
             size={16}
-            style={{ color: searchFocused ? "#10B981" : "#bbcabf", flexShrink: 0 }}
+            className="text-text-secondary"
           />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onFocus={() => setSearchFocused(true)}
-            onBlur={() => setSearchFocused(false)}
-            placeholder="Search chats, messages..."
+            placeholder="Search or start new chat"
             aria-label="Search chats and messages"
-            className="w-full bg-transparent text-sm outline-none"
-            style={{ color: searchFocused ? "#10B981" : "#bbcabf" }}
+            className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-accent"
           />
         </div>
       </div>
