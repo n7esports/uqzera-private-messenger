@@ -146,7 +146,7 @@ export default function OnboardingPage() {
             <p className="mt-3 text-sm text-secondary">
               Create a local encrypted vault. Your recovery phrase stays on this device unless you choose to share it.
             </p>
-            <button onClick={advance} className="mt-8 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={advance} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
               Get started
             </button>
           </>
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
             <p className="mt-3 text-sm text-secondary">
               Your 24-word phrase is the only way to recover your vault if you forget your lock.
             </p>
-            <button onClick={beginRecovery} className="mt-8 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={beginRecovery} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
               Generate phrase
             </button>
           </>
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
             <button
               onClick={confirmRecovery}
               disabled={!savedConfirmed}
-              className="mt-5 w-full rounded-xl accent-emerald py-3 text-sm font-medium disabled:opacity-50"
+              className="mt-5 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
             >
               Confirm phrase
             </button>
