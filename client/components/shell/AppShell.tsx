@@ -5,7 +5,6 @@ import { useChatStore, type ChatState } from "../../store/useChatStore";
 import IconChat from "../icons/IconChat";
 import IconPlus from "../icons/IconPlus";
 import IconSearch from "../icons/IconSearch";
-import IconSettings from "../icons/IconSettings";
 import AddContactModal from "../modals/AddContactModal";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
@@ -55,7 +54,7 @@ export default function AppShell({
       {/* Search bar */}
       <div className="px-4 pb-2">
         <div
-          className="flex h-[40px] items-center gap-2 rounded-[10px] bg-bg-panel border border-border px-4"
+          className="flex h-[40px] items-center gap-2 rounded-[12px] bg-bg-panel border border-border px-4"
         >
           <IconSearch
             size={16}
@@ -115,17 +114,6 @@ export default function AppShell({
 
       {/* Divider above bottom section */}
       <div className="mx-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
-      {/* Settings below chats */}
-      <div className="px-4 py-3">
-        <a
-          href="/settings"
-          aria-label="Settings"
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
-        >
-          <IconSettings size={18} />
-        </a>
-      </div>
 
       <AddContactModal
         open={showAddContact}
