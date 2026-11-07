@@ -15,7 +15,7 @@ export default function BoxQRCode({ payload, size = 256 }: { payload: string; si
   const circleSize = size * 0.28;
   return (
     <div className="relative inline-block" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <svg strokeWidth="2.25" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
         <rect width={size} height={size} fill={DARK} rx={8} />
         {Array.from(qr.modules.data).map((v, i) => {
           if (!v) return null;
@@ -40,7 +40,7 @@ export default function BoxQRCode({ payload, size = 256 }: { payload: string; si
           className="flex items-center justify-center rounded-full"
           style={{ width: circleSize, height: circleSize, backgroundColor: DARK }}
         >
-          <IconKey size={circleSize * 0.45} className="text-[#dfe2ee]" strokeWidth={2.5} />
+          <IconKey size={circleSize * 0.45} className="text-[#dfe2ee]" />
         </div>
       </div>
     </div>

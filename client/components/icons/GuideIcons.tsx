@@ -16,12 +16,12 @@ function GuideIcon({
 }: GuideIconProps) {
   return (
     <svg
+      strokeWidth={strokeWidth}
       width={width}
       height={height}
       viewBox={viewBox}
       fill={fill}
       stroke={stroke}
-      strokeWidth={strokeWidth}
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
       {...props}
