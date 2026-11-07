@@ -12,26 +12,8 @@ import SolidWifiOff from "../components/icons/solid/SolidWifiOff";
 import SolidBroadcast from "../components/icons/solid/SolidBroadcast";
 import SolidBox from "../components/icons/solid/SolidBox";
 import SolidGlobe from "../components/icons/solid/SolidGlobe";
-import SolidBook from "../components/icons/solid/SolidBook";
-import SolidNote from "../components/icons/solid/SolidNote";
 import type { ComponentType } from "react";
-import {
-  IconBackup,
-  IconBroadcast,
-  IconChat,
-  IconDevice,
-  IconKey,
-  IconLock,
-  IconNote,
-  IconQR,
-  IconSend,
-  IconTimer,
-  IconTrash,
-} from "../components/icons/GuideIcons";
-import IconWifiOff from "../components/icons/ui/IconWifiOff";
-import IconGlobe from "../components/icons/ui/IconGlobe";
-import IconShield from "../components/icons/ui/IconShield";
-import IconAttach from "../components/icons/ui/IconAttach";
+import { IconSend } from "../components/icons/GuideIcons";
 
 /**
  * A guide action either navigates to a real route (`href`) or asks the guide
