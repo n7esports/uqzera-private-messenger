@@ -175,6 +175,7 @@ export default function ChatList({
               <span className="flex items-center justify-between gap-2">
                 <span className={`flex min-w-0 items-center gap-1 truncate text-base font-normal ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
                   <span className="truncate">{chat.alias}</span>
+                  {chat.pinned && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" className="text-text-secondary flex-shrink-0" aria-hidden="true"><path d="M12 17v5" /><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></svg>}
                   {muted && (
                     <span title="Muted" aria-label="Muted" className="flex-shrink-0">
                       <IconBellOff size={13} aria-hidden="true" />
@@ -282,59 +283,53 @@ export default function ChatList({
       aria-label="Chat list"
       className="flex-1 overflow-y-auto no-scrollbar"
     >
-      <section aria-labelledby="pinned-heading">
-        <h2
-          id="pinned-heading"
-          className="px-4 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
-        >
-          Pinned
-        </h2>
-        <ul>
-          <li className="list-none">
-            <button
-              type="button"
-              onClick={() => {
-                onOpenGuide?.();
-                setMenuChatId(null);
-              }}
-              aria-pressed={guideActive}
-              className={`flex h-[72px] w-full items-center gap-3 px-4 py-0 text-left transition ${
-                guideActive ? "bg-bg-selected" : "hover:bg-bg-hover"
-              }`}
-            >
-              <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
-                <IconChat size={20} aria-hidden="true" />
+      <ul>
+        <li className="list-none">
+          <button
+            type="button"
+            onClick={() => {
+              onOpenGuide?.();
+              setMenuChatId(null);
+            }}
+            aria-pressed={guideActive}
+            className={`flex h-[72px] w-full items-center gap-3 px-4 py-0 text-left transition ${
+              guideActive ? "bg-bg-selected" : "hover:bg-bg-hover"
+            }`}
+          >
+            <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
+              <IconChat size={20} aria-hidden="true" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-base font-normal text-text-primary">
+                Guide
               </span>
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-base font-normal text-text-primary">
-                  Guide
-                </span>
-                <span className="block truncate text-sm text-text-secondary">
-                  Your quick-start guide
-                </span>
+              <span className="block truncate text-sm text-text-secondary">
+                Your quick-start guide
               </span>
-              <span className="sr-only">Pinned</span>
-            </button>
-          </li>
-          {pinnedChats.map(renderChat)}
-        </ul>
-      </section>
+            </span>
+            <span className="sr-only">Pinned</span>
+          </button>
+        </li>
+        {pinnedChats.map(renderChat)}
+      </ul>
 
-      <section aria-labelledby="chats-heading">
-        <h2
-          id="chats-heading"
-          className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
-        >
-          Chats
-        </h2>
-        {regularChats.length === 0 ? (
-          <p className="px-4 py-3 text-xs text-on-surface-variant">
-            No conversations found
-          </p>
-        ) : (
+      {regularChats.length > 0 && (
+        <>
+          <h2
+            id="chats-heading"
+            className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
+          >
+            Chats
+          </h2>
           <ul>{regularChats.map(renderChat)}</ul>
-        )}
-      </section>
+        </>
+      )}
+
+      {regularChats.length === 0 && pinnedChats.length === 0 && (
+        <p className="px-4 py-3 text-xs text-on-surface-variant">
+          No conversations found
+        </p>
+      )}
 
       {archivedChats.length > 0 && (
         <details className="group border-t border-hairline">
