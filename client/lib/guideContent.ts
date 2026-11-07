@@ -3,18 +3,19 @@ import {
   IconBackup,
   IconBroadcast,
   IconChat,
-  IconCheck,
   IconDevice,
   IconKey,
   IconLock,
   IconNote,
-  IconOffline,
   IconQR,
   IconSend,
   IconTimer,
-  IconTor,
   IconTrash,
 } from "../components/icons/GuideIcons";
+import IconWifiOff from "../components/icons/ui/IconWifiOff";
+import IconGlobe from "../components/icons/ui/IconGlobe";
+import IconShield from "../components/icons/ui/IconShield";
+import IconAttach from "../components/icons/ui/IconAttach";
 
 /**
  * A guide action either navigates to a real route (`href`) or asks the guide
@@ -107,7 +108,7 @@ export const guideSections: GuideSection[] = [
         action: { label: "Go to wipe control", intent: "panic-wipe" },
       },
       {
-        icon: IconCheck,
+        icon: IconShield,
         title: "Verify before you trust",
         body: "Compare public keys out-of-band before your first message to be sure no one is impersonating your contact.",
       },
@@ -118,12 +119,12 @@ export const guideSections: GuideSection[] = [
     caption: "Day-to-day actions",
     items: [
       {
-        icon: IconSend,
+        icon: IconAttach,
         title: "Attachments & reactions",
         body: "Tap the paperclip to send photos, files, audio or a location. Long-press a message (or use the arrow) to reply, react, star, pin, forward or delete it.",
       },
       {
-        icon: IconOffline,
+        icon: IconWifiOff,
         title: "Works offline",
         body: "No relay? No problem. Messages queue locally and send the moment you're back online. Nothing is lost.",
       },
@@ -146,7 +147,7 @@ export const guideSections: GuideSection[] = [
         action: { label: "Coming soon", comingSoon: true },
       },
       {
-        icon: IconTor,
+        icon: IconGlobe,
         title: "Tor mode",
         body: "Route traffic through Tor to hide your IP address. Off by default.",
         action: { label: "Coming soon", comingSoon: true },
