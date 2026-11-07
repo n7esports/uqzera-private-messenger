@@ -33,11 +33,11 @@ export default async function RootLayout({
   const nonce = (await headers()).get("x-nonce");
 
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
+    <html lang="en" className={`dark ${inter.variable}`} style={{ background: "#0A0D14" }}>
       <head>
         {nonce && <meta name="x-nonce" content={nonce} />}
       </head>
-      <body className="font-sans bg-surface text-on-surface antialiased">
+      <body className="font-sans bg-transparent text-on-surface antialiased">
         <div className="liquid-bg" aria-hidden="true">
           <div className="blob" style={{ width: 400, height: 400, top: "10%", left: "20%" }} />
           <div className="blob" style={{ width: 350, height: 350, top: "60%", left: "70%" }} />
