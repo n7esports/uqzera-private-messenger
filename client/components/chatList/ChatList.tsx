@@ -9,7 +9,6 @@ import {
 import IconMute from "../icons/ui/IconMute";
 import SolidBook from "../icons/solid/SolidBook";
 import SolidNotes from "../icons/solid/SolidNotes";
-import IconGuide from "../icons/ui/IconGuide";
 import IconTrash from "../icons/ui/IconTrash";
 import IconClose from "../icons/ui/IconClose";
 
