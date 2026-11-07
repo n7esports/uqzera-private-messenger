@@ -13,7 +13,7 @@ import SolidBroadcast from "../components/icons/solid/SolidBroadcast";
 import SolidBox from "../components/icons/solid/SolidBox";
 import SolidGlobe from "../components/icons/solid/SolidGlobe";
 import type { ComponentType } from "react";
-import { IconSend } from "../components/icons/GuideIcons";
+import SolidSend from "../components/icons/solid/SolidSend";
 
 /**
  * A guide action either navigates to a real route (`href`) or asks the guide
@@ -155,7 +155,7 @@ export const guideSections: GuideSection[] = [
 ];
 
 export const guideOutro = {
-  icon: IconSend,
+  icon: SolidSend,
   title: "You're all set",
   body: "That's the tour. I'll be pinned in your sidebar whenever you need a refresher.",
   action: { label: "Send a message", intent: "new-chat" } as GuideAction,
