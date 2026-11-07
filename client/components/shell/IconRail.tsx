@@ -18,7 +18,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
   return (
     <nav
       aria-label="Icon rail"
-      className="flex h-screen w-16 flex-col items-center gap-2 border-r border-border bg-transparent py-3 glass"
+      className="flex h-screen w-16 flex-col items-center gap-2 border-r border-border bg-[var(--sidebar-bg)] backdrop-blur-[14px] py-3"
     >
       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent border border-border text-sm font-semibold text-white">
         U
