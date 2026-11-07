@@ -69,7 +69,7 @@ export default function ChatsPage() {
             {guideActive ? (
               <GuideConversation onBack={() => setMobileView("list")} />
             ) : (
-              <ChatView chatId={activeChatId} onBack={() => setMobileView("list")} />
+              <ChatView chatId={activeChatId} onBack={() => setMobileView("list")} onOpenGuide={() => setGuideActive(true)} />
             )}
           </div>
         )}
@@ -79,7 +79,7 @@ export default function ChatsPage() {
         {guideActive ? (
           <GuideConversation />
         ) : (
-          <ChatView chatId={activeChatId} />
+          <ChatView chatId={activeChatId} onOpenGuide={() => setGuideActive(true)} />
         )}
       </main>
 
