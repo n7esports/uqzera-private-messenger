@@ -159,7 +159,7 @@ export default function ChatList({
             onClick={() => selectChat(chat.id)}
             aria-pressed={activeChatId === chat.id}
             className={`flex h-[72px] min-w-0 flex-1 items-center gap-3 px-4 py-0 text-left transition focus:ring-2 focus:ring-accent ${
-              activeChatId === chat.id ? "bg-bg-selected" : "hover:bg-bg-hover"
+              activeChatId === chat.id ? "bg-accent/15 border-l-[3px] border-accent" : "hover:bg-bg-hover"
             }`}
           >
             <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">

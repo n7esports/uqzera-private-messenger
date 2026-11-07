@@ -46,14 +46,7 @@ export default function AppShell({
         <div className="flex items-center gap-3">
           <img src="/logo-withoutbg.png" alt="UQZERA" className="h-11 w-auto object-contain" />
         </div>
-        <button
-          type="button"
-          aria-label="New chat"
-          onClick={() => setShowAddContact(true)}
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
-        >
-          <IconPlus size={18} />
-        </button>
+
       </div>
 
       {/* Divider after logo */}
@@ -62,7 +55,7 @@ export default function AppShell({
       {/* Search bar */}
       <div className="px-4 pb-2">
         <div
-          className="flex h-[35px] items-center gap-2 rounded-lg bg-bg-panel px-3"
+          className="flex h-[40px] items-center gap-2 rounded-[10px] bg-bg-panel border border-border px-4"
         >
           <IconSearch
             size={16}

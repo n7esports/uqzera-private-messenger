@@ -205,7 +205,7 @@ export function ChatView({
           <button
             onClick={cycleEphemeralTtl}
             title="Ephemeral TTL"
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
           >
             <IconClock size={16} />
           </button>
@@ -224,13 +224,13 @@ export function ChatView({
                 void handleSend();
               }
             }}
-            className="h-10 flex-1 resize-none rounded-[20px] border-0 bg-bg-panel px-4 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:ring-2 focus:ring-accent"
+            className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-bg-panel px-4 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:ring-2 focus:ring-accent"
           />
           <button
             onClick={() => void handleSend()}
             disabled={!content.trim()}
             aria-label="Send message"
-            className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent text-white transition hover:bg-accent-hover disabled:opacity-40"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[#0A0D14] transition hover:bg-accent-hover disabled:opacity-40"
           >
             <IconSend size={16} />
           </button>

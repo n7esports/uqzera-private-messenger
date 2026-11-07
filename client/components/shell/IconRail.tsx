@@ -20,9 +20,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
       aria-label="Icon rail"
       className="flex h-screen w-16 flex-col items-center gap-2 border-r border-border bg-[var(--sidebar-bg)] backdrop-blur-[14px] py-3"
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent border border-border text-sm font-semibold text-white">
-        U
-      </div>
+      <img src="/logo-withoutbg.png" alt="UQZERA" className="h-10 w-auto object-contain" />
       <div className="my-1 h-px w-8 bg-border" />
       <button
         type="button"
@@ -42,17 +40,17 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
       <div className="mt-auto flex flex-col items-center gap-2">
         <a
           href="/settings"
-          aria-label="Profile"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-panel text-xs font-medium text-text-primary"
-        >
-          {initials(profile?.name ?? "") || "?"}
-        </a>
-        <a
-          href="/settings"
           aria-label="Settings"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
           <IconSettings size={18} />
+        </a>
+        <a
+          href="/settings"
+          aria-label="Profile"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-panel text-xs font-medium text-text-primary"
+        >
+          {initials(profile?.name ?? "") || "?"}
         </a>
       </div>
     </nav>
