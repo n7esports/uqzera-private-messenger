@@ -44,21 +44,7 @@ export default function AppShell({
         {/* Logo / brand */}
       <div className="flex h-14 items-center justify-between gap-3 bg-bg-sidebar px-4 glass">
         <div className="flex items-center gap-3">
-          <div
-            className="h-11 w-11 bg-accent"
-            style={{
-              maskImage: "url(/logo-withoutbg.png)",
-              WebkitMaskImage: "url(/logo-withoutbg.png)",
-              maskSize: "contain",
-              WebkitMaskSize: "contain",
-              maskRepeat: "no-repeat",
-              WebkitMaskRepeat: "no-repeat",
-              maskPosition: "center",
-              WebkitMaskPosition: "center",
-              filter: "drop-shadow(0 0 0.5px var(--accent))",
-            }}
-            aria-label="UQZERA"
-          />
+          <img src="/logo-withoutbg.png" alt="UQZERA" className="h-11 w-auto object-contain" />
         </div>
         <button
           type="button"
