@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { useChatStore, type ChatMessage } from "../store/useChatStore";
 import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
-import IconClock from "./icons/IconClock";
-import IconLock from "./icons/IconLock";
+import IconClock from "./icons/ui/IconClock";
+import IconLock from "./icons/ui/IconLock";
 import IconMoreVertical from "./icons/IconMoreVertical";
 import IconReply from "./icons/IconReply";
-import IconSearch from "./icons/IconSearch";
-import IconSend from "./icons/IconSend";
-import IconX from "./icons/IconX";
+import IconSearch from "./icons/ui/IconSearch";
+import IconSend from "./icons/ui/IconSend";
+import IconClose from "./icons/ui/IconClose";
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
 
@@ -88,7 +88,7 @@ export function ChatView({
     return (
       <div className="flex h-full w-full items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-2">
-          <IconLock size={48} className="text-primary" />
+          <IconLock width={48} height={48} className="text-primary" />
           <p className="text-sm font-medium text-text-primary">No active session</p>
           <p className="text-xs text-text-secondary">
             Select a thread to establish an E2EE channel.
@@ -132,7 +132,7 @@ export function ChatView({
         </div>
         <div className="flex items-center gap-1">
           <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="Search messages">
-            <IconSearch size={18} />
+            <IconSearch width={18} height={18} />
           </button>
           <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="More options">
             <IconMoreVertical size={18} />
@@ -146,7 +146,7 @@ export function ChatView({
           title="Click to change TTL"
           className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-container px-3 py-1 text-xs text-text-secondary transition hover:bg-surface-high"
         >
-          <IconClock size={12} />
+          <IconClock width={12} height={12} />
           Messages auto-shred after{" "}
           {ephemeralTtl
             ? ephemeralTtl / 60 > 0
@@ -209,7 +209,7 @@ export function ChatView({
               aria-label="Cancel reply"
               className="rounded p-1 hover:bg-bg-hover"
             >
-              <IconX size={14} />
+              <IconClose width={14} height={14} />
             </button>
           </div>
         )}
@@ -219,7 +219,7 @@ export function ChatView({
             title="Ephemeral TTL"
             className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
           >
-            <IconClock size={16} />
+            <IconClock width={16} height={16} />
           </button>
           <textarea
             value={content}
@@ -244,7 +244,7 @@ export function ChatView({
             aria-label="Send message"
             className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[#0A0D14] transition hover:bg-accent-hover disabled:opacity-40"
           >
-            <IconSend size={16} />
+            <IconSend width={16} height={16} />
           </button>
         </div>
       </div>
