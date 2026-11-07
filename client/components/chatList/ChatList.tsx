@@ -6,11 +6,11 @@ import {
   type ChatState,
   type ChatSummary,
 } from "../../store/useChatStore";
-import IconBellOff from "../icons/IconBellOff";
-import IconLock from "../icons/IconLock";
-import IconChat from "../icons/IconChat";
-import IconTrash from "../icons/IconTrash";
-import IconX from "../icons/IconX";
+import IconMute from "../icons/ui/IconMute";
+import IconNotes from "../icons/ui/IconNotes";
+import IconGuide from "../icons/ui/IconGuide";
+import IconTrash from "../icons/ui/IconTrash";
+import IconClose from "../icons/ui/IconClose";
 
 const MAX_PINNED_CHATS = 3;
 const ARCHIVED_LIST_ID = "archived";
@@ -193,7 +193,7 @@ export default function ChatList({
           >
             <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">
               {chat.alias === "Private Notes" ? (
-                <IconLock size={22} className="text-accent" />
+                <IconNotes width={22} height={22} className="text-accent" />
               ) : (
                 <span className={`text-base font-medium ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
                   {initials(chat.alias)}
@@ -207,7 +207,7 @@ export default function ChatList({
                   {chat.pinned && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" className="text-text-secondary flex-shrink-0" aria-hidden="true"><path d="M12 17v5" /><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></svg>}
                   {muted && (
                     <span title="Muted" aria-label="Muted" className="flex-shrink-0">
-                      <IconBellOff size={13} aria-hidden="true" />
+                      <IconMute width={13} height={13} aria-hidden="true" />
                     </span>
                   )}
                 </span>
@@ -277,7 +277,7 @@ export default function ChatList({
               }}
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-on-surface hover:bg-surface-high"
             >
-              <IconX size={14} aria-hidden="true" /> Clear chat
+              <IconClose width={14} height={14} aria-hidden="true" /> Clear chat
             </button>
             <button
               type="button"
@@ -287,7 +287,7 @@ export default function ChatList({
               }}
               className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-error hover:bg-surface-high"
             >
-              <IconTrash size={14} aria-hidden="true" /> Delete chat
+              <IconTrash width={14} height={14} aria-hidden="true" /> Delete chat
             </button>
           </div>
         )}
@@ -317,7 +317,7 @@ export default function ChatList({
             }`}
           >
             <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
-              <IconChat size={20} aria-hidden="true" />
+              <IconGuide width={20} height={20} aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-base font-normal text-text-primary">
