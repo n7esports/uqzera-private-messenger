@@ -62,7 +62,10 @@ export default function ChatList({
   );
   const deleteChat = useChatStore((state: ChatState) => state.deleteChat);
   const [menuChatId, setMenuChatId] = useState<string | null>(null);
+  const [sheetChatId, setSheetChatId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longPressFired = useRef(false);
 
   const { activeChats, archivedChats, pinnedChats, regularChats } = useMemo(() => {
     const active = chats
@@ -151,11 +154,27 @@ export default function ChatList({
           event.preventDefault();
           setMenuChatId(chat.id);
         }}
+        onPointerDown={() => {
+          longPressFired.current = false;
+          longPressTimer.current = setTimeout(() => {
+            longPressFired.current = true;
+            setSheetChatId(chat.id);
+          }, 500);
+        }}
+        onPointerUp={() => {
+          if (longPressTimer.current) clearTimeout(longPressTimer.current);
+        }}
+        onPointerLeave={() => {
+          if (longPressTimer.current) clearTimeout(longPressTimer.current);
+        }}
+        onPointerCancel={() => {
+          if (longPressTimer.current) clearTimeout(longPressTimer.current);
+        }}
       >
         <div className="flex items-center pr-2">
           <button
             type="button"
-            onClick={() => selectChat(chat.id)}
+            onClick={() => { if (longPressFired.current) { longPressFired.current = false; return; } selectChat(chat.id); }}
             aria-pressed={activeChatId === chat.id}
             className={`flex h-[72px] min-w-0 flex-1 items-center gap-3 px-4 py-0 text-left transition focus:ring-2 focus:ring-accent ${
               activeChatId === chat.id ? "bg-accent/15 border-l-[3px] border-accent" : "hover:bg-bg-hover"
@@ -266,8 +285,9 @@ export default function ChatList({
   };
 
   return (
-    <div
-      ref={listRef}
+    <>
+      <div
+        ref={listRef}
       role="region"
       aria-label="Chat list"
       className="flex-1 overflow-y-auto no-scrollbar"
@@ -336,5 +356,43 @@ export default function ChatList({
         </details>
       )}
     </div>
+    {sheetChatId && (
+      <div className="fixed inset-0 z-50 md:hidden" onClick={() => setSheetChatId(null)}>
+        <div className="absolute inset-0 bg-black/40" />
+        <div
+          className="absolute bottom-0 left-0 right-0 rounded-t-[16px] sidebar-glass p-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-text-secondary/40" />
+          {(() => {
+            const chat = activeChats.find((c) => c.id === sheetChatId);
+            if (!chat) return null;
+            return (
+              <>
+                <div className="mb-3">
+                  <div className="text-sm font-medium text-text-primary">{chat.alias}</div>
+                  <div className="text-xs text-text-secondary">{chat.id.slice(0, 10)}…</div>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <button type="button" onClick={() => { void togglePinned(chat); setSheetChatId(null); }} className="rounded-lg px-3 py-2 text-left text-sm hover:bg-bg-hover">
+                    {chat.pinned ? "Unpin" : "Pin"}
+                  </button>
+                  <button type="button" onClick={() => { void toggleMuted(chat); setSheetChatId(null); }} className="rounded-lg px-3 py-2 text-left text-sm hover:bg-bg-hover">
+                    {"Mute or Unmute"}
+                  </button>
+                  <button type="button" onClick={() => { void toggleArchived(chat); setSheetChatId(null); }} className="rounded-lg px-3 py-2 text-left text-sm hover:bg-bg-hover">
+                    {chat.listId === ARCHIVED_LIST_ID ? "Unarchive" : "Archive"}
+                  </button>
+                  <button type="button" onClick={() => { if (confirm("Delete chat?")) void deleteChat(chat.id); setSheetChatId(null); }} className="rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-bg-hover">
+                    Delete chat
+                  </button>
+                </div>
+              </>
+            );
+          })()}
+        </div>
+      </div>
+    )}
+    </>
   );
 }
