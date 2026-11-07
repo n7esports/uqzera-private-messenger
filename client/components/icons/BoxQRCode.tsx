@@ -5,7 +5,6 @@ import QRCode from "qrcode";
 import IconKey from "./IconKey";
 
 const DARK = "#064e3b";
-const EMERALD = "#10B981";
 
 export default function BoxQRCode({ payload, size = 256 }: { payload: string; size?: number }) {
   const qr = useMemo(() => QRCode.create(payload, { errorCorrectionLevel: "M" }), [payload]);

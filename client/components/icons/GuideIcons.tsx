@@ -7,15 +7,15 @@ function GuideIcon({
   width = 20,
   height = 20,
   viewBox = "0 0 24 24",
-  fill = "none",
+  fill = "currentColor",
   stroke = "currentColor",
-  strokeWidth = 1.5,
+  strokeWidth = 2,
   strokeLinecap = "round",
   strokeLinejoin = "round",
   ...props
 }: GuideIconProps) {
   return (
-    <svg fill="currentColor" stroke="currentColor" strokeWidth="2"
+    <svg fill={fill} stroke={stroke} strokeWidth={strokeWidth}
       width={width}
       height={height}
       viewBox={viewBox}
