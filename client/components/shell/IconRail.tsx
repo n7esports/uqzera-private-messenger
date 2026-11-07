@@ -1,10 +1,10 @@
 "use client";
 
 import { useVaultStore } from "../../store/useVaultStore";
-import IconSearch from "../icons/brand/IconSearch";
-import IconChats from "../icons/brand/IconChats";
-import IconSettings from "../icons/brand/IconSettings";
-import IconLock from "../icons/brand/IconLock";
+import IconSearch from "../icons/ui/IconSearch";
+import IconChats from "../icons/ui/IconChats";
+import IconSettings from "../icons/ui/IconSettings";
+import IconNotes from "../icons/ui/IconNotes";
 import { useChatStore } from "../../store/useChatStore";
 
 export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
@@ -51,7 +51,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
           onClick={() => setActiveChat(privateNotesId)}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
-          <IconLock width={18} height={18} />
+          <IconNotes width={18} height={18} />
         </button>
       )}
       <div className="mt-auto flex flex-col items-center gap-2">
