@@ -66,6 +66,17 @@ export default function ChatList({
   const listRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressFired = useRef(false);
+  useEffect(() => {
+    if (!menuChatId && !sheetChatId) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuChatId(null);
+        setSheetChatId(null);
+      }
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [menuChatId, sheetChatId]);
 
   const { activeChats, archivedChats, pinnedChats, regularChats } = useMemo(() => {
     const active = chats
