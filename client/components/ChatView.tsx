@@ -162,7 +162,7 @@ export function ChatView({
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 pb-24">
+      <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 pb-24" style={{ backgroundImage: "radial-gradient(rgba(16,185,129,0.08) 1px, transparent 1px)", backgroundSize: "18px 18px" }}>
         {messages.length === 0 && (
           <p className="py-8 text-center text-sm text-outline">No messages yet. Say hello.</p>
         )}

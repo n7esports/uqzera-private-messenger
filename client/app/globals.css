@@ -176,3 +176,12 @@
     caret-color: var(--text-primary);
   }
 }
+
+@keyframes liquid-drift {
+  0% { transform: translate(0,0) scale(1); }
+  50% { transform: translate(40px,-30px) scale(1.1); }
+  100% { transform: translate(0,0) scale(1); }
+}
+.liquid-bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
+.liquid-bg .blob { position: absolute; border-radius: 9999px; background: rgba(16,185,129,0.18); filter: blur(80px); animation: liquid-drift 25s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .liquid-bg .blob { animation: none; } }

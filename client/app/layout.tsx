@@ -38,6 +38,11 @@ export default async function RootLayout({
         {nonce && <meta name="x-nonce" content={nonce} />}
       </head>
       <body className="font-sans bg-surface text-on-surface antialiased">
+        <div className="liquid-bg" aria-hidden="true">
+          <div className="blob" style={{ width: 400, height: 400, top: "10%", left: "20%" }} />
+          <div className="blob" style={{ width: 350, height: 350, top: "60%", left: "70%" }} />
+          <div className="blob" style={{ width: 300, height: 300, top: "40%", left: "50%" }} />
+        </div>
         <Providers>{children}</Providers>
         <CookieConsent />
       </body>
