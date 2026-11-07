@@ -4,9 +4,15 @@ import { useVaultStore } from "../../store/useVaultStore";
 import IconSearch from "../icons/IconSearch";
 import IconChat from "../icons/IconChat";
 import IconSettings from "../icons/IconSettings";
+import IconLock from "../icons/brand/IconLock";
+import { useChatStore } from "../../store/useChatStore";
 
 export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
   const profile = useVaultStore((state) => state.profile);
+  const setActiveChat = useChatStore((s) => s.setActiveChat);
+  const activeChatId = useChatStore((s) => s.activeChatId);
+  const chats = useChatStore((s) => s.chats);
+  const privateNotesId = chats.find((c) => c.alias === "Private Notes")?.id ?? null;
 
   const initials = (alias: string) =>
     alias
@@ -37,6 +43,17 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
       >
         <IconChat size={18} />
       </button>
+      {privateNotesId && (
+        <button
+          type="button"
+          aria-label="Private Notes"
+          aria-pressed={activeChatId === privateNotesId}
+          onClick={() => setActiveChat(privateNotesId)}
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
+        >
+          <IconLock width={18} height={18} />
+        </button>
+      )}
       <div className="mt-auto flex flex-col items-center gap-2">
         <a
           href="/settings"
