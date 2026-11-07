@@ -146,7 +146,7 @@ export default function OnboardingPage() {
             <p className="mt-3 text-sm text-secondary">
               Create a local encrypted vault. Your recovery phrase stays on this device unless you choose to share it.
             </p>
-            <button onClick={advance} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
+            <button onClick={advance} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Get started
             </button>
           </>
@@ -175,7 +175,7 @@ export default function OnboardingPage() {
                 className="mt-2 w-full rounded-xl border border-default bg-input px-4 py-3 text-primary"
               />
             </label>
-            <button onClick={advance} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
+            <button onClick={advance} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Continue
             </button>
           </>
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
             <p className="mt-3 text-sm text-secondary">
               Your 24-word phrase is the only way to recover your vault if you forget your lock.
             </p>
-            <button onClick={beginRecovery} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
+            <button onClick={beginRecovery} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Generate phrase
             </button>
           </>
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
             <button
               onClick={confirmRecovery}
               disabled={!savedConfirmed}
-              className="mt-5 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-40"
+              className="mt-5 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover disabled:opacity-40"
             >
               Confirm phrase
             </button>
@@ -334,7 +334,7 @@ export default function OnboardingPage() {
                 )}
               </span>
             </label>
-            <button onClick={() => void createIdentity()} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
+            <button onClick={() => void createIdentity()} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Create vault
             </button>
           </>
@@ -354,7 +354,7 @@ export default function OnboardingPage() {
             <button onClick={() => void shareID()} className="mt-3 w-full rounded-xl border border-default py-3 text-sm text-primary">
               Share ID
             </button>
-            <button onClick={() => router.replace("/chats")} className="mt-3 h-11 w-full rounded-lg bg-accent text-sm font-medium text-white hover:bg-accent-hover">
+            <button onClick={() => router.replace("/chats")} className="mt-3 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Continue
             </button>
           </>
