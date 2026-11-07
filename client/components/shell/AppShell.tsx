@@ -40,9 +40,9 @@ export default function AppShell({
   return (
     <div className="flex h-screen w-full">
       <IconRail onSearchClick={() => searchInputRef.current?.focus()} />
-      <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col bg-[var(--sidebar-bg)] backdrop-blur-[14px]">
+      <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col sidebar-glass">
         {/* Logo / brand */}
-      <div className="flex h-14 items-center justify-between gap-3 bg-[var(--sidebar-bg)] backdrop-blur-[14px] px-4">
+      <div className="flex h-14 items-center justify-between gap-3 sidebar-glass px-4">
         <div className="flex items-center gap-3">
           <img src="/logo-withoutbg.png" alt="UQZERA" className="h-11 w-auto object-contain" />
         </div>

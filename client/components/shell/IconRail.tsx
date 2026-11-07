@@ -18,7 +18,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
   return (
     <nav
       aria-label="Icon rail"
-      className="flex h-screen w-16 flex-col items-center gap-2 border-r border-border bg-[var(--sidebar-bg)] backdrop-blur-[14px] py-3"
+      className="flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3"
     >
       <img src="/logo-withoutbg.png" alt="UQZERA" className="h-10 w-auto object-contain" />
       <div className="my-1 h-px w-8 bg-border" />

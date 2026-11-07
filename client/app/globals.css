@@ -71,6 +71,15 @@
 }
 
 @layer components {
+  .sidebar-glass {
+    background: var(--sidebar-bg);
+    -webkit-backdrop-filter: var(--sidebar-blur);
+    backdrop-filter: var(--sidebar-blur);
+    border-right: 1px solid var(--border);
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .sidebar-glass { background: var(--bg-panel); }
+  }
   .glass-layer {
     background: rgba(15, 19, 28, 0.80);
     backdrop-filter: blur(12px);

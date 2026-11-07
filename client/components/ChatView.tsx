@@ -94,7 +94,7 @@ export function ChatView({
 
   return (
     <div className="flex h-full w-full flex-col bg-surface">
-      <header className="flex h-14 items-center justify-between border-b border-border bg-[var(--sidebar-bg)] backdrop-blur-[14px] px-4">
+      <header className="flex h-14 items-center justify-between border-b border-border sidebar-glass px-4">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
