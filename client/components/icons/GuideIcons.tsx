@@ -15,13 +15,10 @@ function GuideIcon({
   ...props
 }: GuideIconProps) {
   return (
-    <svg
-      strokeWidth={strokeWidth}
+    <svg fill="currentColor" stroke="currentColor" strokeWidth="2"
       width={width}
       height={height}
       viewBox={viewBox}
-      fill={fill}
-      stroke={stroke}
       strokeLinecap={strokeLinecap}
       strokeLinejoin={strokeLinejoin}
       {...props}

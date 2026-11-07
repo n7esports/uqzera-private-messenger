@@ -6,13 +6,11 @@ export default function IconUnlock({
   ...props
 }: SVGProps<SVGSVGElement> & { size?: number }) {
   return (
-    <svg strokeWidth="2.25"
+    <svg fill="currentColor" stroke="currentColor" strokeWidth="2"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}

@@ -15,8 +15,8 @@ export default function BoxQRCode({ payload, size = 256 }: { payload: string; si
   const circleSize = size * 0.28;
   return (
     <div className="relative inline-block" style={{ width: size, height: size }}>
-      <svg strokeWidth="2.25" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <rect width={size} height={size} fill={DARK} rx={8} />
+      <svg fill="currentColor" stroke="currentColor" strokeWidth="2" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+        <rect width={size} height={size} rx={8} />
         {Array.from(qr.modules.data).map((v, i) => {
           if (!v) return null;
           const c = i % n;
@@ -30,7 +30,6 @@ export default function BoxQRCode({ payload, size = 256 }: { payload: string; si
               height={cell * 0.92}
               rx={2}
               ry={2}
-              fill={EMERALD}
             />
           );
         })}
