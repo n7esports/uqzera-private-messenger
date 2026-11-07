@@ -87,6 +87,12 @@ export function ChatView({
           <p className="text-xs text-text-secondary">
             Select a thread to establish an E2EE channel.
           </p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <button type="button" aria-label="Start chat" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Start chat</button>
+            <button type="button" aria-label="Setting up" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Setting up</button>
+            <button type="button" aria-label="Add contact" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Add contact</button>
+            <button type="button" aria-label="Guide" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Guide</button>
+          </div>
         </div>
       </div>
     );
