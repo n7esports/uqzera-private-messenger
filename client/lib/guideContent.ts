@@ -1,3 +1,19 @@
+import SolidChat from "../components/icons/solid/SolidChat";
+import SolidGrid from "../components/icons/solid/SolidGrid";
+import SolidNotes from "../components/icons/solid/SolidNotes";
+import SolidLock from "../components/icons/solid/SolidLock";
+import SolidKey from "../components/icons/solid/SolidKey";
+import SolidPhone from "../components/icons/solid/SolidPhone";
+import SolidTimer from "../components/icons/solid/SolidTimer";
+import SolidTrash from "../components/icons/solid/SolidTrash";
+import SolidShield from "../components/icons/solid/SolidShield";
+import SolidPaperclip from "../components/icons/solid/SolidPaperclip";
+import SolidWifiOff from "../components/icons/solid/SolidWifiOff";
+import SolidBroadcast from "../components/icons/solid/SolidBroadcast";
+import SolidBox from "../components/icons/solid/SolidBox";
+import SolidGlobe from "../components/icons/solid/SolidGlobe";
+import SolidBook from "../components/icons/solid/SolidBook";
+import SolidNote from "../components/icons/solid/SolidNote";
 import type { ComponentType } from "react";
 import {
   IconBackup,
