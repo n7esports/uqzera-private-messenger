@@ -166,14 +166,14 @@ export default function ChatList({
               {chat.alias === "Private Notes" ? (
                 <IconLock size={22} className="text-accent" />
               ) : (
-                <span className="text-base font-medium text-text-primary">
+                <span className={`text-base font-medium ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
                   {initials(chat.alias)}
                 </span>
               )}
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">
-                <span className="flex min-w-0 items-center gap-1 truncate text-base font-normal text-text-primary">
+                <span className={`flex min-w-0 items-center gap-1 truncate text-base font-normal ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
                   <span className="truncate">{chat.alias}</span>
                   {muted && (
                     <span title="Muted" aria-label="Muted" className="flex-shrink-0">

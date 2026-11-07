@@ -10,7 +10,7 @@ export default function SettingsPage() {
   const [section, setSection] = useState<SettingsSection>(DEFAULT_SECTION);
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-surface">
+    <div className="flex h-screen w-full overflow-hidden bg-transparent">
       <SettingsSidebar active={section} onSelect={setSection} />
       <main className="flex-1 overflow-hidden">
         <SettingsView section={section} />
