@@ -3,8 +3,8 @@
 import { useVaultStore } from "../../store/useVaultStore";
 import IconSearch from "../icons/ui/IconSearch";
 import SolidChat from "../icons/solid/SolidChat";
-import IconSettings from "../icons/ui/IconSettings";
-import IconNotes from "../icons/ui/IconNotes";
+import SolidNotes from "../icons/solid/SolidNotes";
+import SolidSettings from "../icons/solid/SolidSettings";
 import { useChatStore } from "../../store/useChatStore";
 
 export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
@@ -51,7 +51,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
           onClick={() => setActiveChat(privateNotesId)}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
-          <IconNotes width={18} height={18} />
+          <SolidNotes width={18} height={18} />
         </button>
       )}
       <div className="mt-auto flex flex-col items-center gap-2">
@@ -60,7 +60,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
           aria-label="Settings"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
-          <IconSettings width={18} height={18} />
+          <SolidSettings width={18} height={18} />
         </a>
         <a
           href="/settings"

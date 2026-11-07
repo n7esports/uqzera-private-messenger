@@ -7,7 +7,8 @@ import {
   type ChatSummary,
 } from "../../store/useChatStore";
 import IconMute from "../icons/ui/IconMute";
-import IconNotes from "../icons/ui/IconNotes";
+import SolidBook from "../icons/solid/SolidBook";
+import SolidNotes from "../icons/solid/SolidNotes";
 import IconGuide from "../icons/ui/IconGuide";
 import IconTrash from "../icons/ui/IconTrash";
 import IconClose from "../icons/ui/IconClose";
@@ -193,7 +194,7 @@ export default function ChatList({
           >
             <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">
               {chat.alias === "Private Notes" ? (
-                <IconNotes width={22} height={22} className="text-accent" />
+                <SolidNotes width={22} height={22} className="text-accent" />
               ) : (
                 <span className={`text-base font-medium ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
                   {initials(chat.alias)}
@@ -317,7 +318,7 @@ export default function ChatList({
             }`}
           >
             <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
-              <IconGuide width={20} height={20} aria-hidden="true" />
+              <SolidBook width={20} height={20} aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-base font-normal text-text-primary">
