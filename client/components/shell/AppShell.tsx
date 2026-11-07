@@ -5,7 +5,6 @@ import { useChatStore, type ChatState } from "../../store/useChatStore";
 import IconChat from "../icons/IconChat";
 import IconPlus from "../icons/IconPlus";
 import IconSearch from "../icons/IconSearch";
-import AddContactModal from "../modals/AddContactModal";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
 import ChatList from "../chatList/ChatList";
@@ -16,14 +15,15 @@ export default function AppShell({
   onOpenChat,
   onOpenGuide,
   guideActive = false,
+  onAddContactRequest,
 }: {
   onOpenIdentity?: () => void;
   onOpenChat?: () => void;
   onOpenGuide?: () => void;
   guideActive?: boolean;
+  onAddContactRequest?: () => void;
 }) {
 
-  const [showAddContact, setShowAddContact] = useState(false);
   const [acceptRequest, setAcceptRequest] = useState<{ senderKey: string; packet: unknown } | null>(null);
   const pendingRequests = useChatStore((s: ChatState) => s.pendingRequests);
   const dismissPendingRequest = useChatStore((s: ChatState) => s.dismissPendingRequest);
@@ -95,7 +95,7 @@ export default function AppShell({
           <span>Chats</span>
         </div>
         <button
-          onClick={() => setShowAddContact(true)}
+          onClick={() => onAddContactRequest?.()}
           aria-label="Add contact"
           className="flex h-7 w-7 items-center justify-center rounded-lg transition"
           style={{ color: "#dfe2ee" }}
@@ -115,10 +115,6 @@ export default function AppShell({
       {/* Divider above bottom section */}
       <div className="mx-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
 
-      <AddContactModal
-        open={showAddContact}
-        onClose={() => setShowAddContact(false)}
-      />
       <AcceptContactModal
         open={!!acceptRequest}
         senderEncryptionPubKey={acceptRequest?.senderKey || ""}
