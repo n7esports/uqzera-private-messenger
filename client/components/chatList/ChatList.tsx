@@ -9,7 +9,6 @@ import {
 import IconBellOff from "../icons/IconBellOff";
 import IconLock from "../icons/IconLock";
 import IconChat from "../icons/IconChat";
-import IconMoreVertical from "../icons/IconMoreVertical";
 import IconTrash from "../icons/IconTrash";
 import IconX from "../icons/IconX";
 
@@ -205,17 +204,7 @@ export default function ChatList({
               </span>
             </span>
           </button>
-          <button
-            type="button"
-            aria-label={`More options for ${chat.alias}`}
-            aria-expanded={menuOpen}
-            onClick={() =>
-              setMenuChatId((current) => (current === chat.id ? null : chat.id))
-            }
-            className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-on-surface-variant hover:bg-surface-high hover:text-on-surface"
-          >
-            <IconMoreVertical size={18} aria-hidden="true" />
-          </button>
+
         </div>
         {menuOpen && (
           <div
