@@ -1,9 +1,9 @@
 "use client";
 
 import { useVaultStore } from "../../store/useVaultStore";
-import IconSearch from "../icons/IconSearch";
-import IconChat from "../icons/IconChat";
-import IconSettings from "../icons/IconSettings";
+import IconSearch from "../icons/brand/IconSearch";
+import IconChats from "../icons/brand/IconChats";
+import IconSettings from "../icons/brand/IconSettings";
 import IconLock from "../icons/brand/IconLock";
 import { useChatStore } from "../../store/useChatStore";
 
@@ -34,14 +34,14 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
         onClick={onSearchClick}
         className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
       >
-        <IconSearch size={18} />
+        <IconSearch width={18} height={18} />
       </button>
       <button
         type="button"
         aria-label="Chats"
         className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
       >
-        <IconChat size={18} />
+        <IconChats width={18} height={18} />
       </button>
       {privateNotesId && (
         <button
@@ -60,7 +60,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
           aria-label="Settings"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
-          <IconSettings size={18} />
+          <IconSettings width={18} height={18} />
         </a>
         <a
           href="/settings"

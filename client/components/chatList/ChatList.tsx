@@ -80,7 +80,7 @@ export default function ChatList({
 
   const { activeChats, archivedChats, pinnedChats, regularChats } = useMemo(() => {
     const active = chats
-      .filter((chat) => chat.listId !== ARCHIVED_LIST_ID)
+      .filter((chat) => chat.listId !== ARCHIVED_LIST_ID && chat.alias !== "Private Notes")
       .sort((left, right) => right.updatedAt - left.updatedAt);
     const pinned = active.filter((chat) => chat.pinned);
     const displayedPinned = pinned.slice(0, MAX_PINNED_CHATS);
