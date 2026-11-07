@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useChatStore, type ChatMessage } from "../store/useChatStore";
+import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
 import IconClock from "./icons/IconClock";
 import IconLock from "./icons/IconLock";
@@ -16,10 +17,15 @@ const EMPTY_MESSAGES: ChatMessage[] = [];
 export function ChatView({
   chatId,
   onBack,
+  onAddContact,
+  onOpenGuide,
 }: {
   chatId: string | null;
   onBack?: () => void;
+  onAddContact?: () => void;
+  onOpenGuide?: () => void;
 }) {
+  const router = useRouter();
   const messages = useChatStore((state) =>
     chatId ? state.messagesMap[chatId] ?? EMPTY_MESSAGES : EMPTY_MESSAGES,
   );
@@ -88,10 +94,10 @@ export function ChatView({
             Select a thread to establish an E2EE channel.
           </p>
           <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <button type="button" aria-label="Start chat" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Start chat</button>
-            <button type="button" aria-label="Setting up" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Setting up</button>
-            <button type="button" aria-label="Add contact" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Add contact</button>
-            <button type="button" aria-label="Guide" className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Guide</button>
+            <button type="button" aria-label="Start chat" onClick={onAddContact} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Start chat</button>
+            <button type="button" aria-label="Setting up" onClick={() => router.push("/settings")} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Setting up</button>
+            <button type="button" aria-label="Add contact" onClick={onAddContact} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Add contact</button>
+            <button type="button" aria-label="Guide" onClick={onOpenGuide} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Guide</button>
           </div>
         </div>
       </div>
