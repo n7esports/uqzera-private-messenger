@@ -20,7 +20,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
       aria-label="Icon rail"
       className="flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3"
     >
-      <img src="/logo-withoutbg.png" alt="UQZERA" className="h-10 w-auto object-contain" />
+      <img src="/favicon-u.svg" alt="UQZERA" width={32} height={32} />
       <div className="my-1 h-px w-8 bg-border" />
       <button
         type="button"
