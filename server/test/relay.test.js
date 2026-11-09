@@ -10,6 +10,7 @@ import {
 } from "../src/index.js";
 
 const canonicalKey = () => Buffer.alloc(32, 7).toString("base64");
+const canonicalUrlKey = () => Buffer.alloc(32, 255).toString("base64url");
 
 function makePacket(overrides = {}) {
   return {
@@ -23,7 +24,7 @@ function makePacket(overrides = {}) {
       ephemeralPubKey: canonicalKey(),
       nonce: "nonce",
       ciphertext: "ciphertext",
-      timestamp: 1,
+      timestamp: Date.now(),
     },
     ...overrides,
   };
@@ -33,21 +34,39 @@ test("validPublicKey accepts a canonical 32-byte base64 key", () => {
   assert.equal(validPublicKey(canonicalKey()), true);
 });
 
-test("validPublicKey rejects junk, wrong length, and non-base64", () => {
+test("validPublicKey accepts base64url and rejects junk or wrong length", () => {
   assert.equal(validPublicKey("not-a-key"), false);
   assert.equal(validPublicKey(""), false);
   assert.equal(validPublicKey(undefined), false);
   assert.equal(validPublicKey(Buffer.alloc(31, 7).toString("base64")), false); // 31 bytes
-  assert.equal(validPublicKey(Buffer.alloc(32, 7).toString("base64url")), false); // wrong alphabet
+  assert.equal(validPublicKey(canonicalUrlKey()), true);
+  assert.equal(validPublicKey(Buffer.alloc(31, 255).toString("base64url")), false);
 });
 
 test("validPacket rejects a malformed envelope", () => {
   assert.equal(validPacket(makePacket()), true);
 
   assert.ok(!validPacket(makePacket({ envelope: null })));
+  assert.ok(!validPacket(makePacket({ envelope: [] })));
   assert.ok(!validPacket(makePacket({ envelope: { recipientPubKey: "bad" } })));
   assert.ok(!validPacket(makePacket({ id: "" })));
   assert.ok(!validPacket(makePacket({ type: "receipt" })));
+
+  const originalNow = Date.now;
+  Date.now = () => 1_000_000;
+  try {
+    const packet = makePacket();
+    packet.envelope.timestamp = 700_000;
+    assert.equal(validPacket(packet), true);
+    packet.envelope.timestamp = 1_300_000;
+    assert.equal(validPacket(packet), true);
+    packet.envelope.timestamp = 699_999;
+    assert.equal(validPacket(packet), false);
+    packet.envelope.timestamp = 1_300_001;
+    assert.equal(validPacket(packet), false);
+  } finally {
+    Date.now = originalNow;
+  }
 });
 
 test("processRelayRequest routes a valid publish without crashing", () => {

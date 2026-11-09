@@ -194,6 +194,7 @@ function validPublicKey(value) {
 }
 
 function validPacket(packet) {
+  const now = Date.now();
   if (
     !packet ||
     typeof packet !== "object" ||
@@ -210,6 +211,7 @@ function validPacket(packet) {
     packet.signature.length > 512 ||
     !packet.envelope ||
     typeof packet.envelope !== "object" ||
+    Array.isArray(packet.envelope) ||
     !validPublicKey(packet.envelope.recipientPubKey) ||
     typeof packet.envelope.ephemeralPubKey !== "string" ||
     !validPublicKey(packet.envelope.ephemeralPubKey) ||
@@ -220,8 +222,8 @@ function validPacket(packet) {
     packet.envelope.ciphertext.length === 0 ||
     packet.envelope.ciphertext.length > 10_000_000 ||
     !Number.isSafeInteger(packet.envelope.timestamp) ||
-    packet.envelope.timestamp < Date.now() - 300_000 ||
-    packet.envelope.timestamp > Date.now() + 300_000
+    packet.envelope.timestamp < now - 300_000 ||
+    packet.envelope.timestamp > now + 300_000
   ) {
     return false;
   }
