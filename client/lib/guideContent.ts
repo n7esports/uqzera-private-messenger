@@ -7,9 +7,9 @@ import SolidPhone from "../components/icons/solid/SolidPhone";
 import SolidTimer from "../components/icons/solid/SolidTimer";
 import SolidTrash from "../components/icons/solid/SolidTrash";
 import SolidShield from "../components/icons/solid/SolidShield";
-import SolidPaperclip from "../components/icons/solid/SolidPaperclip";
+import { AttachmentIcon } from "../components/icons/outline/AttachmentIcon";
 import SolidWifiOff from "../components/icons/solid/SolidWifiOff";
-import SolidBroadcast from "../components/icons/solid/SolidBroadcast";
+import { ChannelBroadcastIcon } from "../components/icons/outline/ChannelBroadcastIcon";
 import SolidBox from "../components/icons/solid/SolidBox";
 import SolidGlobe from "../components/icons/solid/SolidGlobe";
 import type { ComponentType } from "react";
@@ -117,7 +117,7 @@ export const guideSections: GuideSection[] = [
     caption: "Day-to-day actions",
     items: [
       {
-        icon: SolidPaperclip,
+        icon: AttachmentIcon,
         title: "Attachments & reactions",
         body: "Tap the paperclip to send photos, files, audio or a location. Long-press a message (or use the arrow) to reply, react, star, pin, forward or delete it.",
       },
@@ -133,7 +133,7 @@ export const guideSections: GuideSection[] = [
     caption: "Built but not switched on yet",
     items: [
       {
-        icon: SolidBroadcast,
+        icon: ChannelBroadcastIcon,
         title: "Channels",
         body: "Broadcast to many people at once, public or invite-only, still end-to-end encrypted.",
         action: { label: "Coming soon", href: "/chats/channels", comingSoon: true },
