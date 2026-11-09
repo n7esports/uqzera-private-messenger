@@ -8,7 +8,7 @@ import {
 } from "../../store/useChatStore";
 import { MuteChatIcon } from "../icons/outline/MuteChatIcon";
 import SolidBook from "../icons/solid/SolidBook";
-import SolidNotes from "../icons/solid/SolidNotes";
+import { DocumentIcon } from "../icons/outline/DocumentIcon";
 import { DeleteForMeIcon } from "../icons/outline/DeleteForMeIcon";
 import IconClose from "../icons/ui/IconClose";
 
@@ -193,7 +193,7 @@ export default function ChatList({
           >
             <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">
               {chat.alias === "Private Notes" ? (
-                <SolidNotes width={22} height={22} className="text-accent" />
+                <DocumentIcon width={22} height={22} className="text-accent" />
               ) : (
                 <span className={`text-base font-medium ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
                   {initials(chat.alias)}
