@@ -8,11 +8,11 @@ import IconCopy from "../../components/icons/IconCopy";
 import IconHelpCircle from "../../components/icons/IconHelpCircle";
 import IconImage from "../../components/icons/IconImage";
 import IconKey from "../../components/icons/IconKey";
-import IconLock from "../../components/icons/IconLock";
+import { VaultLockIcon } from "../../components/icons/outline/VaultLockIcon";
 import IconMenu from "../../components/icons/IconMenu";
 import IconMoreVertical from "../../components/icons/IconMoreVertical";
 import IconSearch from "../../components/icons/IconSearch";
-import IconSend from "../../components/icons/IconSend";
+import { SendIcon } from "../../components/icons/outline/SendIcon";
 import IconSettings from "../../components/icons/IconSettings";
 import IconShield from "../../components/icons/IconShield";
 import IconUnlock from "../../components/icons/IconUnlock";
@@ -32,11 +32,11 @@ const ICONS = [
   IconHelpCircle,
   IconImage,
   IconKey,
-  IconLock,
+  VaultLockIcon,
   IconMenu,
   IconMoreVertical,
   IconSearch,
-  IconSend,
+  SendIcon,
   IconSettings,
   IconShield,
   IconUnlock,

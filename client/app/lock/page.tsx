@@ -74,7 +74,7 @@ export default function LockPage() {
   const remainingSeconds = Math.max(0, Math.ceil((lockedUntil - Date.now()) / 1000));
   return (
     <main className="flex h-screen w-full items-center justify-center bg-base px-4">
-      <section className="bg-panel border border-default w-full max-w-sm rounded-2xl px-8 py-10">
+      <section className="bg-panel border border-default w-full max-w-[400px] rounded-2xl px-6 py-8">
         <h1 className="font-sans text-2xl font-semibold text-primary">Unlock your vault</h1>
         <p className="mt-2 text-sm text-secondary">Enter your PIN or passphrase.</p>
         <div className="mt-5 flex gap-2">
@@ -111,7 +111,7 @@ export default function LockPage() {
                   : event.target.value)}
                 type={showLockValue ? "text" : "password"}
                 value={lockValue}
-                className="h-12 min-w-0 flex-1 rounded-xl border border-default bg-input px-4 text-primary"
+                className={`h-11 min-w-0 flex-1 rounded-lg bg-bg-panel px-4 text-text-primary text-center focus:ring-2 focus:ring-accent ${lockType === "pin" ? "tracking-[0.2em]" : ""}`}
               />
               {lockType === "passphrase" && (
                 <button
@@ -133,7 +133,7 @@ export default function LockPage() {
           <button
             type="submit"
             disabled={busy || remainingSeconds > 0}
-            className="h-12 w-full rounded-xl accent-emerald text-sm font-medium disabled:opacity-50"
+            className="h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover disabled:opacity-40"
           >
             {busy ? "Unlocking…" : "Unlock"}
           </button>
@@ -141,7 +141,7 @@ export default function LockPage() {
         <button
           type="button"
           onClick={() => router.push("/unlock/recovery")}
-          className="mt-5 w-full text-sm text-secondary underline"
+          className="mt-5 w-full text-sm text-accent"
         >
           Forgot PIN or passphrase?
         </button>

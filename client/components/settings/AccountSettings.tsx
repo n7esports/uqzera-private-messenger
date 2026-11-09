@@ -1,10 +1,10 @@
 "use client";
 
-import IconTrash from "../icons/IconTrash";
-import IconKey from "../icons/IconKey";
+import { DeleteForMeIcon as IconTrash } from "../icons/outline/DeleteForMeIcon";
+import { KeyIcon as IconKey } from "../icons/outline/KeyIcon";
 import IconRefresh from "../icons/IconRefresh";
-import IconUser from "../icons/IconUser";
-import IconShield from "../icons/IconShield";
+import { ProfilePhotoIcon as IconUser } from "../icons/outline/ProfilePhotoIcon";
+import { PrivacySettingsIcon as IconShield } from "../icons/outline/PrivacySettingsIcon";
 
 const ACCOUNT_ACTIONS = [
   {

@@ -1,4 +1,3 @@
-import { isEnvelope, type Envelope } from "../contracts/envelope";
 import type {
   RelayClient,
   RelayConnectionStatus,
@@ -8,20 +7,27 @@ export type RelayStatus = RelayConnectionStatus;
 
 const INITIAL_BACKOFF_MS = 500;
 const MAX_BACKOFF_MS = 30_000;
+const REQUEST_TIMEOUT_MS = 10_000;
 
-type MessageHandler = (sealed: string) => void;
+type MessageHandler = (_sealed: string) => void;
 
 export class WebSocketRelayClient implements RelayClient {
   private url: string;
   private socket: WebSocket | null = null;
   private connectionPromise: Promise<void> | null = null;
-  private rejectConnection: ((error: Error) => void) | null = null;
+  private rejectConnection: ((_error: Error) => void) | null = null;
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
   private reconnectAttempt = 0;
   private status: RelayStatus;
-  private readonly statusListeners = new Set<(status: RelayStatus) => void>();
+  private readonly statusListeners = new Set<
+    (_status: RelayStatus) => void
+  >();
   private readonly subscriptions = new Map<string, Set<MessageHandler>>();
-  private readonly pendingMessages: string[] = [];
+  private readonly inboundRoutes = new Map<string, string>();
+  private readonly pendingRequests = new Map<
+    string,
+    { resolve: () => void; reject: (_error: Error) => void; timer: ReturnType<typeof setTimeout> }
+  >();
 
   constructor(url = process.env.NEXT_PUBLIC_RELAY_URL ?? "") {
     this.url = url.trim();
@@ -60,10 +66,17 @@ export class WebSocketRelayClient implements RelayClient {
 
   async publish(channelId: string, sealed: string): Promise<void> {
     if (!this.url) return;
-    this.send({ type: "publish", channelId, sealed });
+    const parsed: unknown = JSON.parse(sealed);
+    if (!isSignedEnvelope(parsed) || parsed.envelope.recipientPubKey !== channelId) {
+      throw new Error("Relay publish packet does not match its recipient channel.");
+    }
+    await this.sendRequest({
+      type: "publish",
+      packet: parsed,
+    });
   }
 
-  subscribe(channelId: string, onMessage: (sealed: string) => void): () => void {
+  subscribe(channelId: string, onMessage: (_sealed: string) => void): () => void {
     let handlers = this.subscriptions.get(channelId);
     if (!handlers) {
       handlers = new Set();
@@ -82,10 +95,17 @@ export class WebSocketRelayClient implements RelayClient {
 
   async ack(msgId: string): Promise<void> {
     if (!this.url) return;
-    this.send({ type: "ack", msgId });
+    const recipientPubKey = this.inboundRoutes.get(msgId);
+    if (!recipientPubKey) return;
+    await this.sendRequest({
+      type: "ack",
+      messageId: msgId,
+      recipientPubKey,
+    });
+    this.inboundRoutes.delete(msgId);
   }
 
-  onStatus(callback: (status: RelayStatus) => void): () => void {
+  onStatus(callback: (_status: RelayStatus) => void): () => void {
     this.statusListeners.add(callback);
     callback(this.status);
     return () => this.statusListeners.delete(callback);
@@ -116,10 +136,9 @@ export class WebSocketRelayClient implements RelayClient {
         this.rejectConnection = null;
         this.reconnectAttempt = 0;
         this.setStatus("connected");
-        for (const channelId of this.subscriptions.keys()) {
-          this.send({ type: "subscribe", channelId });
-        }
-        this.flushPendingMessages();
+            for (const channelId of this.subscriptions.keys()) {
+              this.sendSubscription(channelId);
+            }
         resolve();
       };
       socket.onmessage = (event) => {
@@ -127,6 +146,7 @@ export class WebSocketRelayClient implements RelayClient {
       };
       socket.onerror = () => {
         this.disconnect(socket);
+        this.rejectPendingRequests(new Error("Relay WebSocket connection failed."));
         if (!opened) {
           this.connectionPromise = null;
           this.rejectConnection = null;
@@ -135,6 +155,7 @@ export class WebSocketRelayClient implements RelayClient {
       };
       socket.onclose = () => {
         this.disconnect(socket);
+        this.rejectPendingRequests(new Error("Relay WebSocket closed."));
         if (!opened) {
           this.connectionPromise = null;
           this.rejectConnection = null;
@@ -173,24 +194,38 @@ export class WebSocketRelayClient implements RelayClient {
         this.socket.send(serialized);
         return;
       } catch {
-        // The socket may close between checking readyState and sending.
+        throw new Error("Relay WebSocket send failed.");
       }
     }
-    this.pendingMessages.push(serialized);
+    throw new Error("Relay is not connected.");
   }
 
-  private flushPendingMessages(): void {
-    while (
-      this.socket?.readyState === WebSocket.OPEN &&
-      this.pendingMessages.length > 0
-    ) {
-      const message = this.pendingMessages[0];
+  private sendRequest(message: Record<string, unknown>): Promise<void> {
+    if (this.socket?.readyState !== WebSocket.OPEN) {
+      return Promise.reject(new Error("Relay is not connected."));
+    }
+    const id = crypto.randomUUID();
+    return new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pendingRequests.delete(id);
+        reject(new Error("Relay request timed out."));
+      }, REQUEST_TIMEOUT_MS);
+      this.pendingRequests.set(id, { resolve, reject, timer });
       try {
-        this.socket.send(message);
-        this.pendingMessages.shift();
-      } catch {
-        break;
+        this.send({ ...message, id } as Record<string, string>);
+      } catch (error) {
+        clearTimeout(timer);
+        this.pendingRequests.delete(id);
+        reject(error instanceof Error ? error : new Error("Relay request failed."));
       }
+    });
+  }
+
+  private rejectPendingRequests(error: Error): void {
+    for (const [id, request] of this.pendingRequests) {
+      clearTimeout(request.timer);
+      request.reject(error);
+      this.pendingRequests.delete(id);
     }
   }
 
@@ -204,12 +239,44 @@ export class WebSocketRelayClient implements RelayClient {
       return;
     }
 
-    const frame = parseEnvelopeFrame(parsed);
-    if (!frame) return;
-    const handlers = frame.channelId
-      ? this.subscriptions.get(frame.channelId) ?? []
-      : [...this.subscriptions.values()].flatMap((subscribers) => [...subscribers]);
-    for (const handler of handlers) handler(frame.sealed);
+    if (!isRecord(parsed)) return;
+    if (typeof parsed.id === "string" && typeof parsed.status === "string") {
+      const request = this.pendingRequests.get(parsed.id);
+      if (!request) return;
+      clearTimeout(request.timer);
+      this.pendingRequests.delete(parsed.id);
+      if (parsed.status === "ok") request.resolve();
+      else request.reject(new Error("Relay rejected the request."));
+      return;
+    }
+
+    if (parsed.type === "message" && isSignedEnvelope(parsed.packet)) {
+      const route = parsed.packet.envelope.recipientPubKey;
+      this.inboundRoutes.set(parsed.packet.id, route);
+      this.dispatch(route, JSON.stringify(parsed.packet));
+      return;
+    }
+
+    if (
+      parsed.type === "receipt" &&
+      typeof parsed.recipientPubKey === "string"
+    ) {
+      this.dispatch(parsed.recipientPubKey, JSON.stringify(parsed));
+    }
+  }
+
+  private dispatch(channelId: string, sealed: string): void {
+    for (const handler of this.subscriptions.get(channelId) ?? []) {
+      handler(sealed);
+    }
+  }
+
+  private sendSubscription(channelId: string): void {
+    this.send({
+      type: "subscribe",
+      id: crypto.randomUUID(),
+      recipientPubKey: channelId,
+    });
   }
 
   private setStatus(status: RelayStatus): void {
@@ -219,27 +286,25 @@ export class WebSocketRelayClient implements RelayClient {
   }
 }
 
-function parseEnvelopeFrame(
-  value: unknown,
-): { channelId?: string; sealed: string } | null {
-  if (typeof value !== "object" || value === null) return null;
-  const record = value as Record<string, unknown>;
-  const payload = record.envelope ?? record.payload ?? record.data ?? value;
-  if (!isEnvelope(payload)) return null;
-  const sealed =
-    typeof payload.body === "string"
-      ? payload.body
-      : isRecord(payload.body) && typeof payload.body.sealed === "string"
-        ? payload.body.sealed
-        : null;
-  if (sealed === null) return null;
-  return {
-    channelId:
-      typeof record.channelId === "string" ? record.channelId : undefined,
-    sealed,
-  };
-}
-
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isSignedEnvelope(value: unknown): value is {
+  type: "message";
+  id: string;
+  senderPubKey: string;
+  senderEncryptionPubKey: string;
+  signature: string;
+  envelope: { recipientPubKey: string };
+} {
+  if (!isRecord(value) || !isRecord(value.envelope)) return false;
+  return (
+    value.type === "message" &&
+    typeof value.id === "string" &&
+    typeof value.senderPubKey === "string" &&
+    typeof value.senderEncryptionPubKey === "string" &&
+    typeof value.signature === "string" &&
+    typeof value.envelope.recipientPubKey === "string"
+  );
 }

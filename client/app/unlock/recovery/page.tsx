@@ -99,7 +99,7 @@ export default function UnlockRecoveryPage() {
             </span>
           </label>
           {error && <p role="alert" className="text-sm text-error">{error}</p>}
-          <button type="submit" disabled={busy} className="w-full rounded-xl accent-emerald py-3 text-sm font-medium disabled:opacity-50">
+          <button type="submit" disabled={busy} className="h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover disabled:opacity-40">
             {busy ? "Recovering…" : "Recover and set new lock"}
           </button>
         </form>

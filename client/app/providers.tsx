@@ -83,7 +83,7 @@ function VaultAutoLock() {
 
 function LoadingShell() {
  return (
- <div className="flex h-screen w-full items-center justify-center bg-surface">
+ <div className="flex h-screen w-full items-center justify-center bg-transparent">
  <div className="bg-surface-container border border-hairline flex flex-col items-center gap-3 px-8 py-6">
  <div className="h-2 w-2 rounded-full bg-primary " />
  <p className="font-mono text-xs uppercase tracking-widest text-on-surface-variant">

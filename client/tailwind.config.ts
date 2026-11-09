@@ -24,7 +24,16 @@ const config: Config = {
         error: "var(--status-danger)",
         "on-error": "var(--text-inverse)",
         hairline: "var(--border-subtle)",
-        // UQZERA color tokens
+        // WhatsApp-style tokens
+        "bg-app": "var(--bg-app)",
+        "bg-sidebar": "var(--bg-sidebar)",
+        "bg-selected": "var(--bg-selected)",
+        accent: "var(--accent)",
+        "bubble-out": "var(--bubble-out)",
+        "bubble-in": "var(--bubble-in)",
+        border: "var(--border)",
+        danger: "var(--danger)",
+        warning: "var(--warning)",
         "bg-base": "var(--bg-base)",
         "bg-panel": "var(--bg-panel)",
         "bg-card": "var(--bg-card)",
@@ -52,7 +61,7 @@ const config: Config = {
         "chat-received": "var(--chat-received)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["var(--font-mono)", "ui-monospace", "monospace"],
       },
       borderRadius: {

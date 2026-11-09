@@ -39,7 +39,7 @@ export function VaultModal() {
 
  return (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
- <div className="w-full max-w-sm bg-surface-container/90 backdrop-blur-md border border-outline-variant/80 rounded-2xl p-6">
+ <div className="w-full max-w-sm bg-surface-container/90 backdrop-blur-md border border-outline-variant/80 rounded-2xl p-6 glass-strong">
  <h2 className="text-lg font-semibold text-on-surface">Vault</h2>
  <p className="mt-1 text-sm text-on-surface-variant">
  Enter your passphrase to unlock the vault.
@@ -89,7 +89,7 @@ export function VaultModal() {
  </button>
  </div>
 
- <div className="mt-4 border-t border-outline-variant/60 pt-4">
+ <div className="mt-4 border-t border-border pt-4">
  <p className="text-xs uppercase tracking-widest text-outline">
  Danger zone
  </p>

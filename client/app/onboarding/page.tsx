@@ -139,14 +139,14 @@ export default function OnboardingPage() {
 
   return (
     <main className="flex min-h-screen w-full items-center justify-center bg-base px-4 py-8">
-      <section className="bg-panel border border-default w-full max-w-xl rounded-2xl px-8 py-10">
+      <section className="bg-panel border border-default w-full max-w-[400px] rounded-2xl px-6 py-8">
         {step === "welcome" && (
           <>
             <h1 className="font-sans text-2xl font-semibold text-primary">Welcome to UQZERA</h1>
             <p className="mt-3 text-sm text-secondary">
               Create a local encrypted vault. Your recovery phrase stays on this device unless you choose to share it.
             </p>
-            <button onClick={advance} className="mt-8 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={advance} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Get started
             </button>
           </>
@@ -175,7 +175,7 @@ export default function OnboardingPage() {
                 className="mt-2 w-full rounded-xl border border-default bg-input px-4 py-3 text-primary"
               />
             </label>
-            <button onClick={advance} className="mt-6 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={advance} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Continue
             </button>
           </>
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
             <p className="mt-3 text-sm text-secondary">
               Your 24-word phrase is the only way to recover your vault if you forget your lock.
             </p>
-            <button onClick={beginRecovery} className="mt-8 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={beginRecovery} className="mt-8 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Generate phrase
             </button>
           </>
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
             <button
               onClick={confirmRecovery}
               disabled={!savedConfirmed}
-              className="mt-5 w-full rounded-xl accent-emerald py-3 text-sm font-medium disabled:opacity-50"
+              className="mt-5 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover disabled:opacity-40"
             >
               Confirm phrase
             </button>
@@ -278,7 +278,7 @@ export default function OnboardingPage() {
                 setError(null);
                 setStep("recovery");
               }}
-              className="mt-3 w-full text-sm text-secondary underline"
+              className="mt-3 w-full text-sm text-accent"
             >
               Go back and check
             </button>
@@ -321,7 +321,7 @@ export default function OnboardingPage() {
                   onChange={(event) => setLockValue(lockType === "pin"
                     ? event.target.value.replace(/\D/g, "")
                     : event.target.value)}
-                  className="min-w-0 flex-1 rounded-xl border border-default bg-input px-4 py-3 text-primary"
+                  className={`min-w-0 flex-1 h-11 rounded-lg bg-bg-panel px-4 text-text-primary text-center text-base focus:ring-2 focus:ring-accent ${lockType === "pin" ? "tracking-[0.2em]" : ""}`}
                 />
                 {lockType === "passphrase" && (
                   <button
@@ -334,7 +334,7 @@ export default function OnboardingPage() {
                 )}
               </span>
             </label>
-            <button onClick={() => void createIdentity()} className="mt-6 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={() => void createIdentity()} className="mt-6 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Create vault
             </button>
           </>
@@ -354,7 +354,7 @@ export default function OnboardingPage() {
             <button onClick={() => void shareID()} className="mt-3 w-full rounded-xl border border-default py-3 text-sm text-primary">
               Share ID
             </button>
-            <button onClick={() => router.replace("/chats")} className="mt-3 w-full rounded-xl accent-emerald py-3 text-sm font-medium">
+            <button onClick={() => router.replace("/chats")} className="mt-3 h-11 w-full rounded-lg bg-accent text-sm font-medium text-[#0A0D14] hover:bg-accent-hover">
               Continue
             </button>
           </>

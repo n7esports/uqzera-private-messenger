@@ -2,24 +2,30 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useChatStore, type ChatMessage } from "../store/useChatStore";
+import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
-import IconClock from "./icons/IconClock";
-import IconLock from "./icons/IconLock";
+import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
+import { VaultLockIcon } from "./icons/outline/VaultLockIcon";
 import IconMoreVertical from "./icons/IconMoreVertical";
 import IconReply from "./icons/IconReply";
-import IconSearch from "./icons/IconSearch";
-import IconSend from "./icons/IconSend";
-import IconX from "./icons/IconX";
+import { SearchMessagesIcon } from "./icons/outline/SearchMessagesIcon";
+import { SendIcon } from "./icons/outline/SendIcon";
+import IconClose from "./icons/ui/IconClose";
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
 
 export function ChatView({
   chatId,
   onBack,
+  onAddContact,
+  onOpenGuide,
 }: {
   chatId: string | null;
   onBack?: () => void;
+  onAddContact?: () => void;
+  onOpenGuide?: () => void;
 }) {
+  const router = useRouter();
   const messages = useChatStore((state) =>
     chatId ? state.messagesMap[chatId] ?? EMPTY_MESSAGES : EMPTY_MESSAGES,
   );
@@ -82,11 +88,17 @@ export function ChatView({
     return (
       <div className="flex h-full w-full items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-2">
-          <IconLock size={48} className="text-primary" />
+          <VaultLockIcon width={48} height={48} className="text-primary" />
           <p className="text-sm font-medium text-text-primary">No active session</p>
           <p className="text-xs text-text-secondary">
             Select a thread to establish an E2EE channel.
           </p>
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
+            <button type="button" aria-label="Start chat" onClick={onAddContact} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Start chat</button>
+            <button type="button" aria-label="Setting up" onClick={() => router.push("/settings")} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Setting up</button>
+            <button type="button" aria-label="Add contact" onClick={onAddContact} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Add contact</button>
+            <button type="button" aria-label="Guide" onClick={onOpenGuide} className="h-9 rounded-lg bg-bg-panel px-3 text-sm text-text-primary hover:bg-accent/15">Guide</button>
+          </div>
         </div>
       </div>
     );
@@ -94,34 +106,35 @@ export function ChatView({
 
   return (
     <div className="flex h-full w-full flex-col bg-surface">
-      <header className="flex items-center justify-between border-b border-border-default bg-surface px-4 py-3">
+      <header className="flex h-14 items-center justify-between border-b border-border sidebar-glass px-4">
         <div className="flex items-center gap-3">
           {onBack && (
             <button
               onClick={onBack}
-              className="rounded-lg border border-border-default px-2 py-1 text-xs text-text-secondary md:hidden"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
             >
-              Back
+              <span className="text-lg">←</span>
             </button>
           )}
-          <div className="flex items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-on-surface">{chat.alias}</h3>
-            <span className="inline-block h-2.5 w-2.5 rounded-full bg-primary" title="Online" />
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-sm font-medium text-text-primary">
+            {chat.alias.slice(0, 2).toUpperCase()}
           </div>
-          <span className="text-xs text-on-surface-variant">E2EE Direct</span>
-          <span className="text-[10px] text-on-surface-variant">
-            Last seen{" "}
-            {new Date(chat.updatedAt).toLocaleTimeString([], {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-medium text-text-primary">{chat.alias}</h3>
+            <p className="truncate text-xs text-text-secondary">
+              E2EE Direct · Last seen{" "}
+              {new Date(chat.updatedAt).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="rounded-md p-2 hover:bg-surface-high" title="Search messages">
-            <IconSearch size={18} />
+          <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="Search messages">
+            <SearchMessagesIcon width={18} height={18} />
           </button>
-          <button className="rounded-md p-2 hover:bg-surface-high" title="More options">
+          <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="More options">
             <IconMoreVertical size={18} />
           </button>
         </div>
@@ -131,9 +144,9 @@ export function ChatView({
         <button
           onClick={cycleEphemeralTtl}
           title="Click to change TTL"
-          className="inline-flex items-center gap-1.5 rounded-full border border-border-default bg-surface-container px-3 py-1 text-xs text-text-secondary transition hover:bg-surface-high"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-container px-3 py-1 text-xs text-text-secondary transition hover:bg-surface-high"
         >
-          <IconClock size={12} />
+          <ClockPendingIcon width={12} height={12} />
           Messages auto-shred after{" "}
           {ephemeralTtl
             ? ephemeralTtl / 60 > 0
@@ -149,7 +162,7 @@ export function ChatView({
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 pb-24">
+      <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 pb-24" style={{ backgroundImage: "radial-gradient(rgba(16,185,129,0.08) 1px, transparent 1px)", backgroundSize: "18px 18px" }}>
         {messages.length === 0 && (
           <p className="py-8 text-center text-sm text-outline">No messages yet. Say hello.</p>
         )}
@@ -184,9 +197,9 @@ export function ChatView({
         </div>
       )}
 
-      <div className="flex-shrink-0 border-t border-border-default bg-surface">
+      <div className="flex-shrink-0 border-t border-border bg-bg-sidebar glass-strong">
         {replyTo && (
-          <div className="flex items-center gap-2 border-b border-border-default bg-surface/40 px-4 py-2">
+          <div className="flex items-center gap-2 border-b border-border bg-bg-sidebar px-4 py-2">
             <IconReply size={14} />
             <span className="flex-1 truncate text-xs text-text-secondary">
               Replying to {replyTo.alias}: {replyTo.excerpt}
@@ -194,50 +207,45 @@ export function ChatView({
             <button
               onClick={() => setReplyTo(null)}
               aria-label="Cancel reply"
-              className="rounded p-1 hover:bg-surface-high"
+              className="rounded p-1 hover:bg-bg-hover"
             >
-              <IconX size={14} />
+              <IconClose width={14} height={14} />
             </button>
           </div>
         )}
-        <div className="p-4">
-          <div className="flex items-end gap-2">
-            <button
-              onClick={cycleEphemeralTtl}
-              title="Ephemeral TTL"
-              className="rounded-lg border border-border-default bg-surface-container p-2 text-xs text-text-secondary transition hover:text-text-primary"
-            >
-              <IconClock size={16} />
-            </button>
-            <textarea
-              value={content}
-              onChange={(event) => {
-                setContent(event.target.value);
-                broadcastTyping(chatId, true);
-              }}
-              aria-label="Message"
-              placeholder="Write encrypted message..."
-              rows={1}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  void handleSend();
-                }
-              }}
-              className="flex-1 resize-none rounded-xl border border-border-default bg-surface-container px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:border-primary"
-            />
-            <button
-              onClick={() => void handleSend()}
-              disabled={!content.trim()}
-              aria-label="Send message"
-              className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-on-primary transition hover:bg-primary/90 disabled:opacity-40"
-            >
-              <span className="flex items-center gap-1.5">
-                <IconSend size={16} />
-                Encrypt &amp; Send
-              </span>
-            </button>
-          </div>
+        <div className="flex items-center gap-2 px-4 py-2">
+          <button
+            onClick={cycleEphemeralTtl}
+            title="Ephemeral TTL"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
+          >
+            <ClockPendingIcon width={16} height={16} />
+          </button>
+          <textarea
+            value={content}
+            onChange={(event) => {
+              setContent(event.target.value);
+              broadcastTyping(chatId, true);
+            }}
+            aria-label="Message"
+            placeholder="Write encrypted message..."
+            rows={1}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                void handleSend();
+              }
+            }}
+            className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-bg-panel px-4 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:ring-2 focus:ring-accent"
+          />
+          <button
+            onClick={() => void handleSend()}
+            disabled={!content.trim()}
+            aria-label="Send message"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent-emerald/20 text-accent-emerald transition hover:bg-accent-emerald/40 disabled:opacity-40"
+          >
+            <SendIcon width={20} height={20} />
+          </button>
         </div>
       </div>
     </div>

@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion";
 import { useChatStore, type ChatMessage } from "../store/useChatStore";
-import IconCheck from "./icons/IconCheck";
-import IconCheckDouble from "./icons/IconCheckDouble";
-import IconClock from "./icons/IconClock";
-import IconX from "./icons/IconX";
+import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
+import { SingleTickSentIcon } from "./icons/outline/SingleTickSentIcon";
+import { DoubleTickReadIcon } from "./icons/outline/DoubleTickReadIcon";
+import { BlueTicksDeliveredIcon } from "./icons/outline/BlueTicksDeliveredIcon";
+import { FailedMessageIcon } from "./icons/outline/FailedMessageIcon";
 
 type DisplayStatus = ChatMessage["status"] | "failed";
 
@@ -14,27 +15,32 @@ function DeliveryStatus({ status }: { status: DisplayStatus }) {
     queued: {
       label: "Sending",
       className: "text-text-secondary",
-      icon: <IconClock size={14} />,
+      icon: <ClockPendingIcon width={14} height={14} />,
+    },
+    relayAccepted: {
+      label: "Relay accepted",
+      className: "text-text-secondary",
+      icon: <DoubleTickReadIcon width={14} height={14} />,
     },
     sent: {
       label: "Sent",
       className: "text-text-secondary",
-      icon: <IconCheck size={14} />,
+      icon: <SingleTickSentIcon width={14} height={14} />,
     },
     delivered: {
       label: "Delivered",
       className: "text-text-secondary",
-      icon: <IconCheckDouble size={14} />,
+      icon: <BlueTicksDeliveredIcon width={14} height={14} />,
     },
     read: {
       label: "Read",
-      className: "text-primary",
-      icon: <IconCheckDouble size={14} />,
+      className: "text-text-secondary",
+      icon: <DoubleTickReadIcon width={14} height={14} />,
     },
     failed: {
       label: "Failed to send",
       className: "text-error",
-      icon: <IconX size={14} />,
+      icon: <FailedMessageIcon width={14} height={14} />,
     },
   } satisfies Record<DisplayStatus, { label: string; className: string; icon: React.ReactNode }>;
   const indicator = indicators[status];
@@ -60,13 +66,15 @@ export default function MessageBubble({
 }) {
   const alignment = isMe ? "justify-end" : "justify-start";
   const bubbleMargin = isMe ? "ml-auto" : "mr-auto";
-  const bubbleBg = isMe ? "bg-primary/20 text-on-surface" : "bg-surface-container";
+  const bubbleBg = isMe ? "bg-bubble-out" : "text-text-primary";
+  const bubbleGlass = isMe ? "" : "glass";
+  const bubbleRadius = isMe ? "rounded-[16px] rounded-br-[4px]" : "rounded-[16px] rounded-bl-[4px]";
   const status = message.status as DisplayStatus;
 
   return (
     <div className={`relative flex ${alignment} gap-2`}>
       <motion.div
-        className={`max-w-[75%] rounded-xl px-4 py-2 ${bubbleMargin} ${bubbleBg}`}
+        className={`max-w-[70%] ${bubbleRadius} px-3 py-2 ${bubbleMargin} ${bubbleBg} ${bubbleGlass} break-words text-text-primary`}
         drag={isMe ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={(_, info) => {
@@ -88,16 +96,16 @@ export default function MessageBubble({
           </div>
         )}
 
-        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-text-primary">
+        <p className="whitespace-pre-wrap break-words text-sm leading-[1.4] text-text-primary">
           {message.content}
         </p>
 
-        <div className="mt-1 flex items-center justify-end gap-2">
+        <div className="mt-1 flex items-center justify-end gap-1">
           {isMe && <DeliveryStatus status={status} />}
-          <span className="text-[10px] text-text-secondary">
+          <span className="text-[11px] text-text-secondary tabular-nums">
             {isMe ? "You" : message.senderPubKey.slice(0, 8)}
           </span>
-          <span className="text-[10px] text-text-secondary">
+          <span className="text-[11px] text-text-secondary tabular-nums">
             {new Date(message.timestamp).toLocaleTimeString([], {
               hour: "numeric",
               minute: "2-digit",

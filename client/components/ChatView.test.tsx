@@ -33,7 +33,7 @@ const mockStore = vi.hoisted(() => {
 
 vi.mock("../store/useChatStore", () => ({
   useChatStore: Object.assign(
-    (selector: (state: typeof mockStore.state) => unknown) => selector(mockStore.state),
+    (selector: (_state: typeof mockStore.state) => unknown) => selector(mockStore.state),
     { getState: () => mockStore.state },
   ),
 }));
@@ -124,13 +124,21 @@ describe("ChatView", () => {
   it("shows a distinct indicator for every delivery state", () => {
     const container = renderChat([
       makeMessage("queued", "queued"),
+      makeMessage("relay-accepted", "relayAccepted"),
       makeMessage("sent", "sent"),
       makeMessage("delivered", "delivered"),
       makeMessage("read", "read"),
       makeMessage("failed", "failed"),
     ]);
 
-    for (const label of ["Sending", "Sent", "Delivered", "Read", "Failed to send"]) {
+    for (const label of [
+      "Sending",
+      "Relay accepted",
+      "Sent",
+      "Delivered",
+      "Read",
+      "Failed to send",
+    ]) {
       expect(container.querySelector(`[role="img"][aria-label="${label}"]`)).not.toBeNull();
     }
 
@@ -141,7 +149,10 @@ describe("ChatView", () => {
       "text-text-secondary",
     );
     expect(container.querySelector('[aria-label="Read"]')?.className).toContain(
-      "text-primary",
+      "text-text-secondary",
+    );
+    expect(container.querySelector('[aria-label="Relay accepted"]')?.className).toContain(
+      "text-text-secondary",
     );
     expect(container.querySelector('[aria-label="Failed to send"]')?.className).toContain(
       "text-error",

@@ -1,10 +1,10 @@
 "use client";
 
-import IconWifi from "../icons/IconWifi";
-import IconUser from "../icons/IconUser";
-import IconEye from "../icons/IconEye";
-import IconBell from "../icons/IconBell";
-import IconShield from "../icons/IconShield";
+import { MultiDeviceIcon as IconWifi } from "../icons/outline/MultiDeviceIcon";
+import { ProfilePhotoIcon as IconUser } from "../icons/outline/ProfilePhotoIcon";
+import { ReadReceiptsToggleIcon as IconEye } from "../icons/outline/ReadReceiptsToggleIcon";
+import { NotificationsIcon as IconBell } from "../icons/outline/NotificationsIcon";
+import { PrivacySettingsIcon as IconShield } from "../icons/outline/PrivacySettingsIcon";
 
 const SECTIONS = [
  { id: "linked-devices", label: "Linked Devices", Icon: IconWifi },

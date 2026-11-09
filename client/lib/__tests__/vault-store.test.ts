@@ -1,9 +1,31 @@
 // @vitest-environment jsdom
 import "fake-indexeddb/auto";
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { database } from "../vault";
 import { startAutoLockTimer } from "../lockSettings";
-import { useVaultStore } from "../../store/useVaultStore";
+
+let useVaultStore!: typeof import("../../store/useVaultStore").useVaultStore;
+
+function makeStorage() {
+  return {
+    getItem: vi.fn(() => null),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
+  };
+}
+
+beforeAll(async () => {
+  Object.defineProperty(window, "localStorage", {
+    configurable: true,
+    value: makeStorage(),
+  });
+  Object.defineProperty(window, "sessionStorage", {
+    configurable: true,
+    value: makeStorage(),
+  });
+  ({ useVaultStore } = await import("../../store/useVaultStore"));
+});
 
 beforeEach(async () => {
   await database.open();

@@ -1,9 +1,12 @@
-export enum OutboxStatus {
-  Waiting = "waiting",
-  RelayAccepted = "relayAccepted",
-  Delivered = "delivered",
-  Failed = "failed",
-}
+export const OutboxStatus = {
+  Waiting: "waiting",
+  RelayAccepted: "relayAccepted",
+  Delivered: "delivered",
+  Failed: "failed",
+} as const;
+
+export type OutboxStatus = (typeof OutboxStatus)[keyof typeof OutboxStatus];
+export const OUTBOX_STATUSES = Object.values(OutboxStatus);
 
 export const OUTBOX_INITIAL_RETRY_DELAY_MS = 30_000;
 export const OUTBOX_MAX_RETRY_DELAY_MS = 10 * 60_000;

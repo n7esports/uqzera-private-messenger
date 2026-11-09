@@ -1,0 +1,70 @@
+/* UQZERA Icon Library v1.1.0
+   Original stroke icons for the UQZERA private messenger.
+   Pairs with uqzera-icons.svg (sprite) or the individual category SVG files. */
+
+:root {
+  --uqzera-accent: #10B981;
+  --uqzera-muted: #8696A0;
+}
+
+.uqzera-icon {
+  display: inline-block;
+  width: 1.5em;
+  height: 1.5em;
+  vertical-align: -0.375em;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  overflow: visible;
+}
+
+.uqzera-icon use {
+  pointer-events: none;
+}
+
+/* Fixed size utilities */
+.uqzera-icon--16 { width: 16px; height: 16px; }
+.uqzera-icon--20 { width: 20px; height: 20px; }
+.uqzera-icon--24 { width: 24px; height: 24px; }
+.uqzera-icon--32 { width: 32px; height: 32px; }
+.uqzera-icon--48 { width: 48px; height: 48px; }
+
+/* Color utilities */
+.uqzera-icon--accent { color: var(--uqzera-accent); }
+.uqzera-icon--muted { color: var(--uqzera-muted); }
+
+/* Slightly stronger stroke for large display sizes */
+.uqzera-icon--display { stroke-width: 2; }
+
+/* Accessible icon-only button */
+.uqzera-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.uqzera-icon-button:hover {
+  color: var(--uqzera-accent);
+}
+
+.uqzera-icon-button:focus-visible {
+  outline: 2px solid var(--uqzera-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .uqzera-icon,
+  .uqzera-icon-button {
+    transition: color .15s ease;
+  }
+}

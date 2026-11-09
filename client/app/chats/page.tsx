@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "../../components/shell/AppShell";
+import AddContactModal from "../../components/modals/AddContactModal";
 import { ChatView } from "../../components/ChatView";
 import GuideConversation from "../../components/chatList/GuideConversation";
 import { MyIdentityModal } from "../../components/modals/MyIdentityModal";
@@ -20,6 +21,7 @@ export default function ChatsPage() {
   const activeChatId = useChatStore((state) => state.activeChatId);
   const [mobileView, setMobileView] = useState<MobileView>("list");
   const [guideActive, setGuideActive] = useState(false);
+  const [addContactOpen, setAddContactOpen] = useState(false);
   const [identityOpen, setIdentityOpen] = useState(false);
   const startedRef = useRef(false);
 
@@ -45,6 +47,7 @@ export default function ChatsPage() {
           onOpenChat={() => setGuideActive(false)}
           onOpenGuide={() => setGuideActive(true)}
           guideActive={guideActive}
+          onAddContactRequest={() => setAddContactOpen(true)}
         />
       </div>
 
@@ -62,6 +65,7 @@ export default function ChatsPage() {
                 setMobileView("chat");
               }}
               guideActive={guideActive}
+              onAddContactRequest={() => setAddContactOpen(true)}
             />
           </div>
         ) : (
@@ -69,7 +73,7 @@ export default function ChatsPage() {
             {guideActive ? (
               <GuideConversation onBack={() => setMobileView("list")} />
             ) : (
-              <ChatView chatId={activeChatId} onBack={() => setMobileView("list")} />
+              <ChatView chatId={activeChatId} onBack={() => setMobileView("list")} onOpenGuide={() => setGuideActive(true)} onAddContact={() => setAddContactOpen(true)} />
             )}
           </div>
         )}
@@ -79,11 +83,12 @@ export default function ChatsPage() {
         {guideActive ? (
           <GuideConversation />
         ) : (
-          <ChatView chatId={activeChatId} />
+          <ChatView chatId={activeChatId} onOpenGuide={() => setGuideActive(true)} onAddContact={() => setAddContactOpen(true)} />
         )}
       </main>
 
       <MyIdentityModal open={identityOpen} onClose={() => setIdentityOpen(false)} />
+      <AddContactModal open={addContactOpen} onClose={() => setAddContactOpen(false)} />
     </div>
   );
 }

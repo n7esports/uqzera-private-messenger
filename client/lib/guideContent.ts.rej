@@ -1,0 +1,12 @@
+--- a/client/lib/guideContent.ts
++++ b/client/lib/guideContent.ts
+@@ -10,7 +10,7 @@ import SolidNotes from "../components/icons/solid/SolidNotes";
+ import SolidLock from "../components/icons/solid/SolidLock";
+ import SolidKey from "../components/icons/solid/SolidKey";
+ import SolidPhone from "../components/icons/solid/SolidPhone";
+-import AttachmentIcon from "../components/icons/outline/AttachmentIcon";
++import { AttachmentIcon } from "../components/icons/outline/AttachmentIcon";
+ import SolidWifiOff from "../components/icons/solid/SolidWifiOff";
+-import ChannelBroadcastIcon from "../components/icons/outline/ChannelBroadcastIcon";
++import { ChannelBroadcastIcon } from "../components/icons/outline/ChannelBroadcastIcon";
+ 

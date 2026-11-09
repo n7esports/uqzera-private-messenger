@@ -5,14 +5,16 @@ export type RelayConnectionStatus =
   | "disconnected";
 
 export interface RelayClient {
-  connect(url: string): Promise<void>;
-  publish(channelId: string, sealed: string): Promise<void>;
+  connect(_url: string): Promise<void>;
+  publish(_channelId: string, _sealed: string): Promise<void>;
   subscribe(
-    channelId: string,
-    onMessage: (sealed: string) => void,
+    _channelId: string,
+    _onMessage: (_sealed: string) => void,
   ): () => void;
-  ack(msgId: string): Promise<void>;
-  onStatus(callback: (status: RelayConnectionStatus) => void): () => void;
+  ack(_msgId: string): Promise<void>;
+  onStatus(
+    _callback: (_status: RelayConnectionStatus) => void,
+  ): () => void;
 }
 
 export function getRelayUrl(
