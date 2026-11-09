@@ -2,10 +2,11 @@
 
 import { motion } from "framer-motion";
 import { useChatStore, type ChatMessage } from "../store/useChatStore";
-import IconCheck from "./icons/IconCheck";
-import IconCheckDouble from "./icons/IconCheckDouble";
-import IconClock from "./icons/IconClock";
-import IconX from "./icons/IconX";
+import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
+import { SingleTickSentIcon } from "./icons/outline/SingleTickSentIcon";
+import { DoubleTickReadIcon } from "./icons/outline/DoubleTickReadIcon";
+import { BlueTicksDeliveredIcon } from "./icons/outline/BlueTicksDeliveredIcon";
+import { FailedMessageIcon } from "./icons/outline/FailedMessageIcon";
 
 type DisplayStatus = ChatMessage["status"] | "failed";
 
@@ -14,32 +15,32 @@ function DeliveryStatus({ status }: { status: DisplayStatus }) {
     queued: {
       label: "Sending",
       className: "text-text-secondary",
-      icon: <IconClock size={14} />,
+      icon: <ClockPendingIcon width={14} height={14} />,
     },
     relayAccepted: {
       label: "Relay accepted",
       className: "text-text-secondary",
-      icon: <IconCheckDouble size={14} />,
+      icon: <DoubleTickReadIcon width={14} height={14} />,
     },
     sent: {
       label: "Sent",
       className: "text-text-secondary",
-      icon: <IconCheck size={14} />,
+      icon: <SingleTickSentIcon width={14} height={14} />,
     },
     delivered: {
       label: "Delivered",
       className: "text-text-secondary",
-      icon: <IconCheckDouble size={14} />,
+      icon: <BlueTicksDeliveredIcon width={14} height={14} />,
     },
     read: {
       label: "Read",
       className: "text-text-secondary",
-      icon: <IconCheckDouble size={14} />,
+      icon: <DoubleTickReadIcon width={14} height={14} />,
     },
     failed: {
       label: "Failed to send",
       className: "text-error",
-      icon: <IconX size={14} />,
+      icon: <FailedMessageIcon width={14} height={14} />,
     },
   } satisfies Record<DisplayStatus, { label: string; className: string; icon: React.ReactNode }>;
   const indicator = indicators[status];
