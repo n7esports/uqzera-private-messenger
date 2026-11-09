@@ -7,7 +7,7 @@ import {
   type ChatSummary,
 } from "../../store/useChatStore";
 import { MuteChatIcon } from "../icons/outline/MuteChatIcon";
-import SolidBook from "../icons/solid/SolidBook";
+import { BookIcon } from "../icons/outline/BookIcon";
 import { DocumentIcon } from "../icons/outline/DocumentIcon";
 import { DeleteForMeIcon } from "../icons/outline/DeleteForMeIcon";
 import IconClose from "../icons/ui/IconClose";
@@ -317,7 +317,7 @@ export default function ChatList({
             }`}
           >
             <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
-              <SolidBook width={20} height={20} aria-hidden="true" />
+              <BookIcon width={20} height={20} aria-hidden="true" />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-base font-normal text-text-primary">
