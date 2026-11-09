@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import QRCode from "qrcode";
-import IconKey from "./IconKey";
+import { KeyIcon as IconKey } from "./outline/KeyIcon";
 
 const DARK = "#064e3b";
 
