@@ -1,0 +1,2 @@
+-- MANUAL RUN ONLY. Run in Supabase SQL Editor after review. Do not run automatically. Contains no message data.
+-- No table changes required for Phase 3.
