@@ -82,7 +82,7 @@ export class WebSocketRelayClient implements RelayClient {
       handlers = new Set();
       this.subscriptions.set(channelId, handlers);
       if (this.status === "connected") {
-        this.send({ type: "subscribe", channelId });
+        this.sendSubscription(channelId);
       }
     }
 
@@ -191,12 +191,14 @@ export class WebSocketRelayClient implements RelayClient {
     const serialized = JSON.stringify(message);
     if (this.socket?.readyState === WebSocket.OPEN) {
       try {
+        console.log("[relay] ws.send", serialized, "readyState", this.socket.readyState);
         this.socket.send(serialized);
         return;
       } catch {
         throw new Error("Relay WebSocket send failed.");
       }
     }
+    console.warn("[relay] send attempted while not open", this.socket?.readyState);
     throw new Error("Relay is not connected.");
   }
 
