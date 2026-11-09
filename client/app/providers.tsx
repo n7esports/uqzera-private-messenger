@@ -43,8 +43,8 @@ function VaultInitializer({
 
 function VaultAutoLock() {
  const isUnlocked = useVaultStore((s) => s.isUnlocked);
- const autoLockMinutes = useVaultStore((s) => s.autoLockMinutes);
- const lockOnBackground = useVaultStore((s) => s.lockOnBackground);
+ // const autoLockMinutes = useVaultStore((s) => s.autoLockMinutes);
+ // const lockOnBackground = useVaultStore((s) => s.lockOnBackground);
  const lockVault = useVaultStore((s) => s.lockVault);
 
  useEffect(() => {
