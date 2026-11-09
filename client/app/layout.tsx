@@ -42,6 +42,7 @@ export default async function RootLayout({
           <div className="blob" style={{ width: 400, height: 400, top: "10%", left: "20%" }} />
           <div className="blob" style={{ width: 350, height: 350, top: "60%", left: "70%" }} />
           <div className="blob" style={{ width: 300, height: 300, top: "40%", left: "50%" }} />
+          <div className="blob" style={{ width: 380, height: 380, top: "30%", left: "2%" }} />
         </div>
         <Providers>{children}</Providers>
         <CookieConsent />
