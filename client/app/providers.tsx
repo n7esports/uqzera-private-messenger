@@ -35,30 +35,11 @@ function VaultInitializer({
 
  return (
    <>
-     <VaultAutoLock />
      {children}
    </>
  );
 }
 
-function VaultAutoLock() {
- const isUnlocked = useVaultStore((s) => s.isUnlocked);
- // const autoLockMinutes = useVaultStore((s) => s.autoLockMinutes);
- // const lockOnBackground = useVaultStore((s) => s.lockOnBackground);
- const lockVault = useVaultStore((s) => s.lockVault);
-
- useEffect(() => {
-   if (!isUnlocked) return;
-   // Vault locks only on page reload / browser close, never on tab inactivity.
-   const onPageHide = () => lockVault();
-   window.addEventListener("pagehide", onPageHide);
-   return () => {
-     window.removeEventListener("pagehide", onPageHide);
-   };
- }, [isUnlocked, lockVault]);
-
- return null;
-}
 
 function LoadingShell() {
  return (
