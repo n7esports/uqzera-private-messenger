@@ -11,7 +11,7 @@ import { MultiDeviceIcon } from "../components/icons/outline/MultiDeviceIcon";
 import { ChannelsIcon } from "../components/icons/outline/ChannelsIcon";
 import { EncryptedBackupIcon } from "../components/icons/outline/EncryptedBackupIcon";
 import { TorModeIcon } from "../components/icons/outline/TorModeIcon";
-import SolidLock from "../components/icons/solid/SolidLock";
+import { VaultLockIcon } from "../components/icons/outline/VaultLockIcon";
 import { AttachmentIcon } from "../components/icons/outline/AttachmentIcon";
 import type { ComponentType } from "react";
 
@@ -72,7 +72,7 @@ export const guideSections: GuideSection[] = [
     caption: "PIN or passphrase, encrypted on this device",
     items: [
       {
-        icon: SolidLock,
+        icon: VaultLockIcon,
         title: "Vault lock",
         body: "Your vault is protected by a 6-digit PIN (default) or a passphrase of 8+ characters. Enter it on the lock screen to unlock. If you forget it, use your 24-word recovery phrase.",
         action: { label: "Lock now", href: "/lock" },
