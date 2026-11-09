@@ -41,20 +41,17 @@ export default function AppShell({
       <IconRail onSearchClick={() => searchInputRef.current?.focus()} />
       <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col sidebar-glass">
         {/* Logo / brand */}
-      <div className="flex h-14 items-center justify-between gap-3 sidebar-glass px-4">
+      <div className="flex h-14 items-center justify-between gap-3 px-4">
         <div className="flex items-center gap-3">
-          <img src="/logo-withoutbg.png" alt="UQZERA" className="h-11 w-auto object-contain" />
+          <img src="/uqzera-logo.png" alt="UQZERA" className="h-4 w-auto object-contain" />
         </div>
 
       </div>
 
-      {/* Divider after logo */}
-      <div className="mx-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />
-
       {/* Search bar */}
       <div className="px-4 pb-2">
         <div
-          className="flex h-[40px] items-center gap-2 rounded-[12px] bg-bg-panel border border-border px-4"
+          className="flex h-8 items-center gap-2 rounded-full bg-bg-panel border border-border px-3 py-1.5"
         >
           <SearchChatsIcon
             size={16}
@@ -67,7 +64,7 @@ export default function AppShell({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search or start new chat"
             aria-label="Search chats and messages"
-            className="w-full bg-transparent text-sm text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-accent"
+            className="w-full bg-transparent text-xs text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-accent"
           />
         </div>
       </div>

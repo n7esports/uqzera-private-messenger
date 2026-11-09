@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useVaultStore } from "../store/useVaultStore";
-import { startAutoLockTimer } from "../lib/lockSettings";
 
 export function Providers({ children }: { children: React.ReactNode }) {
  const [isReady, setIsReady] = useState(false);
@@ -50,33 +49,13 @@ function VaultAutoLock() {
 
  useEffect(() => {
    if (!isUnlocked) return;
-   let cancelTimer = () => {};
-   const scheduleLock = () => {
-     cancelTimer();
-     cancelTimer = startAutoLockTimer(lockVault, autoLockMinutes);
-   };
-   const onActivity = () => scheduleLock();
-   const onBackground = () => {
-     if (lockOnBackground && document.visibilityState === "hidden") lockVault();
-   };
-   const onPageHide = () => {
-     if (lockOnBackground) lockVault();
-   };
-   scheduleLock();
-   window.addEventListener("pointerdown", onActivity);
-   window.addEventListener("keydown", onActivity);
-   window.addEventListener("touchstart", onActivity);
-   document.addEventListener("visibilitychange", onBackground);
+   // Vault locks only on page reload / browser close, never on tab inactivity.
+   const onPageHide = () => lockVault();
    window.addEventListener("pagehide", onPageHide);
    return () => {
-     cancelTimer();
-     window.removeEventListener("pointerdown", onActivity);
-     window.removeEventListener("keydown", onActivity);
-     window.removeEventListener("touchstart", onActivity);
-     document.removeEventListener("visibilitychange", onBackground);
      window.removeEventListener("pagehide", onPageHide);
    };
- }, [autoLockMinutes, isUnlocked, lockOnBackground, lockVault]);
+ }, [isUnlocked, lockVault]);
 
  return null;
 }

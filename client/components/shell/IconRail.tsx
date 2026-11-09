@@ -24,9 +24,9 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
   return (
     <nav
       aria-label="Icon rail"
-      className="flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3"
+      className="flex h-screen w-16 flex-col items-center gap-2 bg-background/20 backdrop-blur-[40px] border-r border-white/10 py-3"
     >
-      <img src="/favicon-u.svg" alt="UQZERA" width={32} height={32} />
+      <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 rounded object-contain" />
       <div className="my-1 h-px w-8 bg-border" />
       <button
         type="button"

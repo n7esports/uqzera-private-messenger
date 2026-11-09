@@ -1,5 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#0f131c"/>
-  <path d="M14 18 L14 44 Q14 48 18 48 L26 48 Q30 48 30 44 L30 32 L34 32 L34 44 Q34 48 38 48 L46 48 Q50 48 50 44 L50 18 Q50 14 46 14 L18 14 Q14 14 14 18 Z" fill="#10B981"/>
-  <rect x="30" y="14" width="4" height="18" fill="#0f131c"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="UQZERA">
+  <title>UQZERA</title>
+  <defs>
+    <radialGradient id="ambient" cx="0.64" cy="0.12" r="0.86">
+      <stop offset="0" stop-color="#10B981" stop-opacity="0.075"/>
+      <stop offset="0.55" stop-color="#10B981" stop-opacity="0.025"/>
+      <stop offset="1" stop-color="#10B981" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="tile">
+      <rect width="512" height="512" rx="115.2"/>
+    </clipPath>
+  </defs>
+
+  <rect width="512" height="512" rx="115.2" fill="#0A0D14"/>
+
+  <g clip-path="url(#tile)">
+    <ellipse cx="330" cy="58" rx="390" ry="390" fill="url(#ambient)"/>
+  </g>
+
+  <rect x="7.2" y="7.2" width="497.6" height="497.6" rx="111.6"
+        fill="none" stroke="#FFFFFF" stroke-opacity="0.086" stroke-width="2.8"/>
+
+  <g fill="#00BE78">
+    <circle cx="256" cy="215" r="86"/>
+    <path d="M217 215 H295 L318 361 H194 Z"/>
+  </g>
 </svg>

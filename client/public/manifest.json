@@ -1,21 +1,34 @@
 {
-  "name": "UQZERA Messenger",
+  "name": "UQZERA",
   "short_name": "UQZERA",
-  "description": "Zero-Trust Ephemeral E2EE Messenger",
+  "description": "Private by design. Built for connection.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#09090b",
+  "background_color": "#0A0D14",
+  "theme_color": "#0A0D14",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "android-chrome-192x192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "android-chrome-512x512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
     }
   ]
 }

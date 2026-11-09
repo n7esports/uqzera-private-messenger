@@ -19,6 +19,11 @@ const inter = localFont({
 export const metadata: Metadata = {
   title: "UQZERA",
   description: "Ephemeral encrypted messenger",
+  icons: {
+    icon: "/keyhole-512.png",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {

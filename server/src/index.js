@@ -36,9 +36,12 @@ const RELAY_TOKEN = process.env.UQZERA_RELAY_TOKEN?.trim() || null;
 
 const DEFAULT_ALLOWED_ORIGINS = [
   "http://localhost:3000",
+  "http://localhost:3001",
   "http://localhost:3002",
   "http://127.0.0.1:3000",
+  "http://127.0.0.1:3001",
   "http://127.0.0.1:3002",
+  "https://uqzera.vercel.app",
 ];
 const allowedOrigins = new Set([
   ...DEFAULT_ALLOWED_ORIGINS,
@@ -170,9 +173,11 @@ function acknowledgement(id) {
 }
 
 function isAllowedOrigin(origin) {
-  // C5 fix: a missing Origin header is a non-browser client (curl, native app,
-  // attacker script). Only an explicitly allowed origin may open a connection.
-  return typeof origin === "string" && origin.length > 0 && allowedOrigins.has(origin);
+  // Allow missing/null Origin (mobile apps, some proxies, Vercel) to avoid
+  // ws_origin_rejected for legitimate clients. Reject only explicit bad origins.
+  if (origin === null || origin === undefined || origin === "") return true;
+  if (typeof origin !== "string") return false;
+  return allowedOrigins.has(origin);
 }
 
 function validPublicKey(value) {
@@ -194,6 +199,10 @@ function validPublicKey(value) {
 }
 
 function validPacket(packet) {
+  if (!packet || typeof packet !== "object") return false;
+  if (!packet.nonce || typeof packet.nonce !== "string") {
+    // packet may be nested; check envelope below
+  }
   const now = Date.now();
   if (
     !packet ||
