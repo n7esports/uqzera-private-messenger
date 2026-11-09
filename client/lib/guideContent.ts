@@ -1,4 +1,8 @@
-import SolidChat from "../components/icons/solid/SolidChat";
+import { ChatBubbleIcon } from "../components/icons/outline/ChatBubbleIcon";
+import { KeyIcon } from "../components/icons/outline/KeyIcon";
+import { ShieldIcon } from "../components/icons/outline/ShieldIcon";
+import { WifiOffIcon } from "../components/icons/outline/WifiOffIcon";
+import { SendIcon } from "../components/icons/outline/SendIcon";
 import { QrShareIcon } from "../components/icons/outline/QrShareIcon";
 import { DocumentIcon } from "../components/icons/outline/DocumentIcon";
 import { DisappearingTimerIcon } from "../components/icons/outline/DisappearingTimerIcon";
@@ -8,12 +12,8 @@ import { ChannelsIcon } from "../components/icons/outline/ChannelsIcon";
 import { EncryptedBackupIcon } from "../components/icons/outline/EncryptedBackupIcon";
 import { TorModeIcon } from "../components/icons/outline/TorModeIcon";
 import SolidLock from "../components/icons/solid/SolidLock";
-import SolidKey from "../components/icons/solid/SolidKey";
-import SolidShield from "../components/icons/solid/SolidShield";
 import { AttachmentIcon } from "../components/icons/outline/AttachmentIcon";
-import SolidWifiOff from "../components/icons/solid/SolidWifiOff";
 import type { ComponentType } from "react";
-import SolidSend from "../components/icons/solid/SolidSend";
 
 /**
  * A guide action either navigates to a real route (`href`) or asks the guide
@@ -48,7 +48,7 @@ export const guideSections: GuideSection[] = [
     caption: "The three things you'll do most",
     items: [
       {
-        icon: SolidChat,
+        icon: ChatBubbleIcon,
         title: "Start a private chat",
         body: "Open a new conversation and add someone by their public key or QR code. Messages are encrypted on this device before they ever leave it.",
         action: { label: "Start a chat", intent: "new-chat" },
@@ -78,7 +78,7 @@ export const guideSections: GuideSection[] = [
         action: { label: "Lock now", href: "/lock" },
       },
       {
-        icon: SolidKey,
+        icon: KeyIcon,
         title: "Your keys never leave",
         body: "Your identity is generated here and never uploaded. Your vault stays encrypted at rest on this device.",
       },
@@ -106,7 +106,7 @@ export const guideSections: GuideSection[] = [
         action: { label: "Go to wipe control", intent: "panic-wipe" },
       },
       {
-        icon: SolidShield,
+        icon: ShieldIcon,
         title: "Verify before you trust",
         body: "Compare public keys out-of-band before your first message to be sure no one is impersonating your contact.",
       },
@@ -122,7 +122,7 @@ export const guideSections: GuideSection[] = [
         body: "Tap the paperclip to send photos, files, audio or a location. Long-press a message (or use the arrow) to reply, react, star, pin, forward or delete it.",
       },
       {
-        icon: SolidWifiOff,
+        icon: WifiOffIcon,
         title: "Works offline",
         body: "No relay? No problem. Messages queue locally and send the moment you're back online. Nothing is lost.",
       },
@@ -155,7 +155,7 @@ export const guideSections: GuideSection[] = [
 ];
 
 export const guideOutro = {
-  icon: SolidSend,
+  icon: SendIcon,
   title: "You're all set",
   body: "That's the tour. I'll be pinned in your sidebar whenever you need a refresher.",
   action: { label: "Send a message", intent: "new-chat" } as GuideAction,

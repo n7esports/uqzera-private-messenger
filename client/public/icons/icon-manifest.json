@@ -1,0 +1,726 @@
+{
+  "name": "UQZERA Icon Library",
+  "version": "1.1.0",
+  "description": "Original stroke-based interface icons for the UQZERA private messenger.",
+  "grid": 24,
+  "strokeWidth": 1.8,
+  "strokeLinecap": "round",
+  "strokeLinejoin": "round",
+  "color": "currentColor",
+  "accent": "#10B981",
+  "sprite": "uqzera-icons.svg",
+  "stylesheet": "uqzera-icons.css",
+  "preview": "preview/index.html",
+  "total": 91,
+  "categories": [
+    {
+      "id": "messages",
+      "title": "Message Actions",
+      "blurb": "Reply, forward, react, edit and moderate individual messages.",
+      "count": 14,
+      "icons": [
+        {
+          "slug": "reply",
+          "name": "Reply",
+          "file": "messages/reply.svg",
+          "tags": ["message", "respond", "quote", "arrow"],
+          "description": "Left-turning reply arrow with a message tail."
+        },
+        {
+          "slug": "forward",
+          "name": "Forward",
+          "file": "messages/forward.svg",
+          "tags": ["message", "send", "share", "arrow"],
+          "description": "Right-turning forward arrow with a message tail."
+        },
+        {
+          "slug": "react-emoji",
+          "name": "React (emoji)",
+          "file": "messages/react-emoji.svg",
+          "tags": ["message", "reaction", "emoji", "smile", "add"],
+          "description": "Smiling reaction face with a plus for adding a reaction."
+        },
+        {
+          "slug": "react-picker",
+          "name": "React picker",
+          "file": "messages/react-picker.svg",
+          "tags": ["message", "reaction", "picker", "tray", "emoji"],
+          "description": "Horizontal reaction tray with a selected emerald reaction."
+        },
+        {
+          "slug": "edit-message",
+          "name": "Edit message",
+          "file": "messages/edit-message.svg",
+          "tags": ["message", "edit", "pencil", "text"],
+          "description": "Message lines with a pencil for editing sent text."
+        },
+        {
+          "slug": "copy-message",
+          "name": "Copy message",
+          "file": "messages/copy-message.svg",
+          "tags": ["message", "copy", "duplicate", "clipboard"],
+          "description": "Two offset speech bubbles for copying message content."
+        },
+        {
+          "slug": "delete-for-me",
+          "name": "Delete for me",
+          "file": "messages/delete-for-me.svg",
+          "tags": ["message", "delete", "trash", "local", "me"],
+          "description": "Trash can with a single-person badge for a local-only delete."
+        },
+        {
+          "slug": "delete-for-everyone",
+          "name": "Delete for everyone",
+          "file": "messages/delete-for-everyone.svg",
+          "tags": ["message", "delete", "trash", "everyone", "global"],
+          "description": "Trash can with a globe badge for deleting on all devices."
+        },
+        {
+          "slug": "pin-message",
+          "name": "Pin message",
+          "file": "messages/pin-message.svg",
+          "tags": ["message", "pin", "keep", "bubble"],
+          "description": "Speech bubble with an upright pushpin for pinning a message."
+        },
+        {
+          "slug": "unpin-message",
+          "name": "Unpin message",
+          "file": "messages/unpin-message.svg",
+          "tags": ["message", "unpin", "remove", "bubble"],
+          "description": "Pinned message with a removal slash."
+        },
+        {
+          "slug": "star-message",
+          "name": "Star message",
+          "file": "messages/star-message.svg",
+          "tags": ["message", "star", "favorite", "save", "bubble"],
+          "description": "Speech bubble with a filled star for saving a message."
+        },
+        {
+          "slug": "unstar-message",
+          "name": "Unstar message",
+          "file": "messages/unstar-message.svg",
+          "tags": ["message", "unstar", "remove", "favorite", "bubble"],
+          "description": "Outlined star with a minus badge for removing a saved mark."
+        },
+        {
+          "slug": "select-message",
+          "name": "Select message",
+          "file": "messages/select-message.svg",
+          "tags": ["message", "select", "check", "bubble", "choose"],
+          "description": "Speech bubble with a check for selecting one message."
+        },
+        {
+          "slug": "select-all-messages",
+          "name": "Select all messages",
+          "file": "messages/select-all-messages.svg",
+          "tags": ["message", "select", "all", "multi", "check"],
+          "description": "Stacked selection frames with a check for multi-select."
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "title": "Media & Attachments",
+      "blurb": "Sharing, capture and playback across every message type.",
+      "count": 16,
+      "icons": [
+        {
+          "slug": "media-image",
+          "name": "Media (image)",
+          "file": "media/media-image.svg",
+          "tags": ["media", "image", "photo", "picture", "gallery"],
+          "description": "Framed photograph with a sun and horizon line."
+        },
+        {
+          "slug": "media-video",
+          "name": "Media (video)",
+          "file": "media/media-video.svg",
+          "tags": ["media", "video", "film", "play", "movie"],
+          "description": "Film frame with a solid play mark and perforation dots."
+        },
+        {
+          "slug": "document",
+          "name": "Document",
+          "file": "media/document.svg",
+          "tags": ["media", "document", "file", "page", "text"],
+          "description": "Page with a folded corner and two text lines."
+        },
+        {
+          "slug": "attachment",
+          "name": "Attachment",
+          "file": "media/attachment.svg",
+          "tags": ["media", "attachment", "paperclip", "file", "attach"],
+          "description": "Angled paperclip with a clean inner loop."
+        },
+        {
+          "slug": "voice-note",
+          "name": "Voice note",
+          "file": "media/voice-note.svg",
+          "tags": ["media", "voice", "microphone", "audio", "bubble"],
+          "description": "Speech bubble containing a microphone for recording a voice note."
+        },
+        {
+          "slug": "voice-note-waveform",
+          "name": "Voice note waveform",
+          "file": "media/voice-note-waveform.svg",
+          "tags": ["media", "voice", "waveform", "audio", "levels"],
+          "description": "Five-bar audio waveform with balanced optical rhythm."
+        },
+        {
+          "slug": "voice-note-play",
+          "name": "Voice note play",
+          "file": "media/voice-note-play.svg",
+          "tags": ["media", "voice", "play", "audio", "waveform"],
+          "description": "Voice-note play button paired with a compact waveform."
+        },
+        {
+          "slug": "voice-note-pause",
+          "name": "Voice note pause",
+          "file": "media/voice-note-pause.svg",
+          "tags": ["media", "voice", "pause", "audio", "waveform"],
+          "description": "Voice-note pause control paired with a compact waveform."
+        },
+        {
+          "slug": "camera",
+          "name": "Camera",
+          "file": "media/camera.svg",
+          "tags": ["media", "camera", "photo", "capture", "lens"],
+          "description": "Photo camera with an integrated viewfinder hump and flash dot."
+        },
+        {
+          "slug": "gallery",
+          "name": "Gallery",
+          "file": "media/gallery.svg",
+          "tags": ["media", "gallery", "photos", "library", "stack"],
+          "description": "Stacked photo frames with a horizon and sun."
+        },
+        {
+          "slug": "location",
+          "name": "Location",
+          "file": "media/location.svg",
+          "tags": ["media", "location", "pin", "map", "place"],
+          "description": "Static map pin with a centered destination dot."
+        },
+        {
+          "slug": "live-location",
+          "name": "Live location",
+          "file": "media/live-location.svg",
+          "tags": ["media", "location", "live", "broadcast", "tracking"],
+          "description": "Location pin with broadcast waves and an emerald live dot."
+        },
+        {
+          "slug": "contact-card",
+          "name": "Contact card",
+          "file": "media/contact-card.svg",
+          "tags": ["media", "contact", "card", "person", "share"],
+          "description": "Contact card with a portrait and two detail lines."
+        },
+        {
+          "slug": "poll",
+          "name": "Poll",
+          "file": "media/poll.svg",
+          "tags": ["media", "poll", "vote", "chart", "bubble"],
+          "description": "Speech bubble containing a three-bar poll result."
+        },
+        {
+          "slug": "sticker",
+          "name": "Sticker",
+          "file": "media/sticker.svg",
+          "tags": ["media", "sticker", "emoji", "peel", "reaction"],
+          "description": "Peeling sticker square with a minimal smiling face."
+        },
+        {
+          "slug": "gif",
+          "name": "GIF",
+          "file": "media/gif.svg",
+          "tags": ["media", "gif", "animation", "loop", "image"],
+          "description": "Framed GIF lettering drawn as strokes, with no font dependency."
+        }
+      ]
+    },
+    {
+      "id": "status",
+      "title": "Status & Privacy",
+      "blurb": "Delivery receipts, presence and message lifecycle states.",
+      "count": 10,
+      "icons": [
+        {
+          "slug": "read-receipts-toggle",
+          "name": "Read receipts toggle",
+          "file": "status/read-receipts-toggle.svg",
+          "tags": ["status", "read", "receipts", "toggle", "privacy"],
+          "description": "Enabled toggle with double checks and an emerald knob."
+        },
+        {
+          "slug": "typing-indicator",
+          "name": "Typing indicator",
+          "file": "status/typing-indicator.svg",
+          "tags": ["status", "typing", "bubble", "dots", "presence"],
+          "description": "Speech bubble with three typing dots and one emerald pulse."
+        },
+        {
+          "slug": "online-status-dot",
+          "name": "Online status dot",
+          "file": "status/online-status-dot.svg",
+          "tags": ["status", "online", "presence", "dot", "active"],
+          "description": "Concentric presence rings with a solid emerald core."
+        },
+        {
+          "slug": "last-seen",
+          "name": "Last seen",
+          "file": "status/last-seen.svg",
+          "tags": ["status", "last seen", "eye", "clock", "presence"],
+          "description": "Eye with a clock badge for time-based presence."
+        },
+        {
+          "slug": "blue-ticks-delivered",
+          "name": "Blue ticks (delivered)",
+          "file": "status/blue-ticks-delivered.svg",
+          "tags": ["status", "delivered", "ticks", "blue", "receipt"],
+          "description": "Emerald double ticks for the delivered receipt state."
+        },
+        {
+          "slug": "double-tick-read",
+          "name": "Double tick (read)",
+          "file": "status/double-tick-read.svg",
+          "tags": ["status", "read", "ticks", "receipt", "seen"],
+          "description": "Double ticks with an emerald read marker."
+        },
+        {
+          "slug": "single-tick-sent",
+          "name": "Single tick (sent)",
+          "file": "status/single-tick-sent.svg",
+          "tags": ["status", "sent", "tick", "receipt", "single"],
+          "description": "One clean check for a message accepted by the server."
+        },
+        {
+          "slug": "clock-pending",
+          "name": "Clock (pending)",
+          "file": "status/clock-pending.svg",
+          "tags": ["status", "pending", "clock", "waiting", "sending"],
+          "description": "Clock face for a message awaiting delivery."
+        },
+        {
+          "slug": "failed-message",
+          "name": "Failed message",
+          "file": "status/failed-message.svg",
+          "tags": ["status", "failed", "error", "bubble", "alert"],
+          "description": "Speech bubble with an exclamation for a failed send."
+        },
+        {
+          "slug": "retry-message",
+          "name": "Retry message",
+          "file": "status/retry-message.svg",
+          "tags": ["status", "retry", "resend", "refresh", "bubble"],
+          "description": "Refresh loop with a centered message bubble for resending."
+        }
+      ]
+    },
+    {
+      "id": "groups",
+      "title": "Groups",
+      "blurb": "Group identity, membership and administration.",
+      "count": 6,
+      "icons": [
+        {
+          "slug": "groups",
+          "name": "Groups",
+          "file": "groups/groups.svg",
+          "tags": ["groups", "people", "team", "chat", "community"],
+          "description": "Two offset people representing a group conversation."
+        },
+        {
+          "slug": "group-info",
+          "name": "Group info",
+          "file": "groups/group-info.svg",
+          "tags": ["groups", "info", "about", "details", "people"],
+          "description": "Group silhouette with an information badge."
+        },
+        {
+          "slug": "group-members",
+          "name": "Group members",
+          "file": "groups/group-members.svg",
+          "tags": ["groups", "members", "people", "roster", "three"],
+          "description": "Three-person roster with a centered lead member."
+        },
+        {
+          "slug": "add-member",
+          "name": "Add member",
+          "file": "groups/add-member.svg",
+          "tags": ["groups", "add", "member", "invite", "plus"],
+          "description": "Person silhouette paired with a plus for inviting someone."
+        },
+        {
+          "slug": "remove-member",
+          "name": "Remove member",
+          "file": "groups/remove-member.svg",
+          "tags": ["groups", "remove", "member", "kick", "minus"],
+          "description": "Person silhouette paired with a minus for removing someone."
+        },
+        {
+          "slug": "group-admin",
+          "name": "Group admin",
+          "file": "groups/group-admin.svg",
+          "tags": ["groups", "admin", "shield", "moderator", "owner"],
+          "description": "Person with a checked shield for administrator privileges."
+        }
+      ]
+    },
+    {
+      "id": "calls",
+      "title": "Calls",
+      "blurb": "Voice, video, call controls and call history.",
+      "count": 9,
+      "icons": [
+        {
+          "slug": "voice-call",
+          "name": "Voice call",
+          "file": "calls/voice-call.svg",
+          "tags": ["calls", "voice", "phone", "handset", "audio"],
+          "description": "Rounded telephone handset for a voice call."
+        },
+        {
+          "slug": "video-call",
+          "name": "Video call",
+          "file": "calls/video-call.svg",
+          "tags": ["calls", "video", "camera", "camcorder", "call"],
+          "description": "Camcorder body with a side lens hood for video calling."
+        },
+        {
+          "slug": "call-history",
+          "name": "Call history",
+          "file": "calls/call-history.svg",
+          "tags": ["calls", "history", "log", "clock", "recent"],
+          "description": "Compact handset with a clock badge for recent calls."
+        },
+        {
+          "slug": "missed-call",
+          "name": "Missed call",
+          "file": "calls/missed-call.svg",
+          "tags": ["calls", "missed", "arrow", "handset", "unanswered"],
+          "description": "Handset with an escaping arrow for a missed call."
+        },
+        {
+          "slug": "incoming-call",
+          "name": "Incoming call",
+          "file": "calls/incoming-call.svg",
+          "tags": ["calls", "incoming", "arrow", "handset", "ringing"],
+          "description": "Handset with an emerald arrow arriving from above."
+        },
+        {
+          "slug": "mute-call",
+          "name": "Mute call",
+          "file": "calls/mute-call.svg",
+          "tags": ["calls", "mute", "microphone", "silence", "slash"],
+          "description": "Microphone with a diagonal slash for muting a call."
+        },
+        {
+          "slug": "speaker",
+          "name": "Speaker",
+          "file": "calls/speaker.svg",
+          "tags": ["calls", "speaker", "sound", "volume", "audio"],
+          "description": "Speaker cone with two expanding sound waves."
+        },
+        {
+          "slug": "camera-switch",
+          "name": "Camera switch",
+          "file": "calls/camera-switch.svg",
+          "tags": ["calls", "camera", "switch", "rotate", "lens"],
+          "description": "Lens surrounded by opposing rotation arrows."
+        },
+        {
+          "slug": "end-call",
+          "name": "End call",
+          "file": "calls/end-call.svg",
+          "tags": ["calls", "end", "hang up", "handset", "down"],
+          "description": "Handset with a close mark for ending or rejecting a call."
+        }
+      ]
+    },
+    {
+      "id": "authentication",
+      "title": "Auth & Devices",
+      "blurb": "Passkeys and the linked-device surface.",
+      "count": 5,
+      "icons": [
+        {
+          "slug": "passkey-fingerprint",
+          "name": "Passkey (fingerprint)",
+          "file": "authentication/passkey-fingerprint.svg",
+          "tags": ["authentication", "passkey", "fingerprint", "biometric", "security"],
+          "description": "Nested fingerprint arches with descending ridge lines."
+        },
+        {
+          "slug": "passkey-face",
+          "name": "Passkey (face)",
+          "file": "authentication/passkey-face.svg",
+          "tags": ["authentication", "passkey", "face", "biometric", "security"],
+          "description": "Face outline inside four authentication brackets."
+        },
+        {
+          "slug": "multi-device",
+          "name": "Multi-device (linked devices)",
+          "file": "authentication/multi-device.svg",
+          "tags": ["authentication", "devices", "linked", "laptop", "phone"],
+          "description": "Laptop and phone representing linked devices."
+        },
+        {
+          "slug": "device-list",
+          "name": "Device list",
+          "file": "authentication/device-list.svg",
+          "tags": ["authentication", "devices", "list", "sessions", "manage"],
+          "description": "Phone with a three-row device list."
+        },
+        {
+          "slug": "remove-device",
+          "name": "Remove device",
+          "file": "authentication/remove-device.svg",
+          "tags": ["authentication", "devices", "remove", "unlink", "minus"],
+          "description": "Laptop with a minus badge for unlinking a device."
+        }
+      ]
+    },
+    {
+      "id": "privacy",
+      "title": "Advanced Privacy",
+      "blurb": "Channels, encrypted recovery, routing and emergency controls.",
+      "count": 9,
+      "icons": [
+        {
+          "slug": "channels",
+          "name": "Channels",
+          "file": "privacy/channels.svg",
+          "tags": ["privacy", "channels", "megaphone", "broadcast", "community"],
+          "description": "Megaphone with a handle for one-to-many channels."
+        },
+        {
+          "slug": "channel-broadcast",
+          "name": "Channel broadcast",
+          "file": "privacy/channel-broadcast.svg",
+          "tags": ["privacy", "channel", "broadcast", "tower", "signal"],
+          "description": "Broadcast tower with two expanding signal arcs."
+        },
+        {
+          "slug": "encrypted-backup",
+          "name": "Encrypted backup",
+          "file": "privacy/encrypted-backup.svg",
+          "tags": ["privacy", "backup", "encrypted", "cloud", "lock"],
+          "description": "Cloud backup with an embedded padlock for encryption."
+        },
+        {
+          "slug": "backup-restore",
+          "name": "Backup restore",
+          "file": "privacy/backup-restore.svg",
+          "tags": ["privacy", "backup", "restore", "cloud", "download"],
+          "description": "Cloud with a download arrow for restoring an encrypted backup."
+        },
+        {
+          "slug": "tor-mode",
+          "name": "Tor mode",
+          "file": "privacy/tor-mode.svg",
+          "tags": ["privacy", "tor", "routing", "network", "lock"],
+          "description": "Three-node network route anchored by a lock."
+        },
+        {
+          "slug": "panic-wipe",
+          "name": "Panic wipe",
+          "file": "privacy/panic-wipe.svg",
+          "tags": ["privacy", "panic", "wipe", "emergency", "shield", "bolt"],
+          "description": "Shield with an emerald bolt and motion lines for an emergency wipe."
+        },
+        {
+          "slug": "show-guide-again",
+          "name": "Show guide again",
+          "file": "privacy/show-guide-again.svg",
+          "tags": ["privacy", "guide", "replay", "help", "again"],
+          "description": "Replay loop with a question mark for reopening the guide."
+        },
+        {
+          "slug": "auto-lock-timer",
+          "name": "Auto-lock timer",
+          "file": "privacy/auto-lock-timer.svg",
+          "tags": ["privacy", "auto-lock", "timer", "lock", "clock"],
+          "description": "Padlock with a clock badge for scheduled auto-lock."
+        },
+        {
+          "slug": "disappearing-timer",
+          "name": "Disappearing timer",
+          "file": "privacy/disappearing-timer.svg",
+          "tags": ["privacy", "disappearing", "timer", "ephemeral", "clock"],
+          "description": "Clock with fading dots for ephemeral messages."
+        }
+      ]
+    },
+    {
+      "id": "chat-management",
+      "title": "Chat Management",
+      "blurb": "Archive, mute, pin, unread and search affordances.",
+      "count": 9,
+      "icons": [
+        {
+          "slug": "archive",
+          "name": "Archive",
+          "file": "chat-management/archive.svg",
+          "tags": ["chat", "archive", "box", "down", "store"],
+          "description": "Archive box with a downward arrow."
+        },
+        {
+          "slug": "archived-chats",
+          "name": "Archived chats",
+          "file": "chat-management/archived-chats.svg",
+          "tags": ["chat", "archived", "box", "bubble", "history"],
+          "description": "Archive box holding a speech bubble."
+        },
+        {
+          "slug": "mute-chat",
+          "name": "Mute chat",
+          "file": "chat-management/mute-chat.svg",
+          "tags": ["chat", "mute", "bell", "silence", "slash"],
+          "description": "Bell with a diagonal slash for muting a chat."
+        },
+        {
+          "slug": "unmute-chat",
+          "name": "Unmute chat",
+          "file": "chat-management/unmute-chat.svg",
+          "tags": ["chat", "unmute", "bell", "sound", "waves"],
+          "description": "Bell with two sound waves for unmuting a chat."
+        },
+        {
+          "slug": "pin-chat",
+          "name": "Pin chat",
+          "file": "chat-management/pin-chat.svg",
+          "tags": ["chat", "pin", "keep", "rows", "top"],
+          "description": "Chat rows with an upright pushpin."
+        },
+        {
+          "slug": "unpin-chat",
+          "name": "Unpin chat",
+          "file": "chat-management/unpin-chat.svg",
+          "tags": ["chat", "unpin", "remove", "rows", "slash"],
+          "description": "Pinned chat rows with a removal slash."
+        },
+        {
+          "slug": "mark-as-unread",
+          "name": "Mark as unread",
+          "file": "chat-management/mark-as-unread.svg",
+          "tags": ["chat", "unread", "dot", "bubble", "badge"],
+          "description": "Speech bubble with an emerald unread dot."
+        },
+        {
+          "slug": "search-messages",
+          "name": "Search messages",
+          "file": "chat-management/search-messages.svg",
+          "tags": ["chat", "search", "messages", "magnifier", "bubble"],
+          "description": "Magnifier over a speech bubble for in-chat search."
+        },
+        {
+          "slug": "search-chats",
+          "name": "Search chats",
+          "file": "chat-management/search-chats.svg",
+          "tags": ["chat", "search", "chats", "magnifier", "list"],
+          "description": "Magnifier over chat rows for searching the chat list."
+        }
+      ]
+    },
+    {
+      "id": "profile-settings",
+      "title": "Profile & Settings",
+      "blurb": "Identity, credentials, sharing and account safety.",
+      "count": 13,
+      "icons": [
+        {
+          "slug": "settings-profile",
+          "name": "Settings profile",
+          "file": "profile-settings/settings-profile.svg",
+          "tags": ["profile", "settings", "sliders", "person", "account"],
+          "description": "Person paired with two sliders for profile settings."
+        },
+        {
+          "slug": "change-pin",
+          "name": "Change PIN",
+          "file": "profile-settings/change-pin.svg",
+          "tags": ["profile", "pin", "keypad", "change", "pencil"],
+          "description": "Four-dot PIN pad with a pencil for changing the code."
+        },
+        {
+          "slug": "change-passphrase",
+          "name": "Change passphrase",
+          "file": "profile-settings/change-passphrase.svg",
+          "tags": ["profile", "passphrase", "key", "change", "pencil"],
+          "description": "Key with a pencil for changing a text passphrase."
+        },
+        {
+          "slug": "qr-scan",
+          "name": "QR scan",
+          "file": "profile-settings/qr-scan.svg",
+          "tags": ["profile", "qr", "scan", "camera", "code"],
+          "description": "QR corner brackets with an emerald scanning beam."
+        },
+        {
+          "slug": "qr-share",
+          "name": "QR share",
+          "file": "profile-settings/qr-share.svg",
+          "tags": ["profile", "qr", "share", "code", "send"],
+          "description": "QR block with an outgoing share arrow."
+        },
+        {
+          "slug": "copy-id",
+          "name": "Copy ID",
+          "file": "profile-settings/copy-id.svg",
+          "tags": ["profile", "copy", "id", "username", "hash"],
+          "description": "Two offset ID sheets with a hash mark for copying an ID."
+        },
+        {
+          "slug": "share-id",
+          "name": "Share ID",
+          "file": "profile-settings/share-id.svg",
+          "tags": ["profile", "share", "id", "username", "hash"],
+          "description": "ID tag with a hash and an outgoing share arrow."
+        },
+        {
+          "slug": "profile-photo",
+          "name": "Profile photo",
+          "file": "profile-settings/profile-photo.svg",
+          "tags": ["profile", "photo", "avatar", "portrait", "camera"],
+          "description": "Portrait frame with a camera badge for changing a photo."
+        },
+        {
+          "slug": "edit-bio",
+          "name": "Edit bio",
+          "file": "profile-settings/edit-bio.svg",
+          "tags": ["profile", "bio", "edit", "pencil", "person"],
+          "description": "Person with a pencil for editing profile biography."
+        },
+        {
+          "slug": "notifications",
+          "name": "Notifications",
+          "file": "profile-settings/notifications.svg",
+          "tags": ["profile", "notifications", "bell", "alert", "dot"],
+          "description": "Bell with an emerald notification dot."
+        },
+        {
+          "slug": "privacy-settings",
+          "name": "Privacy settings",
+          "file": "profile-settings/privacy-settings.svg",
+          "tags": ["profile", "privacy", "settings", "shield", "sliders"],
+          "description": "Shield containing two sliders for privacy controls."
+        },
+        {
+          "slug": "blocked-contacts",
+          "name": "Blocked contacts",
+          "file": "profile-settings/blocked-contacts.svg",
+          "tags": ["profile", "blocked", "contacts", "person", "slash"],
+          "description": "Person silhouette with a diagonal block slash."
+        },
+        {
+          "slug": "help",
+          "name": "Help",
+          "file": "profile-settings/help.svg",
+          "tags": ["profile", "help", "question", "support", "circle"],
+          "description": "Circled question mark for help and support."
+        }
+      ]
+    }
+  ]
+}

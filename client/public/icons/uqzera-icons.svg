@@ -1,0 +1,571 @@
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <!-- UQZERA Icon Library v1.1.0 - 91 symbols. Use: <svg class="uqzera-icon"><use href="uqzera-icons.svg#uqzera-reply"/></svg> -->
+  <symbol id="uqzera-reply" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9.5 6.5 4 12l5.5 5.5"/>
+    <path d="M4 12h8.2a5.3 5.3 0 0 1 5.3 5.3V19"/>
+  </symbol>
+  <symbol id="uqzera-forward" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14.5 6.5 20 12l-5.5 5.5"/>
+    <path d="M20 12h-8.2a5.3 5.3 0 0 0-5.3 5.3V19"/>
+  </symbol>
+  <symbol id="uqzera-react-emoji" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10.5" cy="12" r="7.5"/>
+    <path d="M7.5 13.8a4 4 0 0 0 6 0"/>
+    <path d="M8.3 9.6h.01"/>
+    <path d="M12.7 9.6h.01"/>
+    <path d="M19 3.5v4"/>
+    <path d="M17 5.5h4"/>
+  </symbol>
+  <symbol id="uqzera-react-picker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="7" width="19" height="10" rx="4.5"/>
+    <circle cx="8" cy="12" r="1.5"/>
+    <circle cx="12" cy="12" r="1.5" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+    <circle cx="16" cy="12" r="1.5"/>
+  </symbol>
+  <symbol id="uqzera-edit-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 6.5h11"/>
+    <path d="M4 12h8"/>
+    <path d="M4 17.5h6"/>
+    <path d="M14 18v-2.2l4.8-4.8a1.5 1.5 0 0 1 2.1 0l.1.1a1.5 1.5 0 0 1 0 2.1L16.2 18H14Z"/>
+    <path d="m17.6 12.4 2 2"/>
+  </symbol>
+  <symbol id="uqzera-copy-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 5.5h7A2.5 2.5 0 0 1 18.5 8v5a2.5 2.5 0 0 1-2.5 2.5h-1"/>
+    <path d="M6.5 8.5h7A2.5 2.5 0 0 1 16 11v4a2.5 2.5 0 0 1-2.5 2.5H9.5L7 20v-2.5h-.5A2.5 2.5 0 0 1 4 15v-4a2.5 2.5 0 0 1 2.5-2.5Z"/>
+  </symbol>
+  <symbol id="uqzera-delete-for-me" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 6.5h11"/>
+    <path d="M7.5 6.5V5A1.5 1.5 0 0 1 9 3.5h1A1.5 1.5 0 0 1 11.5 5v1.5"/>
+    <path d="m5.5 6.5.7 12a2 2 0 0 0 2 1.9h3.6a2 2 0 0 0 2-1.9l.7-12"/>
+    <path d="M8.5 10v6.5"/>
+    <path d="M11.5 10v6.5"/>
+    <circle cx="18.5" cy="15" r="1.6"/>
+    <path d="M15.8 20.5a3 3 0 0 1 5.4 0"/>
+  </symbol>
+  <symbol id="uqzera-delete-for-everyone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.5 6.5h10"/>
+    <path d="M7 6.5V5a1.5 1.5 0 0 1 1.5-1.5h.5A1.5 1.5 0 0 1 10.5 5v1.5"/>
+    <path d="m5 6.5.6 12a2 2 0 0 0 2 1.9h2.8a2 2 0 0 0 2-1.9l.6-12"/>
+    <path d="M7.5 10v6.5"/>
+    <path d="M10.5 10v6.5"/>
+    <circle cx="18" cy="17" r="3.2"/>
+    <path d="M14.8 17h6.4"/>
+    <path d="M18 13.8c-1.6 1.8-1.6 4.6 0 6.4"/>
+    <path d="M18 13.8c1.6 1.8 1.6 4.6 0 6.4"/>
+  </symbol>
+  <symbol id="uqzera-pin-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5.5 6h7A2.5 2.5 0 0 1 15 8.5v4a2.5 2.5 0 0 1-2.5 2.5H8.5L5 18v-3H5.5A2.5 2.5 0 0 1 3 12.5v-4A2.5 2.5 0 0 1 5.5 6Z"/>
+    <path d="M15.5 5.5h5"/>
+    <path d="M16.5 5.5v4.5l-2 3h7l-2-3V5.5"/>
+    <path d="M18 13v6.5"/>
+  </symbol>
+  <symbol id="uqzera-unpin-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5.5 6h7A2.5 2.5 0 0 1 15 8.5v4a2.5 2.5 0 0 1-2.5 2.5H8.5L5 18v-3H5.5A2.5 2.5 0 0 1 3 12.5v-4A2.5 2.5 0 0 1 5.5 6Z"/>
+    <path d="M15.5 5.5h5"/>
+    <path d="M16.5 5.5v4.5l-2 3h7l-2-3V5.5"/>
+    <path d="M18 13v6.5"/>
+    <path d="M14.5 14.5 22 5.5"/>
+  </symbol>
+  <symbol id="uqzera-star-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 8h6a2.5 2.5 0 0 1 2.5 2.5v3A2.5 2.5 0 0 1 11 16H7l-3.5 2.5V16H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z"/>
+    <path d="M18 4.5l1.3 3.1 3.4.3-2.6 2.3.8 3.3-2.9-1.7-2.9 1.7.8-3.3-2.6-2.3 3.4-.3L18 4.5Z" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-unstar-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 8h6a2.5 2.5 0 0 1 2.5 2.5v3A2.5 2.5 0 0 1 11 16H7l-3.5 2.5V16H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z"/>
+    <path d="M18 4.5l1.3 3.1 3.4.3-2.6 2.3.8 3.3-2.9-1.7-2.9 1.7.8-3.3-2.6-2.3 3.4-.3L18 4.5Z"/>
+    <circle cx="20" cy="17.5" r="3"/>
+    <path d="M18.5 17.5h3"/>
+  </symbol>
+  <symbol id="uqzera-select-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6.5L6 20v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+    <path d="m8.5 12 2.5 2.5 4.5-5"/>
+  </symbol>
+  <symbol id="uqzera-select-all-messages" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="3.5" width="13" height="13" rx="3"/>
+    <rect x="7.5" y="7.5" width="13" height="13" rx="3"/>
+    <path d="m10.5 14 2 2 4-4.5"/>
+  </symbol>
+  <symbol id="uqzera-media-image" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4.5" width="18" height="15" rx="3"/>
+    <circle cx="8.5" cy="9" r="1.6"/>
+    <path d="m3.5 18.5 5.5-5.5 3.5 3.5 2.5-2.5 5 5"/>
+  </symbol>
+  <symbol id="uqzera-media-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4.5" width="18" height="15" rx="3"/>
+    <path d="M10 8.8 15.5 12 10 15.2Z" fill="currentColor" stroke="none"/>
+    <path d="M6.5 7.5h.01"/>
+    <path d="M6.5 16.5h.01"/>
+  </symbol>
+  <symbol id="uqzera-document" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 3.5h7.5L19 9v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-15a2 2 0 0 1 2-2Z"/>
+    <path d="M13.5 3.5V9H19"/>
+    <path d="M7.5 12.5h7"/>
+    <path d="M7.5 16h5"/>
+  </symbol>
+  <symbol id="uqzera-attachment" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19.5 10.5 11 19a4 4 0 0 1-5.7-5.7l8.6-8.6a2.8 2.8 0 0 1 4 4l-8.6 8.6a1.4 1.4 0 0 1-2-2l7.8-7.8"/>
+  </symbol>
+  <symbol id="uqzera-voice-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6.5L6 20v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+    <rect x="10.5" y="7" width="3" height="6" rx="1.5"/>
+    <path d="M8.5 11.5a3.5 3.5 0 0 0 7 0"/>
+    <path d="M12 15v2"/>
+    <path d="M10 17.5h4"/>
+  </symbol>
+  <symbol id="uqzera-voice-note-waveform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9.5v5"/>
+    <path d="M8 6.5v11"/>
+    <path d="M12 3.5v17"/>
+    <path d="M16 7.5v9"/>
+    <path d="M20 10v4"/>
+  </symbol>
+  <symbol id="uqzera-voice-note-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="12" r="5"/>
+    <path d="M6.8 9.6 10.5 12l-3.7 2.4V9.6Z" fill="currentColor" stroke="none"/>
+    <path d="M15.5 9v6"/>
+    <path d="M18 7v10"/>
+    <path d="M20.5 10v4"/>
+  </symbol>
+  <symbol id="uqzera-voice-note-pause" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="12" r="5"/>
+    <path d="M6.8 9.8v4.4"/>
+    <path d="M9.2 9.8v4.4"/>
+    <path d="M15.5 9v6"/>
+    <path d="M18 7v10"/>
+    <path d="M20.5 10v4"/>
+  </symbol>
+  <symbol id="uqzera-camera" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 6.5 10 4.5h4l1 2h3a3 3 0 0 1 3 3v7a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-7a3 3 0 0 1 3-3h3Z"/>
+    <circle cx="12" cy="13" r="3.5"/>
+    <path d="M17.5 9.5h.01"/>
+  </symbol>
+  <symbol id="uqzera-gallery" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8.5 6.5V6a2.5 2.5 0 0 1 2.5-2.5h7A2.5 2.5 0 0 1 20.5 6v7a2.5 2.5 0 0 1-2.5 2.5h-1.5"/>
+    <rect x="3" y="6.5" width="15" height="14.5" rx="2.5"/>
+    <circle cx="7.5" cy="10.5" r="1.3"/>
+    <path d="m3.5 18.5 4.5-4.5 3 3 2-2 4.5 4.5"/>
+  </symbol>
+  <symbol id="uqzera-location" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z"/>
+    <circle cx="12" cy="10" r="2.5"/>
+  </symbol>
+  <symbol id="uqzera-live-location" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10.5 21s6.5-6 6.5-10.5a6.5 6.5 0 1 0-13 0c0 4.5 6.5 10.5 6.5 10.5Z"/>
+    <circle cx="10.5" cy="10.5" r="2.2" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+    <path d="M18.5 8a4.5 4.5 0 0 1 0 5"/>
+    <path d="M21 5.5a8 8 0 0 1 0 10"/>
+  </symbol>
+  <symbol id="uqzera-contact-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="5" width="19" height="14" rx="3"/>
+    <circle cx="8.5" cy="10.5" r="2.2"/>
+    <path d="M5.2 16.5a4.3 4.3 0 0 1 6.6 0"/>
+    <path d="M13.5 10h5"/>
+    <path d="M13.5 14h3.5"/>
+  </symbol>
+  <symbol id="uqzera-poll" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6.5L6 20v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+    <path d="M8 15.5v-4"/>
+    <path d="M12 15.5v-7"/>
+    <path d="M16 15.5v-2.5"/>
+    <path d="M6.5 15.5h11"/>
+  </symbol>
+  <symbol id="uqzera-sticker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 20.5H7.5a4 4 0 0 1-4-4v-9a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4V14"/>
+    <path d="M20.5 14h-3a3.5 3.5 0 0 0-3.5 3.5v3"/>
+    <path d="M14 20.5c3.4-.3 6.2-3.1 6.5-6.5"/>
+    <path d="M9 11a3 3 0 0 0 6 0"/>
+    <path d="M9.5 9h.01"/>
+    <path d="M13.5 9h.01"/>
+  </symbol>
+  <symbol id="uqzera-gif" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="4.5" width="19" height="15" rx="3.5"/>
+    <path d="M12 9.5H10a2.5 2.5 0 1 0 0 5h2v-2.5h-1.5"/>
+    <path d="M13.5 9.5v5"/>
+    <path d="M16 14.5v-5h3"/>
+    <path d="M16 12h2.5"/>
+  </symbol>
+  <symbol id="uqzera-read-receipts-toggle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="7" width="19" height="10" rx="5"/>
+    <circle cx="17.5" cy="12" r="3.2" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+    <path d="m4.5 12.2 1.8 1.8 3.2-3.8"/>
+    <path d="m9 12.2 1.8 1.8 3.2-3.8"/>
+  </symbol>
+  <symbol id="uqzera-typing-indicator" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6.5L6 20v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+    <circle cx="8.5" cy="11.5" r="1.1" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="11.5" r="1.1" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+    <circle cx="15.5" cy="11.5" r="1.1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-online-status-dot" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8" opacity=".32"/>
+    <circle cx="12" cy="12" r="5.2" opacity=".62"/>
+    <circle cx="12" cy="12" r="2.8" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-last-seen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2.5 10S6 4 11 4s8.5 6 8.5 6-3.5 6-8.5 6-8.5-6-8.5-6Z"/>
+    <circle cx="11" cy="10" r="2.5"/>
+    <circle cx="19" cy="19" r="3.5"/>
+    <path d="M19 17.5V19l1.5 1"/>
+  </symbol>
+  <symbol id="uqzera-blue-ticks-delivered" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m3 12.5 3.5 3.5L14 8.5" stroke="var(--uqzera-accent, #10B981)"/>
+    <path d="m9.5 12.5 3.5 3.5L21.5 7.5" stroke="var(--uqzera-accent, #10B981)"/>
+  </symbol>
+  <symbol id="uqzera-double-tick-read" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m3 12.5 3.5 3.5L14 8.5"/>
+    <path d="m9.5 12.5 3.5 3.5L21.5 7.5"/>
+    <circle cx="19.5" cy="19.5" r="1.6" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-single-tick-sent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m4.5 12.5 4.5 4.5L19.5 6"/>
+  </symbol>
+  <symbol id="uqzera-clock-pending" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8"/>
+    <path d="M12 7.5V12l3 1.8"/>
+  </symbol>
+  <symbol id="uqzera-failed-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6.5L6 20v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+    <path d="M12 8v4.5"/>
+    <path d="M12 15.5h.01"/>
+  </symbol>
+  <symbol id="uqzera-retry-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 12a8 8 0 1 1-2.3-5.6"/>
+    <path d="M20 4.5V9h-4.5"/>
+    <path d="M9.5 9.5h4a1.5 1.5 0 0 1 1.5 1.5v2a1.5 1.5 0 0 1-1.5 1.5H11L9 16v-1.5h-.5A1.5 1.5 0 0 1 7 13v-2a1.5 1.5 0 0 1 1.5-1.5Z"/>
+  </symbol>
+  <symbol id="uqzera-groups" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="16.5" cy="7.5" r="2.2"/>
+    <path d="M13.5 14.5a4.5 4.5 0 0 1 8 0"/>
+    <circle cx="9.5" cy="9" r="2.8"/>
+    <path d="M4.5 19a5 5 0 0 1 10 0"/>
+  </symbol>
+  <symbol id="uqzera-group-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="13.5" cy="6.5" r="1.8"/>
+    <path d="M11 12a3.5 3.5 0 0 1 6.5 0"/>
+    <circle cx="8" cy="8.5" r="2.4"/>
+    <path d="M4 17a4.2 4.2 0 0 1 8 0"/>
+    <circle cx="18.5" cy="17.5" r="3.5"/>
+    <path d="M18.5 16.5h.01"/>
+    <path d="M18.5 17.5v2"/>
+  </symbol>
+  <symbol id="uqzera-group-members" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="5.5" cy="10" r="1.9"/>
+    <path d="M2.5 18.5a3.5 3.5 0 0 1 6 0"/>
+    <circle cx="18.5" cy="10" r="1.9"/>
+    <path d="M15.5 18.5a3.5 3.5 0 0 1 6 0"/>
+    <circle cx="12" cy="8" r="2.6"/>
+    <path d="M7 19a5 5 0 0 1 10 0"/>
+  </symbol>
+  <symbol id="uqzera-add-member" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="8.5" r="3"/>
+    <path d="M4 19a5 5 0 0 1 10 0"/>
+    <path d="M18.5 8.5v7"/>
+    <path d="M15 12h7"/>
+  </symbol>
+  <symbol id="uqzera-remove-member" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="9" cy="8.5" r="3"/>
+    <path d="M4 19a5 5 0 0 1 10 0"/>
+    <path d="M15 12h7"/>
+  </symbol>
+  <symbol id="uqzera-group-admin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8.5" cy="8.5" r="2.8"/>
+    <path d="M3.5 19a5 5 0 0 1 10 0"/>
+    <path d="M17.5 8.5l5 2v3.2c0 2.6-2 4.5-5 5.8-3-1.3-5-3.2-5-5.8V10.5l5-2Z"/>
+    <path d="m15.3 14.5 1.5 1.5 2.9-3"/>
+  </symbol>
+  <symbol id="uqzera-voice-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 6.5a2 2 0 0 1 2-2h1.2a1.5 1.5 0 0 1 1.5 1.2l.5 2.2a1.5 1.5 0 0 1-.8 1.6l-1.2.7a11.5 11.5 0 0 0 5.6 5.6l.7-1.2a1.5 1.5 0 0 1 1.6-.8l2.2.5a1.5 1.5 0 0 1 1.2 1.5v1.2a2 2 0 0 1-2 2C10.5 19.5 4.5 13.5 5 6.5Z"/>
+  </symbol>
+  <symbol id="uqzera-video-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="7" width="13" height="10" rx="3"/>
+    <path d="M15.5 10.5 21.5 7.5v9l-6-3"/>
+    <circle cx="7.5" cy="12" r="1.5"/>
+  </symbol>
+  <symbol id="uqzera-call-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="scale(.75)">
+    <path d="M5 6.5a2 2 0 0 1 2-2h1.2a1.5 1.5 0 0 1 1.5 1.2l.5 2.2a1.5 1.5 0 0 1-.8 1.6l-1.2.7a11.5 11.5 0 0 0 5.6 5.6l.7-1.2a1.5 1.5 0 0 1 1.6-.8l2.2.5a1.5 1.5 0 0 1 1.2 1.5v1.2a2 2 0 0 1-2 2C10.5 19.5 4.5 13.5 5 6.5Z"/>
+    </g>
+    <circle cx="19" cy="19" r="3.5"/>
+    <path d="M19 17.5V19l1.5 1"/>
+  </symbol>
+  <symbol id="uqzera-missed-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="scale(.75)">
+    <path d="M5 6.5a2 2 0 0 1 2-2h1.2a1.5 1.5 0 0 1 1.5 1.2l.5 2.2a1.5 1.5 0 0 1-.8 1.6l-1.2.7a11.5 11.5 0 0 0 5.6 5.6l.7-1.2a1.5 1.5 0 0 1 1.6-.8l2.2.5a1.5 1.5 0 0 1 1.2 1.5v1.2a2 2 0 0 1-2 2C10.5 19.5 4.5 13.5 5 6.5Z"/>
+    </g>
+    <path d="M15.5 8.5 21 3"/>
+    <path d="M16.5 3H21v4.5"/>
+  </symbol>
+  <symbol id="uqzera-incoming-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="scale(.75)">
+    <path d="M5 6.5a2 2 0 0 1 2-2h1.2a1.5 1.5 0 0 1 1.5 1.2l.5 2.2a1.5 1.5 0 0 1-.8 1.6l-1.2.7a11.5 11.5 0 0 0 5.6 5.6l.7-1.2a1.5 1.5 0 0 1 1.6-.8l2.2.5a1.5 1.5 0 0 1 1.2 1.5v1.2a2 2 0 0 1-2 2C10.5 19.5 4.5 13.5 5 6.5Z"/>
+    </g>
+    <path d="M21 3 15.5 8.5" stroke="var(--uqzera-accent, #10B981)"/>
+    <path d="M15.5 4.5v4H19.5" stroke="var(--uqzera-accent, #10B981)"/>
+  </symbol>
+  <symbol id="uqzera-mute-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="3.5" width="6" height="10" rx="3"/>
+    <path d="M6.5 11a5.5 5.5 0 0 0 11 0"/>
+    <path d="M12 16.5V20"/>
+    <path d="M9 20h6"/>
+    <path d="M4 4 20 20"/>
+  </symbol>
+  <symbol id="uqzera-speaker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9.5h3l4.5-3.5v12L7 14.5H4a1.5 1.5 0 0 1-1.5-1.5v-2A1.5 1.5 0 0 1 4 9.5Z"/>
+    <path d="M14.5 9a4.5 4.5 0 0 1 0 6"/>
+    <path d="M17 6.5a8 8 0 0 1 0 11"/>
+  </symbol>
+  <symbol id="uqzera-camera-switch" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9a8 8 0 0 1 13.5-2.5"/>
+    <path d="M17.5 3.5v3.5H14"/>
+    <path d="M20 15a8 8 0 0 1-13.5 2.5"/>
+    <path d="M6.5 20.5V17H10"/>
+    <circle cx="12" cy="12" r="3.2"/>
+    <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-end-call" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="scale(.85)">
+    <path d="M5 6.5a2 2 0 0 1 2-2h1.2a1.5 1.5 0 0 1 1.5 1.2l.5 2.2a1.5 1.5 0 0 1-.8 1.6l-1.2.7a11.5 11.5 0 0 0 5.6 5.6l.7-1.2a1.5 1.5 0 0 1 1.6-.8l2.2.5a1.5 1.5 0 0 1 1.2 1.5v1.2a2 2 0 0 1-2 2C10.5 19.5 4.5 13.5 5 6.5Z"/>
+    </g>
+    <path d="m17 4 4 4"/>
+    <path d="m21 4-4 4"/>
+  </symbol>
+  <symbol id="uqzera-passkey-fingerprint" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4.5 13a7.5 7.5 0 0 1 15 0v2.5c0 2.2-1 4.2-2.7 5.5"/>
+    <path d="M7.5 13.5a4.5 4.5 0 0 1 9 0v2c0 1.6-.7 3-1.8 4"/>
+    <path d="M10.2 14.5a1.8 1.8 0 0 1 3.6 0v1.2c0 1.1-.5 2.1-1.3 2.8"/>
+    <path d="M12 9.8v2.5"/>
+  </symbol>
+  <symbol id="uqzera-passkey-face" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9V6a2 2 0 0 1 2-2h3"/>
+    <path d="M20 9V6a2 2 0 0 0-2-2h-3"/>
+    <path d="M4 15v3a2 2 0 0 0 2 2h3"/>
+    <path d="M20 15v3a2 2 0 0 1-2 2h-3"/>
+    <path d="M9.5 10.5v1.5"/>
+    <path d="M14.5 10.5v1.5"/>
+    <path d="M12 12.5v1"/>
+    <path d="M9 15a4 4 0 0 0 6 0"/>
+  </symbol>
+  <symbol id="uqzera-multi-device" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="5" width="13" height="9" rx="2"/>
+    <path d="M2 17h13.5"/>
+    <rect x="16" y="10" width="5.5" height="10" rx="1.5"/>
+    <path d="M18 12h1.5"/>
+  </symbol>
+  <symbol id="uqzera-device-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="3.5" width="7" height="17" rx="2"/>
+    <path d="M6 6h2"/>
+    <path d="M6 17.5h2"/>
+    <path d="M14 7h7"/>
+    <path d="M14 12h7"/>
+    <path d="M14 17h7"/>
+  </symbol>
+  <symbol id="uqzera-remove-device" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="4.5" width="11" height="8" rx="2"/>
+    <path d="M1.5 15.5h13"/>
+    <circle cx="18.5" cy="16.5" r="3.5"/>
+    <path d="M17 16.5h3"/>
+  </symbol>
+  <symbol id="uqzera-channels" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3.5 9.5 17 4.5v15L3.5 14.5a2 2 0 0 1-1-1.8v-1.4a2 2 0 0 1 1-1.8Z"/>
+    <path d="M6.5 15.5v2.5a1.5 1.5 0 0 0 3 0v-1.5"/>
+  </symbol>
+  <symbol id="uqzera-channel-broadcast" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20V9"/>
+    <circle cx="12" cy="7" r="1.5"/>
+    <path d="M9 20l3-7 3 7"/>
+    <path d="M8.5 9a4.5 4.5 0 0 1 7 0"/>
+    <path d="M6.5 7a6 6 0 0 1 11 0"/>
+  </symbol>
+  <symbol id="uqzera-encrypted-backup" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 18.5h10.5a3.5 3.5 0 0 0 .6-6.95 5.5 5.5 0 0 0-10.6-2.1A4.2 4.2 0 0 0 7 18.5Z"/>
+    <rect x="9.5" y="12.5" width="5" height="4" rx="1"/>
+    <path d="M10.5 12.5v-1a1.5 1.5 0 0 1 3 0v1"/>
+  </symbol>
+  <symbol id="uqzera-backup-restore" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 18.5h10.5a3.5 3.5 0 0 0 .6-6.95 5.5 5.5 0 0 0-10.6-2.1A4.2 4.2 0 0 0 7 18.5Z"/>
+    <path d="M12 10.5v5"/>
+    <path d="M9.5 13 12 15.5l2.5-2.5"/>
+  </symbol>
+  <symbol id="uqzera-tor-mode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="6" width="6" height="5" rx="1.5"/>
+    <path d="M10.5 6V4.5a1.5 1.5 0 0 1 3 0V6"/>
+    <path d="M9 11 5 18"/>
+    <path d="M15 11l4 7"/>
+    <path d="M5 18h14"/>
+    <circle cx="5" cy="18" r="1.6"/>
+    <circle cx="19" cy="18" r="1.6"/>
+  </symbol>
+  <symbol id="uqzera-panic-wipe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3.5 5.5 6v5.5c0 4 2.7 6.9 6.5 8.5 3.8-1.6 6.5-4.5 6.5-8.5V6L12 3.5Z"/>
+    <path d="M13 8 9.5 13H12l-1 4.5L15 12h-2.5L13 8Z" stroke="var(--uqzera-accent, #10B981)"/>
+    <path d="M2.5 9h2"/>
+    <path d="M2 13h2.5"/>
+    <path d="M3.5 17h1.5"/>
+  </symbol>
+  <symbol id="uqzera-show-guide-again" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 12a8 8 0 1 1-2.3-5.6"/>
+    <path d="M20 4.5V9h-4.5"/>
+    <path d="M9.8 10.2a2.2 2.2 0 1 1 3.3 1.9c-.7.4-1.1 1-1.1 1.8v.4"/>
+    <path d="M12 17.2h.01"/>
+  </symbol>
+  <symbol id="uqzera-auto-lock-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="4.5" y="10.5" width="11" height="10" rx="2.5"/>
+    <path d="M7 10.5V7.5a3 3 0 0 1 6 0v3"/>
+    <circle cx="19" cy="6.5" r="3.5"/>
+    <path d="M19 5v1.5l1 1"/>
+  </symbol>
+  <symbol id="uqzera-disappearing-timer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="10" cy="12" r="7"/>
+    <path d="M10 8v4l2.5 1.5"/>
+    <circle cx="19" cy="8" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="21" cy="11.5" r="1" fill="currentColor" stroke="none" opacity=".55"/>
+    <circle cx="19.5" cy="15" r=".8" fill="currentColor" stroke="none" opacity=".3"/>
+  </symbol>
+  <symbol id="uqzera-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="4" rx="1.5"/>
+    <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/>
+    <path d="M12 11v6"/>
+    <path d="M9.5 14.5 12 17l2.5-2.5"/>
+  </symbol>
+  <symbol id="uqzera-archived-chats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="4" width="18" height="4" rx="1.5"/>
+    <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8"/>
+    <path d="M8 10.5h8a1.5 1.5 0 0 1 1.5 1.5v2a1.5 1.5 0 0 1-1.5 1.5h-4l-2.5 2v-2H8a1.5 1.5 0 0 1-1.5-1.5v-2A1.5 1.5 0 0 1 8 10.5Z"/>
+  </symbol>
+  <symbol id="uqzera-mute-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15.5H6c1.2-1.4 1.8-3.2 1.8-5.2V9a4.2 4.2 0 0 1 8.4 0v1.3c0 2 .6 3.8 1.8 5.2Z"/>
+    <path d="M10 18.5a2.2 2.2 0 0 0 4 0"/>
+    <path d="M4 4 20 20"/>
+  </symbol>
+  <symbol id="uqzera-unmute-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15.5 15.5H5c1-1.2 1.5-2.8 1.5-4.5V9a3.7 3.7 0 0 1 7.4 0v2c0 1.7.5 3.3 1.5 4.5Z"/>
+    <path d="M8.5 18.5a2 2 0 0 0 3.6 0"/>
+    <path d="M17.5 9.5a2.5 2.5 0 0 1 0 5"/>
+    <path d="M20 8.5a3.5 3.5 0 0 1 0 7"/>
+  </symbol>
+  <symbol id="uqzera-pin-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="6" width="11" height="5" rx="2.5"/>
+    <rect x="2.5" y="13" width="8" height="5" rx="2.5"/>
+    <path d="M15.5 5.5h5"/>
+    <path d="M16.5 5.5v4.5l-2 3h7l-2-3V5.5"/>
+    <path d="M18 13v6.5"/>
+  </symbol>
+  <symbol id="uqzera-unpin-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="6" width="11" height="5" rx="2.5"/>
+    <rect x="2.5" y="13" width="8" height="5" rx="2.5"/>
+    <path d="M15.5 5.5h5"/>
+    <path d="M16.5 5.5v4.5l-2 3h7l-2-3V5.5"/>
+    <path d="M18 13v6.5"/>
+    <path d="M14.5 14.5 22 5.5"/>
+  </symbol>
+  <symbol id="uqzera-mark-as-unread" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M6 4h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-6.5L6 20v-4a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"/>
+    <circle cx="17" cy="8" r="2.2" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-search-messages" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5 4h9a2.5 2.5 0 0 1 2.5 2.5v4.5a2.5 2.5 0 0 1-2.5 2.5H8l-3.5 3v-3H4a2.5 2.5 0 0 1-2.5-2.5V6.5A2.5 2.5 0 0 1 4 4Z"/>
+    <circle cx="18.5" cy="18" r="3.5"/>
+    <path d="m21 20.5 2 2"/>
+  </symbol>
+  <symbol id="uqzera-search-chats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="5" width="12" height="5" rx="2.5"/>
+    <rect x="2.5" y="12" width="9" height="5" rx="2.5"/>
+    <circle cx="18.5" cy="18" r="3.5"/>
+    <path d="m21 20.5 2 2"/>
+  </symbol>
+  <symbol id="uqzera-settings-profile" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="8.5" r="2.8"/>
+    <path d="M3 19a5 5 0 0 1 10 0"/>
+    <path d="M14 9h8"/>
+    <circle cx="18" cy="9" r="1.4" fill="currentColor" stroke="none"/>
+    <path d="M14 15h8"/>
+    <circle cx="16.5" cy="15" r="1.4" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-change-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="3.5" width="12" height="12" rx="3"/>
+    <circle cx="7" cy="7" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="7" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="7" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+    <path d="M14.5 20.5v-1.8l4.8-4.8a1.4 1.4 0 0 1 2 0l.1.1a1.4 1.4 0 0 1 0 2l-4.8 4.8h-2.1Z"/>
+  </symbol>
+  <symbol id="uqzera-change-passphrase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="8.5" r="3.2"/>
+    <path d="m10.5 10.8 7.5 7.5"/>
+    <path d="M15.5 15.8 18 13.3"/>
+    <path d="M18 18.3l2.5-2.5"/>
+    <path d="M16.5 8.5V6.7l3.5-3.5a1.2 1.2 0 0 1 1.7 0l.1.1a1.2 1.2 0 0 1 0 1.7l-3.5 3.5h-1.8Z"/>
+  </symbol>
+  <symbol id="uqzera-qr-scan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M4 9V6a2 2 0 0 1 2-2h3"/>
+    <path d="M15 4h3a2 2 0 0 1 2 2v3"/>
+    <path d="M4 15v3a2 2 0 0 0 2 2h3"/>
+    <path d="M20 15v3a2 2 0 0 1-2 2h-3"/>
+    <rect x="8" y="8" width="2.5" height="2.5" rx=".5"/>
+    <rect x="13.5" y="8" width="2" height="2" rx=".5"/>
+    <rect x="8" y="13.5" width="2" height="2" rx=".5"/>
+    <rect x="13.5" y="13.5" width="2.5" height="2.5" rx=".5"/>
+    <path d="M4.5 12h15" stroke="var(--uqzera-accent, #10B981)"/>
+  </symbol>
+  <symbol id="uqzera-qr-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3.5" y="6.5" width="12" height="12" rx="2.5"/>
+    <circle cx="7" cy="10" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="10" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="7" cy="15" r="1.2" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="15" r="1.2" fill="currentColor" stroke="none"/>
+    <path d="M15.5 8.5 21 3"/>
+    <path d="M16.5 3H21v4.5"/>
+  </symbol>
+  <symbol id="uqzera-copy-id" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 7V5.5A2.5 2.5 0 0 0 14.5 3h-9A2.5 2.5 0 0 0 3 5.5v9A2.5 2.5 0 0 0 5.5 17H7"/>
+    <rect x="7" y="7" width="14" height="14" rx="3"/>
+    <path d="m11.5 11-.8 5"/>
+    <path d="m15.5 11-.8 5"/>
+    <path d="M10 13h6"/>
+    <path d="M9.5 15h6"/>
+  </symbol>
+  <symbol id="uqzera-share-id" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="2.5" y="8" width="12" height="9" rx="2.5"/>
+    <path d="m6.5 11-.8 3.5"/>
+    <path d="m9 11-.8 3.5"/>
+    <path d="M5.5 12.2h4.5"/>
+    <path d="M5.2 13.8h4.5"/>
+    <path d="M15.5 8.5 21 3"/>
+    <path d="M16.5 3H21v4.5"/>
+  </symbol>
+  <symbol id="uqzera-profile-photo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="3" y="3.5" width="15" height="15" rx="4"/>
+    <circle cx="10.5" cy="9.5" r="2.6"/>
+    <path d="M6 16.5a4.5 4.5 0 0 1 9 0"/>
+    <rect x="15" y="16.5" width="6.5" height="5" rx="1.5"/>
+    <circle cx="18.25" cy="19" r="1.2"/>
+    <path d="M16.5 16.5l.6-1.2h2.3l.6 1.2"/>
+  </symbol>
+  <symbol id="uqzera-edit-bio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="8" cy="8.5" r="2.8"/>
+    <path d="M3 19a5 5 0 0 1 10 0"/>
+    <path d="M14 20.5v-1.8l4.8-4.8a1.4 1.4 0 0 1 2 0l.1.1a1.4 1.4 0 0 1 0 2l-4.8 4.8H14Z"/>
+  </symbol>
+  <symbol id="uqzera-notifications" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15.5H6c1.2-1.4 1.8-3.2 1.8-5.2V9a4.2 4.2 0 0 1 8.4 0v1.3c0 2 .6 3.8 1.8 5.2Z"/>
+    <path d="M10 18.5a2.2 2.2 0 0 0 4 0"/>
+    <circle cx="18.5" cy="5" r="2.2" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-privacy-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 3.5 5.5 6v5.5c0 4 2.7 6.9 6.5 8.5 3.8-1.6 6.5-4.5 6.5-8.5V6L12 3.5Z"/>
+    <path d="M8 9h8"/>
+    <circle cx="10" cy="9" r="1.1" fill="currentColor" stroke="none"/>
+    <path d="M8 13h8"/>
+    <circle cx="14" cy="13" r="1.1" fill="currentColor" stroke="none"/>
+  </symbol>
+  <symbol id="uqzera-blocked-contacts" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="8.5" r="3"/>
+    <path d="M5.5 19a6.5 6.5 0 0 1 13 0"/>
+    <path d="M4 4 20 20"/>
+  </symbol>
+  <symbol id="uqzera-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="8"/>
+    <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7v.5"/>
+    <path d="M12 17h.01"/>
+  </symbol>
+</svg>
