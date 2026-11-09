@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { useChatStore, type ChatMessage } from "../store/useChatStore";
 import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
-import IconClock from "./icons/ui/IconClock";
+import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
 import IconLock from "./icons/ui/IconLock";
 import IconMoreVertical from "./icons/IconMoreVertical";
 import IconReply from "./icons/IconReply";
-import IconSearch from "./icons/ui/IconSearch";
+import { SearchMessagesIcon } from "./icons/outline/SearchMessagesIcon";
 import IconSend from "./icons/ui/IconSend";
 import IconClose from "./icons/ui/IconClose";
 
@@ -132,7 +132,7 @@ export function ChatView({
         </div>
         <div className="flex items-center gap-1">
           <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="Search messages">
-            <IconSearch width={18} height={18} />
+            <SearchMessagesIcon width={18} height={18} />
           </button>
           <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="More options">
             <IconMoreVertical size={18} />
@@ -146,7 +146,7 @@ export function ChatView({
           title="Click to change TTL"
           className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-container px-3 py-1 text-xs text-text-secondary transition hover:bg-surface-high"
         >
-          <IconClock width={12} height={12} />
+          <ClockPendingIcon width={12} height={12} />
           Messages auto-shred after{" "}
           {ephemeralTtl
             ? ephemeralTtl / 60 > 0
@@ -219,7 +219,7 @@ export function ChatView({
             title="Ephemeral TTL"
             className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
           >
-            <IconClock width={16} height={16} />
+            <ClockPendingIcon width={16} height={16} />
           </button>
           <textarea
             value={content}
