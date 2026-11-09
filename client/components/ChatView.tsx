@@ -242,9 +242,9 @@ export function ChatView({
             onClick={() => void handleSend()}
             disabled={!content.trim()}
             aria-label="Send message"
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[#0A0D14] transition hover:bg-accent-hover disabled:opacity-40"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent-emerald/20 text-accent-emerald transition hover:bg-accent-emerald/40 disabled:opacity-40"
           >
-            <SendIcon width={16} height={16} />
+            <SendIcon width={20} height={20} />
           </button>
         </div>
       </div>
