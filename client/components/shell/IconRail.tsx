@@ -2,7 +2,7 @@
 
 import { useVaultStore } from "../../store/useVaultStore";
 import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
-import SolidChat from "../icons/solid/SolidChat";
+import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
 import { DocumentIcon } from "../icons/outline/DocumentIcon";
 import { SettingsProfileIcon } from "../icons/outline/SettingsProfileIcon";
 import { useChatStore } from "../../store/useChatStore";
@@ -41,7 +41,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
         aria-label="Chats"
         className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
       >
-        <SolidChat width={18} height={18} />
+        <ChatBubbleIcon width={18} height={18} />
       </button>
       {privateNotesId && (
         <button

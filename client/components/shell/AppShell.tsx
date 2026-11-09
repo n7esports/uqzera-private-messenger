@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useChatStore, type ChatState } from "../../store/useChatStore";
-import SolidChat from "../icons/solid/SolidChat";
+import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
 import IconPlus from "../icons/IconPlus";
 import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import AcceptContactModal from "../modals/AcceptContactModal";
@@ -91,7 +91,7 @@ export default function AppShell({
         style={{ color: "var(--text-primary)" }}
       >
         <div className="flex items-center gap-2">
-          <SolidChat width={18} height={18} />
+          <ChatBubbleIcon width={18} height={18} />
           <span>Chats</span>
         </div>
         <button
