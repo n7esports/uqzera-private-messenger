@@ -2,8 +2,8 @@
   /* WhatsApp-style dark design system */
   --bg-app: #0A0D14;
   --bg-sidebar: #0A0D14;
-  --sidebar-bg: rgba(18, 24, 32, 0.55);
-  --sidebar-blur: blur(24px) saturate(160%);
+  --sidebar-bg: rgba(18, 24, 32, 0.38);
+  --sidebar-blur: blur(36px) saturate(170%);
   --bg-panel: #202C33;
   --bg-hover: #2A3942;
   --bg-selected: #2A3942;
