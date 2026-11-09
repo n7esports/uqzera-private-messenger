@@ -1,0 +1,27 @@
+import React from "react";
+
+export function UnpinMessageIcon({ size = 24, className, ...props }: React.SVGProps<SVGSVGElement> & { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+      {...props}
+    >
+      <path d="M5.5 6h7A2.5 2.5 0 0 1 15 8.5v4a2.5 2.5 0 0 1-2.5 2.5H8.5L5 18v-3H5.5A2.5 2.5 0 0 1 3 12.5v-4A2.5 2.5 0 0 1 5.5 6Z"/>
+  <path d="M15.5 5.5h5"/>
+  <path d="M16.5 5.5v4.5l-2 3h7l-2-3V5.5"/>
+  <path d="M18 13v6.5"/>
+  <path d="M14.5 14.5 22 5.5"/>
+    </svg>
+  );
+}

@@ -1,0 +1,26 @@
+import React from "react";
+
+export function LiveLocationIcon({ size = 24, className, ...props }: React.SVGProps<SVGSVGElement> & { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+      {...props}
+    >
+      <path d="M10.5 21s6.5-6 6.5-10.5a6.5 6.5 0 1 0-13 0c0 4.5 6.5 10.5 6.5 10.5Z"/>
+  <circle cx="10.5" cy="10.5" r="2.2" fill="var(--uqzera-accent, #10B981)" stroke="none"/>
+  <path d="M18.5 8a4.5 4.5 0 0 1 0 5"/>
+  <path d="M21 5.5a8 8 0 0 1 0 10"/>
+    </svg>
+  );
+}

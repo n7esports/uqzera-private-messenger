@@ -1,0 +1,28 @@
+import React from "react";
+
+export function ProfilePhotoIcon({ size = 24, className, ...props }: React.SVGProps<SVGSVGElement> & { size?: number }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      focusable="false"
+      className={className}
+      {...props}
+    >
+      <rect x="3" y="3.5" width="15" height="15" rx="4"/>
+  <circle cx="10.5" cy="9.5" r="2.6"/>
+  <path d="M6 16.5a4.5 4.5 0 0 1 9 0"/>
+  <rect x="15" y="16.5" width="6.5" height="5" rx="1.5"/>
+  <circle cx="18.25" cy="19" r="1.2"/>
+  <path d="M16.5 16.5l.6-1.2h2.3l.6 1.2"/>
+    </svg>
+  );
+}
