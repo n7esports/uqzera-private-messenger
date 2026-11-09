@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useChatStore, type ChatState } from "../../store/useChatStore";
 import SolidChat from "../icons/solid/SolidChat";
 import IconPlus from "../icons/IconPlus";
-import IconSearch from "../icons/IconSearch";
+import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
 import ChatList from "../chatList/ChatList";
@@ -56,7 +56,7 @@ export default function AppShell({
         <div
           className="flex h-[40px] items-center gap-2 rounded-[12px] bg-bg-panel border border-border px-4"
         >
-          <IconSearch
+          <SearchChatsIcon
             size={16}
             className="text-text-secondary"
           />
