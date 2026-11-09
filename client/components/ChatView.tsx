@@ -5,11 +5,11 @@ import { useChatStore, type ChatMessage } from "../store/useChatStore";
 import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
 import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
-import IconLock from "./icons/ui/IconLock";
+import { VaultLockIcon } from "./icons/outline/VaultLockIcon";
 import IconMoreVertical from "./icons/IconMoreVertical";
 import IconReply from "./icons/IconReply";
 import { SearchMessagesIcon } from "./icons/outline/SearchMessagesIcon";
-import IconSend from "./icons/ui/IconSend";
+import { SendIcon } from "./icons/outline/SendIcon";
 import IconClose from "./icons/ui/IconClose";
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
@@ -88,7 +88,7 @@ export function ChatView({
     return (
       <div className="flex h-full w-full items-center justify-center bg-surface">
         <div className="flex flex-col items-center gap-2">
-          <IconLock width={48} height={48} className="text-primary" />
+          <VaultLockIcon width={48} height={48} className="text-primary" />
           <p className="text-sm font-medium text-text-primary">No active session</p>
           <p className="text-xs text-text-secondary">
             Select a thread to establish an E2EE channel.
@@ -244,7 +244,7 @@ export function ChatView({
             aria-label="Send message"
             className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent text-[#0A0D14] transition hover:bg-accent-hover disabled:opacity-40"
           >
-            <IconSend width={16} height={16} />
+            <SendIcon width={16} height={16} />
           </button>
         </div>
       </div>
