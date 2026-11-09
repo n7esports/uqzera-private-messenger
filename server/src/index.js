@@ -177,7 +177,15 @@ function isAllowedOrigin(origin) {
   // ws_origin_rejected for legitimate clients. Reject only explicit bad origins.
   if (origin === null || origin === undefined || origin === "") return true;
   if (typeof origin !== "string") return false;
-  return allowedOrigins.has(origin);
+  if (allowedOrigins.has(origin)) return true;
+  // Allow any Vercel deployment (preview + production) automatically.
+  try {
+    const { hostname } = new URL(origin);
+    if (hostname === "vercel.app" || hostname.endsWith(".vercel.app")) return true;
+  } catch {
+    // fall through
+  }
+  return false;
 }
 
 function validPublicKey(value) {
