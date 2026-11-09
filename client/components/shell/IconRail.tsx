@@ -1,10 +1,10 @@
 "use client";
 
 import { useVaultStore } from "../../store/useVaultStore";
-import IconSearch from "../icons/ui/IconSearch";
+import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import SolidChat from "../icons/solid/SolidChat";
-import SolidNotes from "../icons/solid/SolidNotes";
-import SolidSettings from "../icons/solid/SolidSettings";
+import { DocumentIcon } from "../icons/outline/DocumentIcon";
+import { SettingsProfileIcon } from "../icons/outline/SettingsProfileIcon";
 import { useChatStore } from "../../store/useChatStore";
 
 export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
@@ -34,7 +34,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
         onClick={onSearchClick}
         className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
       >
-        <IconSearch width={18} height={18} />
+        <SearchChatsIcon width={18} height={18} />
       </button>
       <button
         type="button"
@@ -51,7 +51,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
           onClick={() => setActiveChat(privateNotesId)}
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
-          <SolidNotes width={18} height={18} />
+          <DocumentIcon width={18} height={18} />
         </button>
       )}
       <div className="mt-auto flex flex-col items-center gap-2">
@@ -60,7 +60,7 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
           aria-label="Settings"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
-          <SolidSettings width={18} height={18} />
+          <SettingsProfileIcon width={18} height={18} />
         </a>
         <a
           href="/settings"
