@@ -1,17 +1,17 @@
 import SolidChat from "../components/icons/solid/SolidChat";
-import SolidGrid from "../components/icons/solid/SolidGrid";
-import SolidNotes from "../components/icons/solid/SolidNotes";
+import { QrShareIcon } from "../components/icons/outline/QrShareIcon";
+import { DocumentIcon } from "../components/icons/outline/DocumentIcon";
+import { DisappearingTimerIcon } from "../components/icons/outline/DisappearingTimerIcon";
+import { PanicWipeIcon } from "../components/icons/outline/PanicWipeIcon";
+import { MultiDeviceIcon } from "../components/icons/outline/MultiDeviceIcon";
+import { ChannelsIcon } from "../components/icons/outline/ChannelsIcon";
+import { EncryptedBackupIcon } from "../components/icons/outline/EncryptedBackupIcon";
+import { TorModeIcon } from "../components/icons/outline/TorModeIcon";
 import SolidLock from "../components/icons/solid/SolidLock";
 import SolidKey from "../components/icons/solid/SolidKey";
-import SolidPhone from "../components/icons/solid/SolidPhone";
-import SolidTimer from "../components/icons/solid/SolidTimer";
-import SolidTrash from "../components/icons/solid/SolidTrash";
 import SolidShield from "../components/icons/solid/SolidShield";
 import { AttachmentIcon } from "../components/icons/outline/AttachmentIcon";
 import SolidWifiOff from "../components/icons/solid/SolidWifiOff";
-import { ChannelBroadcastIcon } from "../components/icons/outline/ChannelBroadcastIcon";
-import SolidBox from "../components/icons/solid/SolidBox";
-import SolidGlobe from "../components/icons/solid/SolidGlobe";
 import type { ComponentType } from "react";
 import SolidSend from "../components/icons/solid/SolidSend";
 
@@ -54,13 +54,13 @@ export const guideSections: GuideSection[] = [
         action: { label: "Start a chat", intent: "new-chat" },
       },
       {
-        icon: SolidGrid,
+        icon: QrShareIcon,
         title: "Exchange keys & add contacts",
         body: "Show your own QR / public key, or scan a contact's code to add them. UQZERA has no username directory — the key is the identity.",
         action: { label: "Open key exchange", intent: "key-exchange" },
       },
       {
-        icon: SolidNotes,
+        icon: DocumentIcon,
         title: "Private Notes",
         body: "A personal, encrypted space for drafts and links. Stored only on this device and never sent through the relay.",
         action: { label: "Open Notes", href: "/chats/notes" },
@@ -83,7 +83,7 @@ export const guideSections: GuideSection[] = [
         body: "Your identity is generated here and never uploaded. Your vault stays encrypted at rest on this device.",
       },
       {
-        icon: SolidPhone,
+        icon: MultiDeviceIcon,
         title: "One device, one vault",
         body: "Conversations live on this device only. Opening UQZERA elsewhere starts a fresh vault — there is no account to sign in to.",
       },
@@ -94,13 +94,13 @@ export const guideSections: GuideSection[] = [
     caption: "Lock down and wipe on your terms",
     items: [
       {
-        icon: SolidTimer,
+        icon: DisappearingTimerIcon,
         title: "Self-destructing messages",
         body: "Attach a timer when you send (1 minute to 1 hour, or Off). The message deletes itself from both sides once the countdown ends.",
         action: { label: "Compose with a timer", href: "/chats?compose=1&timer=60000" },
       },
       {
-        icon: SolidTrash,
+        icon: PanicWipeIcon,
         title: "Panic Wipe",
         body: "Instantly erase this device's entire vault — identity, chats and notes. Use it if you're ever forced to hand over your device.",
         action: { label: "Go to wipe control", intent: "panic-wipe" },
@@ -133,19 +133,19 @@ export const guideSections: GuideSection[] = [
     caption: "Built but not switched on yet",
     items: [
       {
-        icon: ChannelBroadcastIcon,
+        icon: ChannelsIcon,
         title: "Channels",
         body: "Broadcast to many people at once, public or invite-only, still end-to-end encrypted.",
         action: { label: "Coming soon", href: "/chats/channels", comingSoon: true },
       },
       {
-        icon: SolidBox,
+        icon: EncryptedBackupIcon,
         title: "Encrypted backup",
         body: "Export an encrypted copy of your vault. Only your device key can open it.",
         action: { label: "Coming soon", comingSoon: true },
       },
       {
-        icon: SolidGlobe,
+        icon: TorModeIcon,
         title: "Tor mode",
         body: "Route traffic through Tor to hide your IP address. Off by default.",
         action: { label: "Coming soon", comingSoon: true },
