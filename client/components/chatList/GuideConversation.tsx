@@ -1,6 +1,7 @@
 "use client";
 
 import { guideIntro, guideOutro, guideSections } from "../../lib/guideContent";
+import PrivacyBackdrop from "../shell/PrivacyBackdrop";
 
 export default function GuideConversation({
   onBack,
@@ -25,6 +26,7 @@ export default function GuideConversation({
           <p className="text-xs text-on-surface-variant">Pinned quick-start guide</p>
         </div>
       </header>
+<PrivacyBackdrop>
       <div className="flex-1 overflow-y-auto no-scrollbar px-6 py-6">
         <div className="mx-auto w-full max-w-5xl">
           <p className="mb-6 rounded-xl border border-border bg-bg-panel p-4 text-sm leading-6 text-text-primary">
@@ -74,7 +76,21 @@ export default function GuideConversation({
             </p>
           </div>
         </div>
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            className="rounded-lg bg-primary px-4 py-2 text-sm text-on-primary"
+            onClick={() => {
+              if (typeof window !== "undefined") {
+                localStorage.setItem("uqzera.guide.confirmed", "1");
+              }
+            }}
+          >
+            Read & confirm
+          </button>
+        </div>
       </div>
+    </PrivacyBackdrop>
     </article>
   );
 }
