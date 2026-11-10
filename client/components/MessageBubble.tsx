@@ -66,15 +66,15 @@ export default function MessageBubble({
 }) {
   const alignment = isMe ? "justify-end" : "justify-start";
   const bubbleMargin = isMe ? "ml-auto" : "mr-auto";
-  const bubbleBg = isMe ? "bg-bubble-out" : "text-text-primary";
-  const bubbleGlass = isMe ? "" : "glass";
+  const bubbleBg = isMe ? "bg-accent-emerald/25" : "bg-white/5";
+  const bubbleGlass = isMe ? "backdrop-blur-[20px] border border-accent-emerald/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]" : "backdrop-blur-[20px] border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]";
   const bubbleRadius = isMe ? "rounded-xl rounded-tr-sm rounded-br-xl" : "rounded-xl rounded-tl-sm rounded-bl-xl";
   const status = message.status as DisplayStatus;
 
   return (
     <div className={`relative flex ${alignment} gap-2`}>
       <motion.div
-        className={`inline-flex flex-col ${bubbleRadius} px-2.5 py-1.5 max-w-[75%] text-sm ${bubbleMargin} ${bubbleBg} ${bubbleGlass} break-words text-text-primary w-fit`}
+        className={`inline-flex flex-col ${bubbleRadius} px-3 py-2 max-w-[70%] min-w-[80px] text-sm ${bubbleMargin} ${bubbleBg} ${bubbleGlass} break-words text-text-primary w-fit`}
         drag={isMe ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={(_, info) => {
