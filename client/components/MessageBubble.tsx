@@ -67,7 +67,7 @@ export default function MessageBubble({
   const alignment = isMe ? "justify-end" : "justify-start";
   const bubbleMargin = isMe ? "ml-auto" : "mr-auto";
   const bubbleBg = isMe ? "bg-accent-emerald/25" : "bg-white/5";
-  const bubbleGlass = isMe ? "backdrop-blur-[20px] border border-accent-emerald/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]" : "backdrop-blur-[20px] border border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]";
+  const bubbleGlass = isMe ? "backdrop-blur-[20px] border-[0.5px] border-accent-emerald/30 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]" : "backdrop-blur-[20px] border-[0.5px] border-white/10 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]";
   const bubbleRadius = isMe ? "rounded-xl rounded-tr-sm rounded-br-xl" : "rounded-xl rounded-tl-sm rounded-bl-xl";
   const status = message.status as DisplayStatus;
 

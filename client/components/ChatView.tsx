@@ -43,9 +43,12 @@ export function ChatView({
   const setReplyTo = useChatStore((state) => state.setReplyTo);
 
   const [content, setContent] = useState("");
+const [menuOpen, setMenuOpen] = useState(false);
+const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
 const [searchOpen, setSearchOpen] = useState(false);
 const [searchQuery, setSearchQuery] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
+const moreButtonRef = useRef<HTMLButtonElement>(null);
   const chat = chatId ? chats.find((entry) => entry.id === chatId) ?? null : null;
 const filteredMessages = searchQuery.trim()
   ? messages.filter((m) => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -113,7 +116,13 @@ const filteredMessages = searchQuery.trim()
   return (
     <div className="flex h-full w-full flex-col relative bg-surface">
       <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: "url('/doodle-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "300px 300px", opacity: 0.15 }} />
-      <header className="flex h-14 items-center justify-between border-b border-border sidebar-glass px-4">
+      <header
+        className="flex h-14 items-center justify-between border-b border-border sidebar-glass px-4"
+        onContextMenu={(e) => {
+          e.preventDefault();
+          moreButtonRef.current?.click();
+        }}
+      >
         <div className="flex items-center gap-3">
           {onBack && (
             <button
@@ -148,7 +157,7 @@ const filteredMessages = searchQuery.trim()
           >
             <SearchMessagesIcon width={18} height={18} />
           </button>
-          <ChatMenu chatId={chatId!} onCloseChat={onBack} />
+          <ChatMenu chatId={chatId!} onCloseChat={onBack} buttonRef={moreButtonRef} />
         </div>
       </header>
       {searchOpen && (

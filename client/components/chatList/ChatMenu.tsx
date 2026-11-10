@@ -15,9 +15,10 @@ interface ChatMenuProps {
   chatId: string;
   onClose?: () => void;
   onCloseChat?: () => void;
+  buttonRef?: React.RefObject<HTMLButtonElement>;
 }
 
-export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps) {
+export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: ChatMenuProps) {
   const [open, setOpen] = useState(false);
   const [showContactInfo, setShowContactInfo] = useState(false);
   const chats = useChatStore((state) => state.chats);
@@ -138,6 +139,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
     <div className="relative">
       <button
         type="button"
+        ref={buttonRef}
         aria-label={`Chat options for ${chat.alias}`}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -150,12 +152,12 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
         <div
           role="menu"
           aria-label={`Chat options for ${chat.alias}`}
-          className="absolute right-0 z-30 mt-1 min-w-48 rounded-lg border border-border bg-surface p-2 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-2 min-w-[220px] w-max max-w-[280px] rounded-lg border border-border bg-surface p-2 shadow-lg"
         >
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
             onClick={() => void togglePinned()}
           >
             {chat.pinned ? "Unpin chat" : "Pin chat"}
@@ -163,7 +165,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
             onClick={() => void clearChat()}
           >
             Clear chat
@@ -171,7 +173,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
             onClick={() => closeChat()}
           >
             Close chat
@@ -179,7 +181,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
             onClick={() => void toggleMute()}
           >
             {chat.mutedForever ? "Unmute notifications" : "Mute notifications"}
@@ -187,7 +189,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
             onClick={() => contactInfo()}
           >
             Contact info
@@ -203,7 +205,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
                   (option.value === null && chat.disappearingMs === undefined) ||
                   chat.disappearingMs === option.value
                 }
-                className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+                className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
                 onClick={() => void chooseTimer(option.value)}
               >
                 {option.label}
@@ -218,7 +220,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-text-primary hover:bg-surface-high"
             onClick={() => exportChat()}
           >
             Export chat
@@ -226,7 +228,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps
           <button
             type="button"
             role="menuitem"
-            className="block w-full rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-surface-high"
+            className="block w-full rounded-md whitespace-nowrap px-4 py-2.5 text-sm text-red-600 hover:bg-surface-high"
             onClick={() => void confirmDelete()}
           >
             Delete chat
