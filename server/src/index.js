@@ -32,6 +32,8 @@ const WS_PING_TIMEOUT_MS = 10_000;
 // subscribe, and receipt must carry a matching token. Without it the relay is
 // anonymous — same-trust endpoints only — which is why rate limiting and the
 // connection cap are enforced regardless.
+// NOTE: UQZERA_RELAY_TOKEN must be set in production; without it the relay
+// accepts anonymous requests (local dev only).
 const RELAY_TOKEN = process.env.UQZERA_RELAY_TOKEN?.trim() || null;
 
 const DEFAULT_ALLOWED_ORIGINS = [
@@ -499,6 +501,11 @@ const httpServer = createServer(async (request, response) => {
   response.setHeader("Referrer-Policy", "no-referrer");
   response.setHeader("Cross-Origin-Resource-Policy", "same-origin");
   response.setHeader("Cache-Control", "no-store");
+
+  if (request.method === "GET" && (request.url === "/health" || request.url?.split("?")[0] === "/health")) {
+    response.writeHead(200, { "Content-Type": "application/json" }).end('{"status":"ok"}');
+    return;
+  }
 
   if (!isAllowedOrigin(origin)) {
     securityLog("origin_rejected", { clientIp, origin: origin ?? null });
