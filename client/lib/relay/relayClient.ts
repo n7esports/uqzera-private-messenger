@@ -207,6 +207,8 @@ export class WebSocketRelayClient implements RelayClient {
       return Promise.reject(new Error("Relay is not connected."));
     }
     const id = crypto.randomUUID();
+    const token = process.env.NEXT_PUBLIC_RELAY_TOKEN;
+    const payload = token ? { ...message, authToken: token, id } : { ...message, id };
     return new Promise<void>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pendingRequests.delete(id);
@@ -214,7 +216,7 @@ export class WebSocketRelayClient implements RelayClient {
       }, REQUEST_TIMEOUT_MS);
       this.pendingRequests.set(id, { resolve, reject, timer });
       try {
-        this.send({ ...message, id } as Record<string, string>);
+        this.send(payload as Record<string, string>);
       } catch (error) {
         clearTimeout(timer);
         this.pendingRequests.delete(id);
