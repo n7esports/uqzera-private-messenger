@@ -7,7 +7,7 @@ import { DocumentIcon } from "../icons/outline/DocumentIcon";
 import { SettingsProfileIcon } from "../icons/outline/SettingsProfileIcon";
 import { useChatStore } from "../../store/useChatStore";
 
-export default function IconRail({ onSearchClick }: { onSearchClick?: () => void }) {
+export default function IconRail({ onSearchClick, onOpenSettings, className }: { onSearchClick?: () => void; onOpenSettings?: () => void; className?: string }) {
   const profile = useVaultStore((state) => state.profile);
   const setActiveChat = useChatStore((s) => s.setActiveChat);
   const activeChatId = useChatStore((s) => s.activeChatId);
@@ -24,9 +24,11 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
   return (
     <nav
       aria-label="Icon rail"
-      className="flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3"
+      className={("flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3 " + (className||"")).trim()}
     >
-      <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 rounded object-contain" />
+      <div style={{ backgroundColor: 'rgba(10, 20, 16, 1)', border: '1.5px solid rgba(16, 185, 129, 0.6)', borderRadius: '12px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 rounded object-contain" />
+      </div>
       <div className="my-1 h-px w-8 bg-border" />
       <button
         type="button"
@@ -55,20 +57,22 @@ export default function IconRail({ onSearchClick }: { onSearchClick?: () => void
         </button>
       )}
       <div className="mt-auto flex flex-col items-center gap-2">
-        <a
-          href="/settings"
+        <button
+          type="button"
+          onClick={onOpenSettings}
           aria-label="Settings"
           className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover hover:text-text-primary"
         >
           <SettingsProfileIcon width={18} height={18} />
-        </a>
-        <a
-          href="/settings"
+        </button>
+        <button
+          type="button"
+          onClick={onOpenSettings}
           aria-label="Profile"
           className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-panel text-xs font-medium text-text-primary"
         >
           {initials(profile?.name ?? "") || "?"}
-        </a>
+        </button>
       </div>
     </nav>
   );
