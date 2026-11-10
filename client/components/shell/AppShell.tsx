@@ -9,6 +9,8 @@ import AcceptContactModal from "../modals/AcceptContactModal";
 import { useVaultStore } from "../../store/useVaultStore";
 import ChatList from "../chatList/ChatList";
 import IconRail from "./IconRail";
+import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
+import { SettingsView, type SettingsSection } from "@/components/SettingsView";
 
 export default function AppShell({
   onOpenIdentity: _onOpenIdentity,
@@ -31,14 +33,17 @@ export default function AppShell({
   const loadChats = useChatStore((s: ChatState) => s.loadChats);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [settingsSection, setSettingsSection] = useState<SettingsSection>("linked-devices");
 
   useEffect(() => {
     if (isUnlocked) void loadChats().catch(() => {});
   }, [isUnlocked, loadChats]);
 
   return (
+    <>
     <div className="flex h-screen w-full">
-      <IconRail onSearchClick={() => searchInputRef.current?.focus()} />
+      <IconRail onSearchClick={() => searchInputRef.current?.focus()} onOpenSettings={() => setIsSettingsOpen(true)} />
       <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col sidebar-glass">
         {/* Logo / brand */}
       <div className="flex h-14 items-center justify-between gap-3 px-4">
@@ -121,5 +126,19 @@ export default function AppShell({
 
     </aside>
     </div>
+    {isSettingsOpen && (
+      <div className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" onClick={() => setIsSettingsOpen(false)} />
+    )}
+    {isSettingsOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="flex h-[80vh] w-full max-w-5xl overflow-hidden rounded-xl bg-bg-panel shadow-2xl">
+          <SettingsSidebar active={settingsSection} onSelect={setSettingsSection} />
+          <main className="flex-1 overflow-hidden">
+            <SettingsView section={settingsSection} />
+          </main>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

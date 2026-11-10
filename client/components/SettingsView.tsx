@@ -44,6 +44,20 @@ export function SettingsView({ section }: { section: SettingsSection }) {
       <p className="mt-1 text-xs text-outline">Display and message behavior.</p>
       <div className="mt-6 flex flex-col gap-6">
        <AppearanceSettings />
+       <section className="rounded-2xl border border-outline-variant/50 bg-surface-container/60 p-4">
+        <h2 className="text-sm font-medium text-on-surface">Guide</h2>
+        <button
+         type="button"
+         className="mt-2 rounded-lg bg-primary px-3 py-1.5 text-xs text-on-primary"
+         onClick={() => {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("uqzera.guide.confirmed");
+          }
+         }}
+        >
+         Show guide again
+        </button>
+       </section>
       </div>
      </>
     )}

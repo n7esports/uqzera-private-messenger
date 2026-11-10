@@ -61,7 +61,13 @@ export default function ChatList({
     (state: ChatState) => state.clearChatMessages,
   );
   const deleteChat = useChatStore((state: ChatState) => state.deleteChat);
-  const [menuChatId, setMenuChatId] = useState<string | null>(null);
+  const [guideConfirmed, setGuideConfirmed] = useState(false);
+const [menuChatId, setMenuChatId] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setGuideConfirmed(localStorage.getItem("uqzera.guide.confirmed") === "1");
+    }
+  }, []);
   const [sheetChatId, setSheetChatId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -304,6 +310,7 @@ export default function ChatList({
       className="flex-1 overflow-y-auto no-scrollbar"
     >
       <ul>
+{!guideConfirmed && (
         <li className="list-none">
           <button
             type="button"
@@ -330,6 +337,7 @@ export default function ChatList({
             <span className="sr-only">Pinned</span>
           </button>
         </li>
+      )}
         {pinnedChats.map(renderChat)}
       </ul>
 
