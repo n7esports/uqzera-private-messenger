@@ -14,16 +14,23 @@ import { useChatStore } from "../../store/useChatStore";
 interface ChatMenuProps {
   chatId: string;
   onClose?: () => void;
+  onCloseChat?: () => void;
 }
 
-export default function ChatMenu({ chatId, onClose }: ChatMenuProps) {
+export default function ChatMenu({ chatId, onClose, onCloseChat }: ChatMenuProps) {
   const [open, setOpen] = useState(false);
+  const [showContactInfo, setShowContactInfo] = useState(false);
   const chats = useChatStore((state) => state.chats);
+  const messagesMap = useChatStore((state) => state.messagesMap);
   const deleteChat = useChatStore((state) => state.deleteChat);
+  const clearChatMessages = useChatStore((state) => state.clearChatMessages);
+  const updateChat = useChatStore((state) => state.updateChat);
   const showToast = useChatStore((state) => state.showToast);
   const chat = chats.find((entry) => entry.id === chatId);
 
   if (!chat) return null;
+
+  const messages = messagesMap[chatId] ?? [];
 
   const reportFailure = () =>
     showToast({
@@ -77,6 +84,56 @@ export default function ChatMenu({ chatId, onClose }: ChatMenuProps) {
     }
   };
 
+  const clearChat = async () => {
+    if (!window.confirm("Clear all messages in this chat?")) return;
+    try {
+      await clearChatMessages(chat.id);
+      closeMenu();
+    } catch {
+      reportFailure();
+    }
+  };
+
+  const closeChat = () => {
+    closeMenu();
+    onCloseChat?.();
+  };
+
+  const toggleMute = async () => {
+    try {
+      await updateChat(
+        chat.id,
+        chat.mutedForever
+          ? { mutedForever: false, mutedUntil: undefined }
+          : { mutedForever: true, mutedUntil: undefined },
+      );
+      closeMenu();
+    } catch {
+      reportFailure();
+    }
+  };
+
+  const exportChat = () => {
+    const lines = messages.map((m) => {
+      const sender = m.senderPubKey === "me" || m.outgoing ? "You" : chat.alias;
+      const time = new Date(m.timestamp).toLocaleString();
+      return `[${time}] ${sender}: ${m.content}`;
+    });
+    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${chat.alias}-chat.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    closeMenu();
+  };
+
+  const contactInfo = () => {
+    setShowContactInfo(true);
+    setOpen(false);
+  };
+
   return (
     <div className="relative">
       <button
@@ -102,6 +159,38 @@ export default function ChatMenu({ chatId, onClose }: ChatMenuProps) {
             onClick={() => void togglePinned()}
           >
             {chat.pinned ? "Unpin chat" : "Pin chat"}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            onClick={() => void clearChat()}
+          >
+            Clear chat
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            onClick={() => closeChat()}
+          >
+            Close chat
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            onClick={() => void toggleMute()}
+          >
+            {chat.mutedForever ? "Unmute notifications" : "Mute notifications"}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            onClick={() => contactInfo()}
+          >
+            Contact info
           </button>
           <div className="border-t border-border-default py-2">
             <p className="px-3 pb-1 text-xs text-text-secondary">Disappearing messages</p>
@@ -129,11 +218,45 @@ export default function ChatMenu({ chatId, onClose }: ChatMenuProps) {
           <button
             type="button"
             role="menuitem"
+            className="block w-full rounded-md px-3 py-2 text-left text-sm text-text-primary hover:bg-surface-high"
+            onClick={() => exportChat()}
+          >
+            Export chat
+          </button>
+          <button
+            type="button"
+            role="menuitem"
             className="block w-full rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-surface-high"
             onClick={() => void confirmDelete()}
           >
             Delete chat
           </button>
+        </div>
+      )}
+      {showContactInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="rounded-lg border border-border bg-surface p-4 shadow-lg max-w-sm">
+            <p className="text-sm font-medium text-text-primary mb-2">Contact info</p>
+            <p className="text-xs text-text-secondary mb-1">Alias: {chat.alias}</p>
+            <p className="text-xs text-text-secondary mb-3">ID: {chat.id.slice(0, 10)}…</p>
+            <button
+              type="button"
+              className="rounded bg-primary px-3 py-1 text-xs text-on-primary"
+              onClick={() => {
+                void navigator.clipboard.writeText(chat.id.slice(0, 10));
+                setShowContactInfo(false);
+              }}
+            >
+              Copy
+            </button>
+            <button
+              type="button"
+              className="ml-2 rounded bg-surface-high px-3 py-1 text-xs text-text-primary"
+              onClick={() => setShowContactInfo(false)}
+            >
+              Close
+            </button>
+          </div>
         </div>
       )}
     </div>

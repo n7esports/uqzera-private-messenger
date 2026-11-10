@@ -148,7 +148,7 @@ const filteredMessages = searchQuery.trim()
           >
             <SearchMessagesIcon width={18} height={18} />
           </button>
-          <ChatMenu chatId={chatId!} />
+          <ChatMenu chatId={chatId!} onCloseChat={onBack} />
         </div>
       </header>
       {searchOpen && (
