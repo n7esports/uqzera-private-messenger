@@ -152,7 +152,17 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
         <div
           role="menu"
           aria-label={`Chat options for ${chat.alias}`}
-          className="absolute right-0 top-full z-50 mt-2 min-w-[220px] w-max max-w-[280px] rounded-lg border border-border bg-surface p-2 shadow-lg"
+          style={{
+            backgroundColor: 'rgba(10, 20, 16, 0.95)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '12px',
+            boxShadow: '0 10px 40px rgba(0, 0, 0, 0.8)',
+            zIndex: 50,
+            position: 'absolute',
+          }}
+          className="right-0 top-full mt-2 min-w-[220px] w-max max-w-[280px] p-2"
         >
           <button
             type="button"
