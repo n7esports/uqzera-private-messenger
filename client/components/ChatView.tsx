@@ -11,6 +11,7 @@ import IconReply from "./icons/IconReply";
 import { SearchMessagesIcon } from "./icons/outline/SearchMessagesIcon";
 import { SendIcon } from "./icons/outline/SendIcon";
 import IconClose from "./icons/ui/IconClose";
+import ChatMenu from "./chatList/ChatMenu";
 
 const EMPTY_MESSAGES: ChatMessage[] = [];
 
@@ -42,8 +43,13 @@ export function ChatView({
   const setReplyTo = useChatStore((state) => state.setReplyTo);
 
   const [content, setContent] = useState("");
+const [searchOpen, setSearchOpen] = useState(false);
+const [searchQuery, setSearchQuery] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const chat = chatId ? chats.find((entry) => entry.id === chatId) ?? null : null;
+const filteredMessages = searchQuery.trim()
+  ? messages.filter((m) => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
+  : messages;
 
   const handleSend = async () => {
     const text = content.trim();
@@ -105,7 +111,8 @@ export function ChatView({
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-surface">
+    <div className="flex h-full w-full flex-col relative bg-surface">
+      <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: "url('/doodle-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "300px 300px", opacity: 0.15 }} />
       <header className="flex h-14 items-center justify-between border-b border-border sidebar-glass px-4">
         <div className="flex items-center gap-3">
           {onBack && (
@@ -130,15 +137,32 @@ export function ChatView({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="Search messages">
+<div className="flex items-center gap-1">
+          <button
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
+            title="Search messages"
+            onClick={() => {
+              setSearchOpen((prev) => !prev);
+              if (searchOpen) setSearchQuery("");
+            }}
+          >
             <SearchMessagesIcon width={18} height={18} />
           </button>
-          <button className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover" title="More options">
-            <IconMoreVertical size={18} />
-          </button>
+          <ChatMenu chatId={chatId!} />
         </div>
       </header>
+      {searchOpen && (
+        <div className="px-4 py-2 border-b border-border">
+          <input
+            type="text"
+            placeholder="Search messages"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full bg-bg-panel text-text-primary px-3 py-1.5 rounded-lg outline-none"
+            autoFocus
+          />
+        </div>
+      )}
 
       <div className="flex justify-center px-4 pt-3">
         <button
@@ -163,11 +187,11 @@ export function ChatView({
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 pb-24" style={{ backgroundImage: "radial-gradient(rgba(16,185,129,0.08) 1px, transparent 1px)", backgroundSize: "18px 18px" }}>
-        {messages.length === 0 && (
+        {filteredMessages.length === 0 && (
           <p className="py-8 text-center text-sm text-outline">No messages yet. Say hello.</p>
         )}
         <div className="flex flex-col gap-3">
-          {messages.map((message) => {
+          {filteredMessages.map((message) => {
             const isMe = message.senderPubKey === "me" || message.outgoing;
             return (
               <div
