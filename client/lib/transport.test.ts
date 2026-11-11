@@ -37,7 +37,12 @@ import {
   hasOutboxExpired,
 } from "./contracts/outbox";
 import type { RelayClient, RelayConnectionStatus } from "./contracts/relayClient";
-import { encodeBytes, type SignedEnvelope } from "./protocol";
+import { generateIdentity } from "./crypto";
+import {
+  buildSignedReceipt,
+  encodeBytes,
+  type SignedEnvelope,
+} from "./protocol";
 
 const ownPublicKey = encodeBytes(new Uint8Array(32).fill(7));
 const peerPublicKey = encodeBytes(new Uint8Array(32).fill(9));
@@ -153,6 +158,38 @@ describe("relay transport", () => {
     expect(onMessage).not.toHaveBeenCalled();
     expect(client.ack).not.toHaveBeenCalled();
     expect(manager.getIgnoredReceiptCount()).toBe(1);
+
+    manager.stop();
+  });
+
+  it("accepts a signed receipt for this recipient and acknowledges it", async () => {
+    const client = createRelayClientMock();
+    const onReceipt = vi.fn();
+    const manager = new TransportManager(client, "ws://relay.test");
+    const sender = await generateIdentity();
+    const receiver = await generateIdentity();
+    const receipt = await buildSignedReceipt(
+      "message-1",
+      "delivered",
+      receiver,
+      sender.encryptionPublicKey,
+    );
+
+    manager.start(new Uint8Array(32), encodeBytes(sender.encryptionPublicKey), {
+      onMessage: vi.fn(),
+      onReceipt,
+      onConnectionChange: vi.fn(),
+      onError: vi.fn(),
+    });
+    client.emitStatus("connected");
+    client.emitMessage(
+      encodeBytes(sender.encryptionPublicKey),
+      JSON.stringify(receipt),
+    );
+
+    await vi.waitFor(() => expect(onReceipt).toHaveBeenCalledWith(receipt));
+    expect(client.ack).toHaveBeenCalledWith(receipt.id);
+    expect(manager.getIgnoredReceiptCount()).toBe(0);
 
     manager.stop();
   });

@@ -339,18 +339,34 @@ function processRelayRequest(request, respond, socket = null) {
     if (
       typeof request.id !== "string" ||
       typeof request.messageId !== "string" ||
+      request.messageId.length === 0 ||
       (request.status !== "delivered" && request.status !== "read") ||
-      !validPublicKey(request.recipientPubKey)
+      !validPublicKey(request.recipientPubKey) ||
+      !validPublicKey(request.senderPubKey) ||
+      !validPublicKey(request.senderEncryptionPubKey) ||
+      typeof request.signature !== "string" ||
+      request.signature.length === 0 ||
+      request.signature.length > 512 ||
+      typeof request.timestamp !== "number" ||
+      !Number.isSafeInteger(request.timestamp)
     ) {
       respond({ status: "error", message: "Invalid delivery receipt" });
       return true;
     }
+    // Forward the signed receipt verbatim (minus routing metadata) so the
+    // original sender can authenticate it. The relay never trusts the status
+    // itself; only the recipient's signature proves delivery.
     if (
       !pushRoute(request.recipientPubKey, request.id, {
         type: "receipt",
         id: request.id,
         messageId: request.messageId,
         status: request.status,
+        senderPubKey: request.senderPubKey,
+        senderEncryptionPubKey: request.senderEncryptionPubKey,
+        recipientPubKey: request.recipientPubKey,
+        timestamp: request.timestamp,
+        signature: request.signature,
       })
     ) {
       respond({ status: "error", message: "Recipient queue is full" });

@@ -6,6 +6,7 @@ import AppShell from "../../components/shell/AppShell";
 import AddContactModal from "../../components/modals/AddContactModal";
 import { ChatView } from "../../components/ChatView";
 import GuideConversation from "../../components/chatList/GuideConversation";
+import MobileBottomBar from "../../components/shell/MobileBottomBar";
 import { MyIdentityModal } from "../../components/modals/MyIdentityModal";
 import { useChatStore } from "../../store/useChatStore";
 import { useVaultStore } from "../../store/useVaultStore";
@@ -39,6 +40,20 @@ export default function ChatsPage() {
 
   if (!isUnlocked) return null;
 
+  const openGuideFromChat = () => {
+    setGuideActive(true);
+    setMobileView("chat");
+  };
+
+  const guideCallbacks = {
+    onConfirm: () => {
+      setGuideActive(false);
+      setMobileView("list");
+    },
+    onStartChat: () => setAddContactOpen(true),
+    onKeyExchange: () => router.push("/settings"),
+  };
+
   return (
     <div className="flex h-full w-full overflow-hidden">
       <div className="hidden md:flex md:w-80 lg:w-96 flex-col">
@@ -48,6 +63,7 @@ export default function ChatsPage() {
           onOpenGuide={() => setGuideActive(true)}
           guideActive={guideActive}
           onAddContactRequest={() => setAddContactOpen(true)}
+          onCloseChat={() => setGuideActive(false)}
         />
       </div>
 
@@ -60,20 +76,21 @@ export default function ChatsPage() {
                 setGuideActive(false);
                 setMobileView("chat");
               }}
-              onOpenGuide={() => {
-                setGuideActive(true);
-                setMobileView("chat");
-              }}
+              onOpenGuide={openGuideFromChat}
               guideActive={guideActive}
               onAddContactRequest={() => setAddContactOpen(true)}
+              onCloseChat={() => setGuideActive(false)}
             />
           </div>
         ) : (
           <div className="flex-1">
             {guideActive ? (
-              <GuideConversation onBack={() => setMobileView("list")} />
+              <GuideConversation
+                onBack={() => setMobileView("list")}
+                {...guideCallbacks}
+              />
             ) : (
-              <ChatView chatId={activeChatId} onBack={() => setMobileView("list")} onOpenGuide={() => setGuideActive(true)} onAddContact={() => setAddContactOpen(true)} />
+              <ChatView chatId={activeChatId} onBack={() => setMobileView("list")} onOpenGuide={openGuideFromChat} onAddContact={() => setAddContactOpen(true)} />
             )}
           </div>
         )}
@@ -81,11 +98,22 @@ export default function ChatsPage() {
 
       <main className="hidden flex-1 md:flex">
         {guideActive ? (
-          <GuideConversation />
+          <GuideConversation {...guideCallbacks} />
         ) : (
           <ChatView chatId={activeChatId} onOpenGuide={() => setGuideActive(true)} onAddContact={() => setAddContactOpen(true)} />
         )}
       </main>
+
+      {mobileView === "list" && (
+        <MobileBottomBar
+          activeTab="chats"
+          onChats={() => {
+            setGuideActive(false);
+            setMobileView("list");
+          }}
+          onCompose={() => setAddContactOpen(true)}
+        />
+      )}
 
       <MyIdentityModal open={identityOpen} onClose={() => setIdentityOpen(false)} />
       <AddContactModal open={addContactOpen} onClose={() => setAddContactOpen(false)} />

@@ -1,3 +1,5 @@
+import type { SignedReceipt } from "../protocol";
+
 export type RelayConnectionStatus =
   | "offline"
   | "connecting"
@@ -12,6 +14,8 @@ export interface RelayClient {
     _onMessage: (_sealed: string) => void,
   ): () => void;
   ack(_msgId: string): Promise<void>;
+  /** Optional so relay mocks and older clients stay compatible. */
+  sendReceipt?(_receipt: SignedReceipt): Promise<void>;
   onStatus(
     _callback: (_status: RelayConnectionStatus) => void,
   ): () => void;

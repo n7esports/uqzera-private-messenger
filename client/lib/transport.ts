@@ -6,11 +6,15 @@ import {
 import { WebSocketRelayClient } from "./relay/relayClient";
 import {
   type SignedEnvelope,
+  type SignedReceipt,
   verifySignedEnvelope,
+  verifySignedReceipt,
 } from "./protocol";
 
 export interface TransportCallbacks {
   onMessage: (_packet: SignedEnvelope) => void | Promise<void>;
+  /** Authenticated delivery/read receipt from a peer. */
+  onReceipt?: (_receipt: SignedReceipt) => void | Promise<void>;
   onConnectionChange: (_status: "connecting" | "connected" | "disconnected") => void;
   onError: (_error: Error) => void;
 }
@@ -52,6 +56,32 @@ function parseSignedEnvelope(value: unknown): SignedEnvelope | null {
   }
   return value as SignedEnvelope;
 }
+
+function parseSignedReceipt(value: unknown): SignedReceipt | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    return null;
+  }
+  const receipt = value as Record<string, unknown>;
+  if (
+    receipt.type !== "receipt" ||
+    typeof receipt.id !== "string" ||
+    receipt.id.length === 0 ||
+    typeof receipt.messageId !== "string" ||
+    receipt.messageId.length === 0 ||
+    (receipt.status !== "delivered" && receipt.status !== "read") ||
+    typeof receipt.senderPubKey !== "string" ||
+    typeof receipt.senderEncryptionPubKey !== "string" ||
+    typeof receipt.recipientPubKey !== "string" ||
+    typeof receipt.signature !== "string" ||
+    typeof receipt.timestamp !== "number" ||
+    !Number.isSafeInteger(receipt.timestamp)
+  ) {
+    return null;
+  }
+  return value as SignedReceipt;
+}
+
+const RECEIPT_MAX_SKEW_MS = 24 * 60 * 60 * 1000;
 
 export class TransportManager {
   private readonly client: RelayClient;
@@ -141,6 +171,17 @@ export class TransportManager {
     );
   }
 
+  async sendReceipt(receipt: SignedReceipt): Promise<void> {
+    if (this.stopped) throw new Error("Relay transport is not running.");
+    if (!this.configuredRelayUrl || this.relayStatus !== "connected") {
+      throw new Error("Relay is offline; the receipt was not delivered.");
+    }
+    if (!this.client.sendReceipt) {
+      throw new Error("This relay client does not support receipts.");
+    }
+    await this.client.sendReceipt(receipt);
+  }
+
   getIgnoredReceiptCount(): number {
     return this.ignoredReceiptCount;
   }
@@ -155,8 +196,18 @@ export class TransportManager {
     }
 
     if (isReceiptFrame(value)) {
-      this.ignoredReceiptCount += 1;
-      console.info("Ignored relay receipt frame", this.ignoredReceiptCount);
+      const receipt = parseSignedReceipt(value);
+      if (
+        !receipt ||
+        receipt.recipientPubKey !== this.recipientPubKey ||
+        Math.abs(Date.now() - receipt.timestamp) > RECEIPT_MAX_SKEW_MS ||
+        !(await verifySignedReceipt(receipt))
+      ) {
+        this.ignoredReceiptCount += 1;
+        return;
+      }
+      await this.callbacks?.onReceipt?.(receipt);
+      await this.acknowledge(receipt.id);
       return;
     }
 

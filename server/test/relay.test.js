@@ -94,6 +94,57 @@ test("processRelayRequest rejects a publish with an invalid envelope", () => {
   assert.equal(response.status, "error");
 });
 
+test("processRelayRequest forwards signed receipt fields to the recipient", () => {
+  const sent = [];
+  const socket = {
+    readyState: 1,
+    send: (value) => sent.push(JSON.parse(value)),
+  };
+  const recipient = canonicalKey();
+  processRelayRequest(
+    { type: "subscribe", id: "sub-1", recipientPubKey: recipient },
+    () => {},
+    socket,
+  );
+  sent.length = 0;
+
+  const receipt = {
+    type: "receipt",
+    id: "receipt-1",
+    messageId: "message-1",
+    status: "delivered",
+    senderPubKey: canonicalKey(),
+    senderEncryptionPubKey: canonicalKey(),
+    recipientPubKey: recipient,
+    timestamp: Date.now(),
+    signature: "signature",
+  };
+  let response;
+  processRelayRequest(receipt, (value) => {
+    response = value;
+  });
+
+  assert.deepEqual(response, { status: "ok", id: "receipt-1" });
+  assert.deepEqual(sent, [receipt]);
+});
+
+test("processRelayRequest rejects an unsigned delivery receipt", () => {
+  let response;
+  processRelayRequest(
+    {
+      type: "receipt",
+      id: "receipt-2",
+      messageId: "message-1",
+      status: "delivered",
+      recipientPubKey: canonicalKey(),
+    },
+    (value) => {
+      response = value;
+    },
+  );
+  assert.equal(response.status, "error");
+});
+
 test("relay handles a publish over HTTP without crashing the process", async () => {
   // Import lazily so the module's listen guard is already exercised by import.
   const { default: relayModule } = await import("../src/index.js");

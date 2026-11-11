@@ -117,8 +117,8 @@ describe("ChatView", () => {
 
     expect(container.textContent).toContain("Message incoming");
     expect(container.textContent).toContain("Message outgoing");
-    expect(container.textContent).toContain("You");
-    expect(container.textContent).toContain("peer-ke");
+    // Raw public-key material must never leak into the message surface.
+    expect(container.textContent).not.toContain("peer-key");
   });
 
   it("shows a distinct indicator for every delivery state", () => {
@@ -146,7 +146,7 @@ describe("ChatView", () => {
       "text-text-secondary",
     );
     expect(container.querySelector('[aria-label="Delivered"]')?.className).toContain(
-      "text-text-secondary",
+      "text-emerald-400",
     );
     expect(container.querySelector('[aria-label="Read"]')?.className).toContain(
       "text-text-secondary",

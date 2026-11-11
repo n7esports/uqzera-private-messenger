@@ -5,6 +5,7 @@ import { ProfilePhotoIcon as IconUser } from "../icons/outline/ProfilePhotoIcon"
 import { ReadReceiptsToggleIcon as IconEye } from "../icons/outline/ReadReceiptsToggleIcon";
 import { NotificationsIcon as IconBell } from "../icons/outline/NotificationsIcon";
 import { PrivacySettingsIcon as IconShield } from "../icons/outline/PrivacySettingsIcon";
+import { ShieldIcon } from "../icons/outline/ShieldIcon";
 
 const SECTIONS = [
  { id: "linked-devices", label: "Linked Devices", Icon: IconWifi },
@@ -27,20 +28,8 @@ export function SettingsSidebar({
     <aside className="flex h-full w-60 flex-col border-r border-hairline bg-surface-container">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-4">
-        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#0F131C"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
+        <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-on-primary">
+          <ShieldIcon size={16} />
         </div>
         <span className="text-sm font-semibold text-on-surface">Settings</span>
       </div>

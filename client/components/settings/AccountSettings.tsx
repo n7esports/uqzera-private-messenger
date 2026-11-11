@@ -1,8 +1,8 @@
 "use client";
 
 import { DeleteForMeIcon as IconTrash } from "../icons/outline/DeleteForMeIcon";
-import { KeyIcon as IconKey } from "../icons/outline/KeyIcon";
-import IconRefresh from "../icons/IconRefresh";
+import { ChangePinIcon as IconKey } from "../icons/outline/ChangePinIcon";
+import { RetryMessageIcon as IconRefresh } from "../icons/outline/RetryMessageIcon";
 import { ProfilePhotoIcon as IconUser } from "../icons/outline/ProfilePhotoIcon";
 import { PrivacySettingsIcon as IconShield } from "../icons/outline/PrivacySettingsIcon";
 

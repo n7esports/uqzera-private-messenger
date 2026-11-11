@@ -10,6 +10,7 @@ import {
 import {
   EPHEMERAL_TIMERS,
   buildEnvelope,
+  buildSignedReceipt,
   createRatchetSession,
   decodeBytes,
   deriveAndSkipReceiveKey,
@@ -46,6 +47,16 @@ let encryptedOutbox: EncryptedOutbox | null = null;
 
 export const PRIVATE_NOTES_CHAT_ID = "private-notes";
 export const WELCOME_CHAT_ID = "welcome-guide";
+export const GUIDE_VISIBILITY_KEY = "uqzera.guide.visible";
+
+function readGuideVisible(): boolean {
+  if (typeof window === "undefined") return true;
+  try {
+    return window.localStorage.getItem(GUIDE_VISIBILITY_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
 
 export type MessageStatus =
   | "queued"
@@ -131,11 +142,13 @@ export interface ChatState {
   vaultModalOpen: boolean;
   sidebarOpen: boolean;
   replyTo: MessageReplyRef | null;
+  guideVisible: boolean;
   setSidebarOpen: (_open: boolean) => void;
   setEphemeralTtl: (_ttl: number | null) => void;
   setGlobalSearch: (_search: string) => void;
   setVaultModalOpen: (_open: boolean) => void;
   setReplyTo: (_reply: MessageReplyRef | null) => void;
+  setGuideVisible: (_visible: boolean) => void;
   // Phase 2: New actions
   addChannel: (_channel: Channel) => void;
   removeDevice: (_deviceId: string) => void;
@@ -172,6 +185,12 @@ export interface ChatState {
   updateDeliveryStatus: (
     _messageId: string,
     _status: Exclude<MessageStatus, "queued">,
+  ) => Promise<void>;
+  applyReceipt: (
+    _messageId: string,
+    _status: "delivered" | "read",
+    _senderPubKey: string,
+    _senderEncryptionPubKey: string,
   ) => Promise<void>;
 }
 
@@ -262,6 +281,31 @@ function getVaultMaterial(): {
     throw new Error("Unlock the vault before using chats.");
   }
   return { identity, vaultKey };
+}
+
+/**
+ * Best-effort signed delivery/read receipt. Receipts are a control signal: an
+ * offline relay must never block message ingestion or read-state updates, so
+ * failures are intentionally swallowed and retried on a later message.
+ */
+async function sendChatReceipt(
+  chat: ChatSummary,
+  messageId: string,
+  status: "delivered" | "read",
+): Promise<void> {
+  if (chat.kind !== "direct" || !chat.recipientPubKey) return;
+  try {
+    const { identity } = getVaultMaterial();
+    const receipt = await buildSignedReceipt(
+      messageId,
+      status,
+      identity,
+      decodeBytes(chat.recipientPubKey),
+    );
+    await transportManager.sendReceipt(receipt);
+  } catch {
+    // Relay offline or receipt unsupported; delivery state stays local.
+  }
 }
 
 function getEncryptedOutbox(vaultKey: Uint8Array): EncryptedOutbox {
@@ -725,11 +769,20 @@ export const useChatStore = create<ChatState>((set, get) => ({
   vaultModalOpen: false,
   sidebarOpen: false,
   replyTo: null,
+  guideVisible: readGuideVisible(),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setEphemeralTtl: (ttl) => set({ ephemeralTtl: ttl }),
   setGlobalSearch: (search) => set({ globalSearch: search }),
   setVaultModalOpen: (open) => set({ vaultModalOpen: open }),
   setReplyTo: (reply) => set({ replyTo: reply }),
+  setGuideVisible: (visible) => {
+    try {
+      window.localStorage.setItem(GUIDE_VISIBILITY_KEY, String(visible));
+    } catch {
+      // The preference is best-effort; the in-memory state still updates.
+    }
+    set({ guideVisible: visible });
+  },
 
   // Phase 2: New actions
   addChannel: (channel) =>
@@ -757,6 +810,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       vaultModalOpen: false,
       sidebarOpen: false,
       replyTo: null,
+      guideVisible: readGuideVisible(),
       typingByChat: {},
       peerTypingByChat: {},
       transportError: null,
@@ -1131,6 +1185,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         },
       }));
       scheduleMessageExpiry(incoming);
+      void sendChatReceipt(
+        updatedChat,
+        incoming.id,
+        isActive ? "read" : "delivered",
+      );
       if (!isActive) {
         notifyIncoming(updatedChat);
       }
@@ -1162,6 +1221,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       chats: replaceChat(state.chats, updated),
       messagesMap: { ...state.messagesMap, [chatId]: updatedMessages },
     }));
+    for (const message of incoming) {
+      void sendChatReceipt(chat, message.id, "read");
+    }
   },
 
   setTyping: (chatId, isTyping) =>
@@ -1441,6 +1503,29 @@ export const useChatStore = create<ChatState>((set, get) => ({
       },
     }));
   },
+
+  applyReceipt: async (messageId, status, senderPubKey, senderEncryptionPubKey) => {
+    const chatId = Object.keys(get().messagesMap).find((key) =>
+      get().messagesMap[key].some((message) => message.id === messageId),
+    );
+    if (!chatId) return;
+    const chat = get().chats.find((entry) => entry.id === chatId);
+    // Bind delivery state to the contact we are talking to. A valid signature
+    // from a different key must not be allowed to mark another chat's message
+    // as delivered.
+    if (
+      !chat ||
+      (chat.peerSigningPubKey !== undefined &&
+        chat.peerSigningPubKey !== senderPubKey)
+    ) {
+      return;
+    }
+    // Verify the receipt's senderEncryptionPubKey matches this chat's recipient
+    if (chat.recipientPubKey && chat.recipientPubKey !== senderEncryptionPubKey) {
+      return;
+    }
+    await get().updateDeliveryStatus(messageId, status);
+  },
 }));
 
 registerMemoryKeyCleanup(() => {
@@ -1471,6 +1556,7 @@ registerMemoryKeyCleanup(() => {
     vaultModalOpen: false,
     sidebarOpen: false,
     replyTo: null,
+    guideVisible: readGuideVisible(),
   });
 });
 
@@ -1485,6 +1571,15 @@ export function startChatServices(): () => void {
   chatServicesStarted = true;
   transportManager.start(vaultKey, encodeBytes(identity.encryptionPublicKey), {
     onMessage: (packet) => useChatStore.getState().receiveMessage(packet),
+    onReceipt: (receipt) =>
+      useChatStore
+        .getState()
+        .applyReceipt(
+          receipt.messageId,
+          receipt.status,
+          receipt.senderPubKey,
+          receipt.senderEncryptionPubKey,
+        ),
     onConnectionChange: (relayStatus) =>
       useChatStore.getState().setRelayStatus(relayStatus),
     onError: (error) =>

@@ -2,6 +2,7 @@ import type {
   RelayClient,
   RelayConnectionStatus,
 } from "../contracts/relayClient";
+import type { SignedReceipt } from "../protocol";
 
 export type RelayStatus = RelayConnectionStatus;
 
@@ -105,6 +106,16 @@ export class WebSocketRelayClient implements RelayClient {
     this.inboundRoutes.delete(msgId);
   }
 
+  async sendReceipt(receipt: SignedReceipt): Promise<void> {
+    if (!this.url) return;
+    // The relay request id and the signed receipt id are deliberately the same
+    // so the acknowledgement can be matched while the signature stays valid.
+    await this.sendRequest(
+      { type: "receipt", ...receipt },
+      receipt.id,
+    );
+  }
+
   onStatus(callback: (_status: RelayStatus) => void): () => void {
     this.statusListeners.add(callback);
     callback(this.status);
@@ -202,11 +213,14 @@ export class WebSocketRelayClient implements RelayClient {
     throw new Error("Relay is not connected.");
   }
 
-  private sendRequest(message: Record<string, unknown>): Promise<void> {
+  private sendRequest(
+    message: Record<string, unknown>,
+    requestId = crypto.randomUUID(),
+  ): Promise<void> {
     if (this.socket?.readyState !== WebSocket.OPEN) {
       return Promise.reject(new Error("Relay is not connected."));
     }
-    const id = crypto.randomUUID();
+    const id = requestId;
     const token = process.env.NEXT_PUBLIC_RELAY_TOKEN;
     const payload = token ? { ...message, authToken: token, id } : { ...message, id };
     return new Promise<void>((resolve, reject) => {
@@ -263,8 +277,10 @@ export class WebSocketRelayClient implements RelayClient {
 
     if (
       parsed.type === "receipt" &&
+      typeof parsed.id === "string" &&
       typeof parsed.recipientPubKey === "string"
     ) {
+      this.inboundRoutes.set(parsed.id, parsed.recipientPubKey);
       this.dispatch(parsed.recipientPubKey, JSON.stringify(parsed));
     }
   }
@@ -276,10 +292,12 @@ export class WebSocketRelayClient implements RelayClient {
   }
 
   private sendSubscription(channelId: string): void {
+    const token = process.env.NEXT_PUBLIC_RELAY_TOKEN;
     this.send({
       type: "subscribe",
       id: crypto.randomUUID(),
       recipientPubKey: channelId,
+      ...(token ? { authToken: token } : {}),
     });
   }
 
