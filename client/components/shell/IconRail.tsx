@@ -26,8 +26,8 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
       aria-label="Icon rail"
       className={("flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3 " + (className||"")).trim()}
     >
-      <div style={{ backgroundColor: 'rgba(10, 20, 16, 1)', border: '1.5px solid rgba(16, 185, 129, 0.6)', borderRadius: '12px', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 rounded object-contain" />
+      <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2">
+        <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 object-contain text-[#34D399]" />
       </div>
       <div className="my-1 h-px w-8 bg-border" />
       <button

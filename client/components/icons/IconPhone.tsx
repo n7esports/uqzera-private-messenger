@@ -6,7 +6,7 @@ export default function IconPhone({
   ...props
 }: SVGProps<SVGSVGElement> & { size?: number }) {
   return (
-    <svg fill="currentColor" stroke="currentColor" strokeWidth="2"
+    <svg fill="none" stroke="currentColor" strokeWidth="2"
       xmlns="http://www.w3.org/2000/svg"
       width={size}
       height={size}

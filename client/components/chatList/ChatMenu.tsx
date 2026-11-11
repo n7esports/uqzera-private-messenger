@@ -20,6 +20,7 @@ interface ChatMenuProps {
 
 export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: ChatMenuProps) {
   const [open, setOpen] = useState(false);
+  const [menuPos, setMenuPos] = useState<{ x: number; y: number } | null>(null);
   const [showContactInfo, setShowContactInfo] = useState(false);
   const chats = useChatStore((state) => state.chats);
   const messagesMap = useChatStore((state) => state.messagesMap);
@@ -42,7 +43,21 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
 
   const closeMenu = () => {
     setOpen(false);
+    setMenuPos(null);
     onClose?.();
+  };
+
+  const openMenu = () => {
+    setMenuPos(null);
+    setOpen(true);
+  };
+
+  const openAtCursor = (event: React.MouseEvent) => {
+    event.preventDefault();
+    const x = Math.min(event.clientX, window.innerWidth - 236);
+    const y = Math.min(event.clientY, window.innerHeight - 320);
+    setMenuPos({ x, y });
+    setOpen(true);
   };
 
   const togglePinned = async () => {
@@ -144,7 +159,8 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
         aria-haspopup="menu"
         aria-expanded={open}
         className="rounded-md p-2 text-text-secondary hover:bg-surface-high"
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => (open ? closeMenu() : openMenu())}
+        onContextMenu={openAtCursor}
       >
         <span aria-hidden="true">⋯</span>
       </button>
@@ -152,12 +168,39 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
         <div
           role="menu"
           aria-label={`Chat options for ${chat.alias}`}
-          className="fixed right-4 top-16 w-56 bg-[#0a1410] backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl py-2 z-[9999] flex flex-col"
+          style={{
+            position: "fixed",
+            top: menuPos ? `${menuPos.y}px` : "60px",
+            left: menuPos ? `${menuPos.x}px` : undefined,
+            right: menuPos ? undefined : "16px",
+            width: "220px",
+            backgroundColor: "#0a1410",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            borderRadius: "12px",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.8)",
+            padding: "8px 0",
+            display: "flex",
+            flexDirection: "column",
+            zIndex: 9999,
+            overflow: "hidden",
+          }}
         >
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#e5e7eb",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => void togglePinned()}
           >
             {chat.pinned ? "Unpin chat" : "Pin chat"}
@@ -165,7 +208,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#e5e7eb",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => void clearChat()}
           >
             Clear chat
@@ -173,7 +228,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#e5e7eb",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => closeChat()}
           >
             Close chat
@@ -181,7 +248,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#e5e7eb",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => void toggleMute()}
           >
             {chat.mutedForever ? "Unmute notifications" : "Mute notifications"}
@@ -189,7 +268,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#e5e7eb",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => contactInfo()}
           >
             Contact info
@@ -205,7 +296,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
                   (option.value === null && chat.disappearingMs === undefined) ||
                   chat.disappearingMs === option.value
                 }
-                className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+                style={{
+                  padding: "10px 16px",
+                  fontSize: "14px",
+                  color: "#e5e7eb",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  background: "transparent",
+                  border: "none",
+                }}
+                className="hover:bg-white/10"
                 onClick={() => void chooseTimer(option.value)}
               >
                 {option.label}
@@ -220,7 +323,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-gray-200 hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#e5e7eb",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => exportChat()}
           >
             Export chat
@@ -228,7 +343,19 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           <button
             type="button"
             role="menuitem"
-            className="whitespace-nowrap px-4 py-2 text-sm text-[#ef4444] hover:bg-white/10 cursor-pointer text-left w-full"
+            style={{
+              padding: "10px 16px",
+              fontSize: "14px",
+              color: "#ef4444",
+              cursor: "pointer",
+              textAlign: "left",
+              width: "100%",
+              display: "flex",
+              alignItems: "center",
+              background: "transparent",
+              border: "none",
+            }}
+            className="hover:bg-white/10"
             onClick={() => void confirmDelete()}
           >
             Delete chat

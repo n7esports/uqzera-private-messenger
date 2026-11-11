@@ -43,8 +43,8 @@ export default function AppShell({
   return (
     <>
     <div className="flex h-screen w-full">
-      <IconRail onSearchClick={() => searchInputRef.current?.focus()} onOpenSettings={() => setIsSettingsOpen(true)} />
-      <aside aria-label="Chats sidebar" className="flex h-screen w-80 flex-col sidebar-glass">
+      <IconRail onSearchClick={() => searchInputRef.current?.focus()} onOpenSettings={() => setIsSettingsOpen(true)} className="hidden md:flex" />
+      <aside aria-label="Chats sidebar" className="hidden h-screen w-80 flex-col sidebar-glass md:flex">
         {/* Logo / brand */}
       <div className="flex h-14 items-center justify-between gap-3 px-4">
         <div className="flex items-center gap-3">

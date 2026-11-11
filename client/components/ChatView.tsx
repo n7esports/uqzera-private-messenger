@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
 import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
 import { VaultLockIcon } from "./icons/outline/VaultLockIcon";
-import IconMoreVertical from "./icons/IconMoreVertical";
 import IconReply from "./icons/IconReply";
 import { SearchMessagesIcon } from "./icons/outline/SearchMessagesIcon";
 import { SendIcon } from "./icons/outline/SendIcon";
@@ -43,9 +42,7 @@ export function ChatView({
   const setReplyTo = useChatStore((state) => state.setReplyTo);
 
   const [content, setContent] = useState("");
-const [menuOpen, setMenuOpen] = useState(false);
-const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
-const [searchOpen, setSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 const [searchQuery, setSearchQuery] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
 const moreButtonRef = useRef<HTMLButtonElement>(null);
@@ -195,7 +192,21 @@ const filteredMessages = searchQuery.trim()
         </p>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 pb-24" style={{ backgroundImage: "radial-gradient(rgba(16,185,129,0.08) 1px, transparent 1px)", backgroundSize: "18px 18px" }}>
+      <div
+        className="flex-1 overflow-y-auto no-scrollbar px-4 py-3 pb-24"
+        style={{
+          backgroundImage: "radial-gradient(rgba(16,185,129,0.08) 1px, transparent 1px)",
+          backgroundSize: "18px 18px",
+          position: "relative",
+          zIndex: 1,
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          moreButtonRef.current?.dispatchEvent(
+            new MouseEvent("contextmenu", { bubbles: true, clientX: e.clientX, clientY: e.clientY }),
+          );
+        }}
+      >
         {filteredMessages.length === 0 && (
           <p className="py-8 text-center text-sm text-outline">No messages yet. Say hello.</p>
         )}

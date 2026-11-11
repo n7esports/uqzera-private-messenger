@@ -341,17 +341,7 @@ const [menuChatId, setMenuChatId] = useState<string | null>(null);
         {pinnedChats.map(renderChat)}
       </ul>
 
-      {regularChats.length > 0 && (
-        <>
-          <h2
-            id="chats-heading"
-            className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wide text-on-surface-variant"
-          >
-            Chats
-          </h2>
-          <ul>{regularChats.map(renderChat)}</ul>
-        </>
-      )}
+      {regularChats.length > 0 && <ul>{regularChats.map(renderChat)}</ul>}
 
       {regularChats.length === 0 && pinnedChats.length === 0 && (
         <p className="px-4 py-3 text-xs text-on-surface-variant">
