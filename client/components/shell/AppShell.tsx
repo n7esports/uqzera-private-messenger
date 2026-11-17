@@ -6,7 +6,6 @@ import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
 import IconPlus from "../icons/IconPlus";
 import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import AcceptContactModal from "../modals/AcceptContactModal";
-import { useVaultStore } from "../../store/useVaultStore";
 import ChatList from "../chatList/ChatList";
 import IconRail from "./IconRail";
 import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
@@ -29,22 +28,18 @@ export default function AppShell({
   const [acceptRequest, setAcceptRequest] = useState<{ senderKey: string; packet: unknown } | null>(null);
   const pendingRequests = useChatStore((s: ChatState) => s.pendingRequests);
   const dismissPendingRequest = useChatStore((s: ChatState) => s.dismissPendingRequest);
-  const isUnlocked = useVaultStore((s) => s.isUnlocked);
   const loadChats = useChatStore((s: ChatState) => s.loadChats);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>("linked-devices");
 
-  useEffect(() => {
-    if (isUnlocked) void loadChats().catch(() => {});
-  }, [isUnlocked, loadChats]);
 
   return (
     <>
     <div className="flex h-screen w-full">
       <IconRail onSearchClick={() => searchInputRef.current?.focus()} onOpenSettings={() => setIsSettingsOpen(true)} className="hidden md:flex" />
-      <aside aria-label="Chats sidebar" className="hidden h-screen w-80 flex-col sidebar-glass md:flex">
+      <aside aria-label="Chats sidebar" className="hidden h-screen w-80 flex-col border-r border-border bg-bg-app md:flex">
         {/* Logo / brand */}
       <div className="flex h-14 items-center justify-between gap-3 px-4">
         <div className="flex items-center gap-3">

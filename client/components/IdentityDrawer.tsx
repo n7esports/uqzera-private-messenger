@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useVaultStore } from "../store/useVaultStore";
 import { encodeBytes } from "../lib/protocol";
 import BoxQRCode from "./icons/BoxQRCode";
 
@@ -28,7 +27,7 @@ export function IdentityDrawer({
   open: boolean;
   onClose: () => void;
 }) {
-  const identity = useVaultStore((s) => s.identity);
+  const identity = null;
 
   const publicKey = useMemo(() => {
     if (!identity) return "";

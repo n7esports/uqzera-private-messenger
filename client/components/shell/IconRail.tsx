@@ -1,6 +1,5 @@
 "use client";
 
-import { useVaultStore } from "../../store/useVaultStore";
 import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
 import { DocumentIcon } from "../icons/outline/DocumentIcon";
@@ -8,7 +7,6 @@ import { SettingsProfileIcon } from "../icons/outline/SettingsProfileIcon";
 import { useChatStore } from "../../store/useChatStore";
 
 export default function IconRail({ onSearchClick, onOpenSettings, className }: { onSearchClick?: () => void; onOpenSettings?: () => void; className?: string }) {
-  const profile = useVaultStore((state) => state.profile);
   const setActiveChat = useChatStore((s) => s.setActiveChat);
   const activeChatId = useChatStore((s) => s.activeChatId);
   const chats = useChatStore((s) => s.chats);
@@ -24,7 +22,7 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
   return (
     <nav
       aria-label="Icon rail"
-      className={("flex h-screen w-16 flex-col items-center gap-2 sidebar-glass py-3 " + (className||"")).trim()}
+      className={("flex h-screen w-16 flex-col items-center gap-2 bg-bg-app border-r border-border py-3 " + (className||"")).trim()}
     >
       <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2">
         <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 object-contain text-[#34D399]" />
@@ -71,7 +69,7 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
           aria-label="Profile"
           className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-panel text-xs font-medium text-text-primary"
         >
-          {initials(profile?.name ?? "") || "?"}
+          {initials("UQZERA") || "?"}
         </button>
       </div>
     </nav>

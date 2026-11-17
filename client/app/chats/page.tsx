@@ -8,16 +8,12 @@ import { ChatView } from "../../components/ChatView";
 import GuideConversation from "../../components/chatList/GuideConversation";
 import { MyIdentityModal } from "../../components/modals/MyIdentityModal";
 import { useChatStore } from "../../store/useChatStore";
-import { useVaultStore } from "../../store/useVaultStore";
 import { startChatServices } from "../../store/useChatStore";
 
 type MobileView = "list" | "chat";
 
 export default function ChatsPage() {
   const router = useRouter();
-  const isUnlocked = useVaultStore((state) => state.isUnlocked);
-  const sessionRestored = useVaultStore((state) => state.sessionRestored);
-  const vaultExists = useVaultStore((state) => state.vaultExists);
   const activeChatId = useChatStore((state) => state.activeChatId);
   const [mobileView, setMobileView] = useState<MobileView>("list");
   const [guideActive, setGuideActive] = useState(false);
@@ -25,19 +21,8 @@ export default function ChatsPage() {
   const [identityOpen, setIdentityOpen] = useState(false);
   const startedRef = useRef(false);
 
-  useEffect(() => {
-    if (!sessionRestored || isUnlocked) return;
-    router.replace(vaultExists ? "/lock" : "/onboarding");
-  }, [isUnlocked, router, sessionRestored, vaultExists]);
 
-  useEffect(() => {
-    if (isUnlocked && !startedRef.current) {
-      startedRef.current = true;
-      startChatServices();
-    }
-  }, [isUnlocked]);
 
-  if (!isUnlocked) return null;
 
   return (
     <div className="flex h-full w-full overflow-hidden">

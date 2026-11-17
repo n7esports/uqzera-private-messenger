@@ -3,6 +3,7 @@
 import { guideIntro, guideOutro, guideSections } from "../../lib/guideContent";
 import PrivacyBackdrop from "../shell/PrivacyBackdrop";
 
+
 export default function GuideConversation({
   onBack,
 }: {
@@ -26,7 +27,7 @@ export default function GuideConversation({
           <p className="text-xs text-on-surface-variant">Pinned quick-start guide</p>
         </div>
       </header>
-<PrivacyBackdrop>
+    <PrivacyBackdrop>
       <div className="flex-1 overflow-y-auto no-scrollbar px-6 py-6">
         <div className="mx-auto w-full max-w-5xl">
           <p className="mb-6 rounded-xl border border-border bg-bg-panel p-4 text-sm leading-6 text-text-primary">

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useChatStore } from "../../store/useChatStore";
-import { useVaultStore } from "../../store/useVaultStore";
+import { useSessionStore } from "../../store/useSessionStore";
 import { decodeBytes, encodeBytes } from "../../lib/protocol";
 import { parseShareKey } from "../../lib/contracts/shareKey";
 import IconCopy from "../icons/IconCopy";
@@ -22,7 +22,11 @@ export default function AddContactModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const identity = useVaultStore((s) => s.identity);
+  const sessionAlias = useSessionStore.getState().currentUserAlias;
+const identity = sessionAlias ? {
+  encryptionPublicKey: new TextEncoder().encode(sessionAlias),
+  signingPublicKey: new TextEncoder().encode(sessionAlias)
+} : null;
   const chats = useChatStore((s) => s.chats);
   const addContact = useChatStore((s) => s.addContact);
   const showToast = useChatStore((s) => s.showToast);

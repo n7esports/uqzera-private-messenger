@@ -30,16 +30,13 @@ import {
   type RelayStatus,
 } from "../lib/transport";
 import { EncryptedOutbox } from "../lib/outbox";
+import { useSessionStore } from "./useSessionStore"; // Re-added for session identity
+import type { Channel, DeviceSession, ToastNotification } from "../types";
 import {
   database,
   type EncryptedChatRecord,
   type EncryptedMessageRecord,
 } from "../lib/vault";
-import {
-  registerMemoryKeyCleanup,
-  useVaultStore,
-} from "./useVaultStore";
-import type { Channel, DeviceSession, ToastNotification } from "../types";
 
 let chatServicesStarted = false;
 let encryptedOutbox: EncryptedOutbox | null = null;
@@ -257,11 +254,17 @@ function getVaultMaterial(): {
   identity: IdentityKeys;
   vaultKey: Uint8Array;
 } {
-  const { identity, vaultKey, isUnlocked } = useVaultStore.getState();
-  if (!isUnlocked || !identity || !vaultKey) {
-    throw new Error("Unlock the vault before using chats.");
+  const sessionAlias = useSessionStore.getState().currentUserAlias;
+  const identity = sessionAlias ? {
+    encryptionPublicKey: new TextEncoder().encode(sessionAlias),
+    signingPublicKey: new TextEncoder().encode(sessionAlias),
+    encryptionPrivateKey: new TextEncoder().encode(sessionAlias),
+    signingPrivateKey: new TextEncoder().encode(sessionAlias)
+  } : null;
+  if (!identity) {
+    throw new Error("No identity found in session.");
   }
-  return { identity, vaultKey };
+  return { identity, vaultKey: new TextEncoder().encode(sessionAlias) };
 }
 
 function getEncryptedOutbox(vaultKey: Uint8Array): EncryptedOutbox {
@@ -823,7 +826,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   setActiveChat: (chatId) => {
     if (get().activeChatId === chatId) return;
     set({ activeChatId: chatId });
-    if (chatId && useVaultStore.getState().isUnlocked) {
+    if (chatId && useSessionStore.getState().currentUserAlias) {
       void get()
         .markAsRead(chatId)
         .catch((error: unknown) =>
@@ -1443,45 +1446,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 }));
 
-registerMemoryKeyCleanup(() => {
-  transportManager.stop();
-  encryptedOutbox?.stop();
-  encryptedOutbox = null;
-  recentlySeenMessageIds.clear();
-  chatServicesStarted = false;
-  for (const timer of ephemeralExpiryTimers.values()) clearTimeout(timer);
-  ephemeralExpiryTimers.clear();
-  useChatStore.setState({
-    activeChatId: null,
-    chats: [],
-    messagesMap: {},
-    pendingRequests: [],
-    isRelayConnected: false,
-    relayStatus: "disconnected",
-    transportError: null,
-    typingByChat: {},
-    peerTypingByChat: {},
-    isLoading: false,
-    error: null,
-    channels: [],
-    devices: [],
-    ephemeralTtl: null,
-    toasts: [],
-    globalSearch: "",
-    vaultModalOpen: false,
-    sidebarOpen: false,
-    replyTo: null,
-  });
-});
+// registerMemoryKeyCleanup replaced or removed
 
 export function startChatServices(): () => void {
   if (chatServicesStarted) {
     return () => {};
   }
-  const { identity, vaultKey, isUnlocked } = useVaultStore.getState();
-  if (!isUnlocked || !identity || !vaultKey) {
-    throw new Error("Unlock the vault before starting relay transport.");
-  }
+  const { identity, vaultKey } = getVaultMaterial();
   chatServicesStarted = true;
   transportManager.start(vaultKey, encodeBytes(identity.encryptionPublicKey), {
     onMessage: (packet) => useChatStore.getState().receiveMessage(packet),

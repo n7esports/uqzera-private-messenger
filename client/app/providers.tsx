@@ -1,55 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { useVaultStore } from "../store/useVaultStore";
-
 export function Providers({ children }: { children: React.ReactNode }) {
- const [isReady, setIsReady] = useState(false);
- const markReady = useCallback(() => setIsReady(true), []);
-
- return (
- <VaultInitializer onReady={markReady}>
- {isReady ? children : <LoadingShell />}
- </VaultInitializer>
- );
-}
-
-function VaultInitializer({
- onReady,
- children,
-}: {
- onReady: () => void;
- children: React.ReactNode;
-}) {
- const initializeVault = useVaultStore((s) => s.initializeVault);
-
- useEffect(() => {
-   initializeVault().then(onReady).catch((error: unknown) => {
-     useVaultStore.setState({
-       sessionRestored: true,
-       sessionRestoreError: error instanceof Error ? error.message : "Could not open the vault.",
-     });
-     onReady();
-   });
- }, [initializeVault, onReady]);
-
  return (
    <>
      {children}
    </>
- );
-}
-
-
-function LoadingShell() {
- return (
- <div className="flex h-screen w-full items-center justify-center bg-transparent">
- <div className="bg-surface-container border border-hairline flex flex-col items-center gap-3 px-8 py-6">
- <div className="h-2 w-2 rounded-full bg-primary " />
- <p className="font-mono text-xs uppercase tracking-widest text-on-surface-variant">
- Initializing vault
- </p>
- </div>
- </div>
  );
 }

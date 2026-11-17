@@ -6,12 +6,10 @@ import { SendIcon } from "../components/icons/outline/SendIcon";
 import { QrShareIcon } from "../components/icons/outline/QrShareIcon";
 import { DocumentIcon } from "../components/icons/outline/DocumentIcon";
 import { DisappearingTimerIcon } from "../components/icons/outline/DisappearingTimerIcon";
-import { PanicWipeIcon } from "../components/icons/outline/PanicWipeIcon";
 import { MultiDeviceIcon } from "../components/icons/outline/MultiDeviceIcon";
 import { ChannelsIcon } from "../components/icons/outline/ChannelsIcon";
 import { EncryptedBackupIcon } from "../components/icons/outline/EncryptedBackupIcon";
 import { TorModeIcon } from "../components/icons/outline/TorModeIcon";
-import { VaultLockIcon } from "../components/icons/outline/VaultLockIcon";
 import { AttachmentIcon } from "../components/icons/outline/AttachmentIcon";
 import type { ComponentType } from "react";
 
@@ -24,7 +22,7 @@ import type { ComponentType } from "react";
 export type GuideAction = {
   label: string;
   href?: string;
-  intent?: "new-chat" | "key-exchange" | "panic-wipe";
+  intent?: "new-chat" | "key-exchange";
   comingSoon?: boolean;
 };
 
@@ -40,7 +38,7 @@ export type GuideSection = {
 };
 
 export const guideIntro =
-  "Hi, I'm your UQZERA guide. There is no sign-up and no account — your vault is protected by a 6-digit PIN or passphrase. Everything below is grouped so you can find a feature fast.";
+  "Hi, I'm your UQZERA guide. Everything below is grouped so you can find a feature fast.";
 
 export const guideSections: GuideSection[] = [
   {
@@ -68,42 +66,14 @@ export const guideSections: GuideSection[] = [
     ],
   },
   {
-    heading: "Your vault",
-    caption: "PIN or passphrase, encrypted on this device",
-    items: [
-      {
-        icon: VaultLockIcon,
-        title: "Vault lock",
-        body: "Your vault is protected by a 6-digit PIN (default) or a passphrase of 8+ characters. Enter it on the lock screen to unlock. If you forget it, use your 24-word recovery phrase.",
-        action: { label: "Lock now", href: "/lock" },
-      },
-      {
-        icon: KeyIcon,
-        title: "Your keys never leave",
-        body: "Your identity is generated here and never uploaded. Your vault stays encrypted at rest on this device.",
-      },
-      {
-        icon: MultiDeviceIcon,
-        title: "One device, one vault",
-        body: "Conversations live on this device only. Opening UQZERA elsewhere starts a fresh vault — there is no account to sign in to.",
-      },
-    ],
-  },
-  {
     heading: "Privacy controls",
-    caption: "Lock down and wipe on your terms",
+    caption: "Lock down on your terms",
     items: [
       {
         icon: DisappearingTimerIcon,
         title: "Self-destructing messages",
         body: "Attach a timer when you send (1 minute to 1 hour, or Off). The message deletes itself from both sides once the countdown ends.",
         action: { label: "Compose with a timer", href: "/chats?compose=1&timer=60000" },
-      },
-      {
-        icon: PanicWipeIcon,
-        title: "Panic Wipe",
-        body: "Instantly erase this device's entire vault — identity, chats and notes. Use it if you're ever forced to hand over your device.",
-        action: { label: "Go to wipe control", intent: "panic-wipe" },
       },
       {
         icon: ShieldIcon,
