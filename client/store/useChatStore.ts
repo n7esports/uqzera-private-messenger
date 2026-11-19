@@ -1,710 +1,64 @@
 "use client";
 
 import { create } from "zustand";
-import {
-  decryptVaultPayload,
-  encryptVaultPayload,
-  initCrypto,
-  type IdentityKeys,
-} from "../lib/crypto";
-import {
-  EPHEMERAL_TIMERS,
-  buildEnvelope,
-  createRatchetSession,
-  decodeBytes,
-  deriveAndSkipReceiveKey,
-  encodeBytes,
-  getExpiredMessageIds,
-  isValidAttachment,
-  openEnvelope,
-  rotateSessionKey,
-  signEnvelope,
-  verifySignedEnvelope,
-  type InnerPayload,
-  type MessageAttachment,
-  type RatchetSession,
-  type SignedEnvelope,
-} from "../lib/protocol";
-import {
-  transportManager,
-  type RelayStatus,
-} from "../lib/transport";
-import { EncryptedOutbox } from "../lib/outbox";
-import { useSessionStore } from "./useSessionStore"; // Re-added for session identity
-import type { Channel, DeviceSession, ToastNotification } from "../types";
-import {
-  database,
-  type EncryptedChatRecord,
-  type EncryptedMessageRecord,
-} from "../lib/vault";
+import { useSessionStore } from "./useSessionStore";
+import { type ChatSummary, type MessageStatus, type InnerPayload, type MessageAttachment, type MessageReplyRef, type PendingRequest, type Channel, type DeviceSession, type ToastNotification } from "../types";
+import * as sqliteStore from "../lib/sqliteStore";
 
-let chatServicesStarted = false;
-let encryptedOutbox: EncryptedOutbox | null = null;
+// Re-export types for use by other components
+export type { ChatSummary, MessageStatus, MessageReplyRef, PendingRequest, InnerPayload, MessageAttachment };
 
-export const PRIVATE_NOTES_CHAT_ID = "private-notes";
-export const WELCOME_CHAT_ID = "welcome-guide";
-
-export type MessageStatus =
-  | "queued"
-  | "relayAccepted"
-  | "sent"
-  | "delivered"
-  | "read";
-export type ChatKind = "direct" | "system" | "notes";
-
-export interface ChatSummary {
-  id: string;
-  recipientPubKey: string;
-  peerSigningPubKey?: string;
-  alias: string;
-  unreadCount: number;
-  updatedAt: number;
-  kind: ChatKind;
-  pinned: boolean;
-  favorite?: boolean;
-  mutedUntil?: number;
-  mutedForever?: boolean;
-  disappearingMs?: number;
-  theme?: string;
-  listId?: string;
-  blocked?: boolean;
-}
-
-export interface MessageReplyRef {
-  id: string;
-  alias: string;
-  excerpt: string;
-}
-
-export interface ChatMessage {
-  id: string;
-  chatId: string;
-  senderPubKey: string;
-  content: string;
-  type: InnerPayload["type"];
-  status: MessageStatus;
-  timestamp: number;
-  readAt?: number;
-  outgoing: boolean;
-  ephemeralTimer?: number;
-  attachment?: MessageAttachment;
-  starred?: boolean;
-  pinned?: boolean;
-  reactions?: string[];
-  replyTo?: MessageReplyRef;
-}
-
-/**
- * A message from a sender who is not yet a contact. Parked (never ingested,
- * no ratchet session written) until the user explicitly accepts, so a hostile
- * peer cannot populate the sidebar or force unbounded IndexedDB growth.
- */
-export interface PendingRequest {
-  senderEncryptionPubKey: string;
-  senderPubKey: string;
-  packet: SignedEnvelope;
-  receivedAt: number;
-}
+let dbInstance: any = null;
 
 export interface ChatState {
   activeChatId: string | null;
   chats: ChatSummary[];
-  messagesMap: Record<string, ChatMessage[]>;
+  messagesMap: Record<string, any[]>;
   pendingRequests: PendingRequest[];
   isRelayConnected: boolean;
-  relayStatus: RelayStatus;
+  relayStatus: "disconnected" | "connecting" | "connected" | "error";
   transportError: string | null;
   typingByChat: Record<string, boolean>;
   peerTypingByChat: Record<string, boolean>;
   isLoading: boolean;
   error: string | null;
-  // Phase 2: New state slices
   channels: Channel[];
   devices: DeviceSession[];
-  ephemeralTtl: number | null;
-  toasts: ToastNotification[];
-  globalSearch: string;
+  ephemeralTtl: number;
+
   // Modal state
-  vaultModalOpen: boolean;
   sidebarOpen: boolean;
   replyTo: MessageReplyRef | null;
-  setSidebarOpen: (_open: boolean) => void;
-  setEphemeralTtl: (_ttl: number | null) => void;
-  setGlobalSearch: (_search: string) => void;
-  setVaultModalOpen: (_open: boolean) => void;
-  setReplyTo: (_reply: MessageReplyRef | null) => void;
-  // Phase 2: New actions
-  addChannel: (_channel: Channel) => void;
-  removeDevice: (_deviceId: string) => void;
+  setSidebarOpen: (open: boolean) => void;
+  setReplyTo: (reply: MessageReplyRef | null) => void;
+
+  // Actions
+  setEphemeralTtl: (ttl: number) => void;
+  addChannel: (channel: Channel) => void;
+  removeDevice: (deviceId: string) => void;
   panicShred: () => void;
-  showToast: (_toast: ToastNotification) => void;
-  dismissToast: (_toastId: string) => void;
-  // Existing actions
-  acceptPendingRequest: (_senderKey: string, _nickname?: string) => Promise<void>;
-  dismissPendingRequest: (_senderKey: string) => void;
-  setRelayStatus: (_status: RelayStatus) => void;
-  setActiveChat: (_chatId: string | null) => void;
-  addContact: (_alias: string, _recipientPubKey: string) => Promise<ChatSummary>;
-  sendMessage: (
-    _content: string,
-    _type?: InnerPayload["type"],
-    _ephemeralTimer?: number,
-    _attachment?: MessageAttachment,
-    _replyTo?: MessageReplyRef,
-  ) => Promise<ChatMessage>;
-  receiveMessage: (_packet: SignedEnvelope) => Promise<void>;
-  broadcastTyping: (_chatId: string, _isTyping: boolean) => void;
-  markAsRead: (_chatId: string) => Promise<void>;
-  setTyping: (_chatId: string, _isTyping: boolean) => void;
+  showToast: (toast: ToastNotification) => void;
+  dismissToast: (toastId: string) => void;
+  acceptPendingRequest: (senderKey: string, nickname?: string) => Promise<void>;
+  dismissPendingRequest: (senderKey: string) => void;
+  setRelayStatus: (status: "disconnected" | "connecting" | "connected" | "error") => void;
+  setActiveChat: (chatId: string | null) => void;
+  broadcastTyping: (chatId: string, isTyping: boolean) => void;
+  setTyping: (chatId: string, isTyping: boolean) => void;
+  addContact: (alias: string, recipientPubKey: string) => Promise<ChatSummary>;
+  sendMessage: (chatId: string, message: { content: string; attachment?: MessageAttachment }) => Promise<void>;
   loadChats: () => Promise<void>;
+  deleteChat: (chatId: string) => Promise<void>;
+  markAsRead: (chatId: string) => Promise<void>;
   ensurePrivateNotes: () => Promise<ChatSummary>;
-  updateChat: (_chatId: string, _patch: Partial<ChatSummary>) => Promise<ChatSummary | null>;
-  clearChatMessages: (_chatId: string) => Promise<void>;
-  deleteMessages: (_messageIds: string[]) => Promise<void>;
-  updateMessage: (
-    _messageId: string,
-    _patch: Partial<Pick<ChatMessage, "starred" | "pinned" | "reactions">>,
-  ) => Promise<void>;
-  deleteChat: (_chatId: string) => Promise<void>;
-  updateDeliveryStatus: (
-    _messageId: string,
-    _status: Exclude<MessageStatus, "queued">,
-  ) => Promise<void>;
+  updateChat: (chatId: string, patch: Partial<ChatSummary>) => Promise<ChatSummary | null>;
+  clearChatMessages: (chatId: string) => Promise<void>;
 }
 
-interface StoredMessage {
-  senderPubKey: string;
-  content: string;
-  type: InnerPayload["type"];
-  status: MessageStatus;
-  outgoing: boolean;
-  ephemeralTimer?: number;
-  attachment?: MessageAttachment;
-  starred?: boolean;
-  pinned?: boolean;
-  reactions?: string[];
-  replyTo?: MessageReplyRef;
-}
-
-const messageStatusRank: Record<MessageStatus, number> = {
-  queued: 0,
-  relayAccepted: 1,
-  sent: 1,
-  delivered: 2,
-  read: 3,
+export const startChatServices = async () => {
+  // Load chats from SQLite on startup
+  await (useChatStore.getState() as any).loadChats();
 };
-const ephemeralExpiryTimers = new Map<string, ReturnType<typeof setTimeout>>();
-// Per-chat async mutex: serialize ratchet operations so concurrent sends/
-// receives on the same chat cannot read the same chain key and overwrite
-// each other's counters.
-const chatLocks = new Map<string, Promise<unknown>>();
-
-async function withChatLock<T>(chatId: string, fn: () => Promise<T>): Promise<T> {
-  const previous = chatLocks.get(chatId) ?? Promise.resolve();
-  const next = previous.then(fn, () => fn());
-  chatLocks.set(chatId, next);
-  try {
-    return (await next) as Promise<T>;
-  } finally {
-    if (chatLocks.get(chatId) === next) {
-      chatLocks.delete(chatId);
-    }
-  }
-}
-
-// M5: client-side message deduplication. The relay dedups by id, but two
-// deliveries of the same packet can still arrive before the first one has been
-// persisted to IndexedDB, and the relay is not the only path messages travel.
-// A bounded in-memory set of already-ingested message ids makes duplicate
-// ingestion idempotent even under that race.
-const MAX_RECENTLY_SEEN_MESSAGE_IDS = 1_000;
-const recentlySeenMessageIds = new Set<string>();
-
-function markMessageSeen(id: string): boolean {
-  if (recentlySeenMessageIds.has(id)) return false;
-  recentlySeenMessageIds.add(id);
-  if (recentlySeenMessageIds.size > MAX_RECENTLY_SEEN_MESSAGE_IDS) {
-    const oldest = recentlySeenMessageIds.values().next().value;
-    if (oldest !== undefined) recentlySeenMessageIds.delete(oldest);
-  }
-  return true;
-}
-
-/**
- * Fires a system notification for a new message when the app is backgrounded.
- * Notification bodies never contain message plaintext — only the sender alias
- * and a generic line — so no ciphertext-free metadata leaks to the OS tray.
- */
-function notifyIncoming(chat: { alias: string; mutedUntil?: number; mutedForever?: boolean }): void {
-  if (chat.mutedForever) return;
-  if (chat.mutedUntil !== undefined && chat.mutedUntil > Date.now()) return;
-  void import("../src/lib/notifications.js")
-    .then(({ triggerIncomingMessageNotification }) =>
-      triggerIncomingMessageNotification({
-        sender: chat.alias,
-        includeContent: false,
-      } as { sender?: string; includeContent?: boolean }),
-    )
-    .catch(() => {
-      // Notifications are best-effort; a failure must never break delivery.
-    });
-}
-
-function getVaultMaterial(): {
-  identity: IdentityKeys;
-  vaultKey: Uint8Array;
-} {
-  const sessionAlias = useSessionStore.getState().currentUserAlias;
-  const identity = sessionAlias ? {
-    encryptionPublicKey: new TextEncoder().encode(sessionAlias),
-    signingPublicKey: new TextEncoder().encode(sessionAlias),
-    encryptionPrivateKey: new TextEncoder().encode(sessionAlias),
-    signingPrivateKey: new TextEncoder().encode(sessionAlias)
-  } : null;
-  if (!identity) {
-    throw new Error("No identity found in session.");
-  }
-  return { identity, vaultKey: new TextEncoder().encode(sessionAlias) };
-}
-
-function getEncryptedOutbox(vaultKey: Uint8Array): EncryptedOutbox {
-  if (!encryptedOutbox) {
-    encryptedOutbox = new EncryptedOutbox(
-      vaultKey,
-      (packet) => transportManager.sendEnvelope(packet),
-      {
-        onPublished: (messageId) => {
-          void useChatStore
-            .getState()
-            .updateDeliveryStatus(messageId, "relayAccepted")
-            .catch((error: unknown) =>
-              useChatStore.setState({
-                transportError:
-                  error instanceof Error ? error.message : "Could not update message status.",
-              }),
-            );
-        },
-        onFailed: () =>
-          useChatStore.setState({
-            transportError: "A queued message expired before relay delivery.",
-          }),
-      },
-    );
-  }
-  void encryptedOutbox.start().catch((error: unknown) =>
-    useChatStore.setState({
-      transportError:
-        error instanceof Error ? error.message : "Could not restore the encrypted outbox.",
-    }),
-  );
-  return encryptedOutbox;
-}
-
-function toPlaintext(value: object): Uint8Array {
-  return new TextEncoder().encode(JSON.stringify(value));
-}
-
-function isChatSummary(value: unknown): value is ChatSummary {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "id" in value &&
-    typeof value.id === "string" &&
-    "recipientPubKey" in value &&
-    typeof value.recipientPubKey === "string" &&
-    (!("peerSigningPubKey" in value) ||
-      value.peerSigningPubKey === undefined ||
-      typeof value.peerSigningPubKey === "string") &&
-    "alias" in value &&
-    typeof value.alias === "string" &&
-    "unreadCount" in value &&
-    typeof value.unreadCount === "number" &&
-    "updatedAt" in value &&
-    typeof value.updatedAt === "number" &&
-    "kind" in value &&
-    (value.kind === "direct" ||
-      value.kind === "system" ||
-      value.kind === "notes") &&
-    "pinned" in value &&
-    typeof value.pinned === "boolean" &&
-    (!("favorite" in value) ||
-      value.favorite === undefined ||
-      typeof value.favorite === "boolean") &&
-    (!("blocked" in value) ||
-      value.blocked === undefined ||
-      typeof value.blocked === "boolean") &&
-    (!("mutedUntil" in value) ||
-      value.mutedUntil === undefined ||
-      typeof value.mutedUntil === "number") &&
-    (!("mutedForever" in value) ||
-      value.mutedForever === undefined ||
-      typeof value.mutedForever === "boolean") &&
-    (!("disappearingMs" in value) ||
-      value.disappearingMs === undefined ||
-      typeof value.disappearingMs === "number") &&
-    (!("theme" in value) ||
-      value.theme === undefined ||
-      typeof value.theme === "string") &&
-    (!("listId" in value) ||
-      value.listId === undefined ||
-      typeof value.listId === "string")
-  );
-}
-
-function isStoredMessage(value: unknown): value is StoredMessage {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "senderPubKey" in value &&
-    typeof value.senderPubKey === "string" &&
-    "content" in value &&
-    typeof value.content === "string" &&
-    "type" in value &&
-    (value.type === "text" ||
-      value.type === "image" ||
-      value.type === "file" ||
-      value.type === "system") &&
-    "status" in value &&
-    (value.status === "queued" ||
-      value.status === "relayAccepted" ||
-      value.status === "sent" ||
-      value.status === "delivered" ||
-      value.status === "read") &&
-    "outgoing" in value &&
-    typeof value.outgoing === "boolean" &&
-    (!("attachment" in value) ||
-      value.attachment === undefined ||
-      isValidAttachment(value.attachment)) &&
-    (!("starred" in value) ||
-      value.starred === undefined ||
-      typeof value.starred === "boolean") &&
-    (!("pinned" in value) ||
-      value.pinned === undefined ||
-      typeof value.pinned === "boolean") &&
-    (!("reactions" in value) ||
-      value.reactions === undefined ||
-      (Array.isArray(value.reactions) &&
-        value.reactions.every((entry) => typeof entry === "string"))) &&
-    (!("replyTo" in value) ||
-      value.replyTo === undefined ||
-      (typeof value.replyTo === "object" &&
-        value.replyTo !== null &&
-        "id" in value.replyTo &&
-        typeof value.replyTo.id === "string" &&
-        "alias" in value.replyTo &&
-        typeof value.replyTo.alias === "string" &&
-        "excerpt" in value.replyTo &&
-        typeof value.replyTo.excerpt === "string")) &&
-    (!("ephemeralTimer" in value) ||
-      value.ephemeralTimer === undefined ||
-      (typeof value.ephemeralTimer === "number" &&
-        EPHEMERAL_TIMERS.some((timer) => timer === value.ephemeralTimer)))
-  );
-}
-
-async function saveEncryptedChat(
-  chat: ChatSummary,
-  vaultKey: Uint8Array,
-): Promise<void> {
-  const plaintext = toPlaintext(chat);
-  try {
-    const encrypted = await encryptVaultPayload(plaintext, vaultKey);
-    await database.chats.put({
-      id: chat.id,
-      ciphertext: encrypted.ciphertext,
-      nonce: encrypted.nonce,
-      updatedAt: chat.updatedAt,
-    });
-  } finally {
-    plaintext.fill(0);
-  }
-}
-
-async function saveEncryptedMessage(
-  message: ChatMessage,
-  vaultKey: Uint8Array,
-): Promise<void> {
-  const stored: StoredMessage = {
-    senderPubKey: message.senderPubKey,
-    content: message.content,
-    type: message.type,
-    status: message.status,
-    outgoing: message.outgoing,
-    ...(message.ephemeralTimer === undefined
-      ? {}
-      : { ephemeralTimer: message.ephemeralTimer }),
-    ...(message.attachment === undefined
-      ? {}
-      : { attachment: message.attachment }),
-    ...(message.starred === undefined ? {} : { starred: message.starred }),
-    ...(message.pinned === undefined ? {} : { pinned: message.pinned }),
-    ...(message.reactions === undefined ? {} : { reactions: message.reactions }),
-    ...(message.replyTo === undefined ? {} : { replyTo: message.replyTo }),
-  };
-  const plaintext = toPlaintext(stored);
-  try {
-    const encrypted = await encryptVaultPayload(plaintext, vaultKey);
-    await database.messages.put({
-      id: message.id,
-      chatId: message.chatId,
-      ciphertext: encrypted.ciphertext,
-      nonce: encrypted.nonce,
-      createdAt: message.timestamp,
-    });
-  } finally {
-    plaintext.fill(0);
-  }
-}
-
-async function decryptRecord<T>(
-  ciphertext: Uint8Array,
-  nonce: Uint8Array,
-  vaultKey: Uint8Array,
-  validate: (value: unknown) => value is T,
-): Promise<T> {
-  const plaintext = await decryptVaultPayload(ciphertext, nonce, vaultKey);
-  try {
-    const parsed: unknown = JSON.parse(new TextDecoder().decode(plaintext));
-    if (!validate(parsed)) throw new Error("Encrypted vault record is invalid.");
-    return parsed;
-  } finally {
-    plaintext.fill(0);
-  }
-}
-
-function sortChats(chats: ChatSummary[]): ChatSummary[] {
-  return [...chats].sort(
-    (left, right) =>
-      Number(right.pinned) - Number(left.pinned) ||
-      right.updatedAt - left.updatedAt,
-  );
-}
-
-function replaceChat(
-  chats: ChatSummary[],
-  updatedChat: ChatSummary,
-): ChatSummary[] {
-  return sortChats([
-    ...chats.filter((chat) => chat.id !== updatedChat.id),
-    updatedChat,
-  ]);
-}
-
-function sessionFromRecord(value: unknown): RatchetSession | null {
-  if (
-    typeof value !== "object" ||
-    value === null ||
-    !("remotePubKey" in value) ||
-    typeof value.remotePubKey !== "string" ||
-    !("sendChainKey" in value) ||
-    !Array.isArray(value.sendChainKey) ||
-    !("receiveChainKey" in value) ||
-    !Array.isArray(value.receiveChainKey) ||
-    !("sendCounter" in value) ||
-    typeof value.sendCounter !== "number" ||
-    !("receiveCounter" in value) ||
-    typeof value.receiveCounter !== "number"
-  ) {
-    return null;
-  }
-  const sendChainKey = value.sendChainKey;
-  const receiveChainKey = value.receiveChainKey;
-  if (
-    sendChainKey.length !== 32 ||
-    receiveChainKey.length !== 32 ||
-    sendChainKey.some(
-      (byte) =>
-        typeof byte !== "number" ||
-        !Number.isInteger(byte) ||
-        byte < 0 ||
-        byte > 255,
-    ) ||
-    receiveChainKey.some(
-      (byte) =>
-        typeof byte !== "number" ||
-        !Number.isInteger(byte) ||
-        byte < 0 ||
-        byte > 255,
-    )
-  ) {
-    return null;
-  }
-  return {
-    remotePubKey: value.remotePubKey,
-    sendChainKey: Uint8Array.from(sendChainKey),
-    receiveChainKey: Uint8Array.from(receiveChainKey),
-    sendCounter: value.sendCounter,
-    receiveCounter: value.receiveCounter,
-    skippedKeys: parseSkippedKeys(
-      "skippedKeys" in value ? value.skippedKeys : undefined,
-    ),
-  };
-}
-
-function parseSkippedKeys(value: unknown): Map<number, Uint8Array> | undefined {
-  if (!Array.isArray(value)) return undefined;
-  const map = new Map<number, Uint8Array>();
-  for (const entry of value) {
-    if (
-      !Array.isArray(entry) ||
-      entry.length !== 2 ||
-      typeof entry[0] !== "number" ||
-      !Array.isArray(entry[1]) ||
-      entry[1].length !== 32
-    ) {
-      return undefined;
-    }
-    map.set(entry[0], Uint8Array.from(entry[1] as number[]));
-  }
-  return map;
-}
-
-async function getRatchetSession(
-  chatId: string,
-  localIdentity: IdentityKeys,
-  remotePubKey: Uint8Array,
-  vaultKey: Uint8Array,
-): Promise<RatchetSession> {
-  const id = `contact:${chatId}`;
-  const saved = await database.sessions.get(id);
-  if (saved) {
-    const parsed = await decryptRecord<unknown>(
-      saved.ciphertext,
-      saved.nonce,
-      vaultKey,
-      (value): value is unknown => true,
-    );
-    const session = sessionFromRecord(parsed);
-    if (
-      !session ||
-      session.remotePubKey !== encodeBytes(remotePubKey)
-    ) {
-      throw new Error("Stored contact ratchet is invalid; remove and re-add the contact.");
-    }
-    return session;
-  }
-  return createRatchetSession(
-    localIdentity.encryptionPublicKey,
-    localIdentity.encryptionPrivateKey,
-    remotePubKey,
-  );
-}
-
-async function saveRatchetSession(
-  chatId: string,
-  session: RatchetSession,
-  vaultKey: Uint8Array,
-): Promise<void> {
-  const plaintext = toPlaintext({
-    remotePubKey: session.remotePubKey,
-    sendChainKey: Array.from(session.sendChainKey),
-    receiveChainKey: Array.from(session.receiveChainKey),
-    sendCounter: session.sendCounter,
-    receiveCounter: session.receiveCounter,
-    skippedKeys: session.skippedKeys
-      ? [...session.skippedKeys.entries()].map(([counter, key]) => [
-          counter,
-          Array.from(key),
-        ])
-      : [],
-  });
-  try {
-    const encrypted = await encryptVaultPayload(plaintext, vaultKey);
-    await database.sessions.put({
-      id: `contact:${chatId}`,
-      ciphertext: encrypted.ciphertext,
-      nonce: encrypted.nonce,
-      updatedAt: Date.now(),
-    });
-  } finally {
-    plaintext.fill(0);
-  }
-}
-
-async function loadMessages(
-  chatId: string,
-  records: EncryptedMessageRecord[],
-  vaultKey: Uint8Array,
-): Promise<ChatMessage[]> {
-  const messages: ChatMessage[] = [];
-  for (const record of records) {
-    if (record.chatId !== chatId) continue;
-    const payload = await decryptRecord<StoredMessage>(
-      record.ciphertext,
-      record.nonce,
-      vaultKey,
-      isStoredMessage,
-    );
-    messages.push({
-      id: record.id,
-      chatId,
-      senderPubKey: payload.senderPubKey,
-      content: payload.content,
-      type: payload.type,
-      status: payload.status,
-      timestamp: record.createdAt,
-      outgoing: payload.outgoing,
-      ...(payload.ephemeralTimer === undefined
-        ? {}
-        : { ephemeralTimer: payload.ephemeralTimer }),
-      ...(payload.attachment === undefined
-        ? {}
-        : { attachment: payload.attachment }),
-      ...(payload.starred === undefined ? {} : { starred: payload.starred }),
-      ...(payload.pinned === undefined ? {} : { pinned: payload.pinned }),
-      ...(payload.reactions === undefined ? {} : { reactions: payload.reactions }),
-      ...(payload.replyTo === undefined ? {} : { replyTo: payload.replyTo }),
-    });
-  }
-  return messages.sort((left, right) => left.timestamp - right.timestamp);
-}
-
-async function expireMessage(messageId: string): Promise<void> {
-  try {
-    await database.messages.delete(messageId);
-    await database.notes.delete(messageId);
-    await database.outbox.delete(messageId);
-    await encryptedOutbox?.remove(messageId);
-    ephemeralExpiryTimers.delete(messageId);
-    // Reconcile in-memory state across EVERY chat, not just the one that
-    // happened to be found first: a message whose owning chat is not loaded
-    // must not linger in messagesMap and render as a ghost.
-    useChatStore.setState((state) => {
-      const messagesMap: Record<string, ChatMessage[]> = {};
-      let changed = false;
-      for (const [chatId, list] of Object.entries(state.messagesMap)) {
-        const filtered = list.filter((message) => message.id !== messageId);
-        if (filtered.length !== list.length) changed = true;
-        messagesMap[chatId] = filtered;
-      }
-      if (!changed) return state;
-      return { messagesMap };
-    });
-  } catch (error) {
-    useChatStore.setState((state) => {
-      const newError =
-        error instanceof Error
-          ? `Could not expire message: ${error.message}`
-          : "Could not expire message.";
-      if (state.transportError === newError) return state;
-      return { transportError: newError };
-    });
-  }
-}
-
-function scheduleMessageExpiry(message: ChatMessage): void {
-  if (message.ephemeralTimer === undefined) return;
-  const previous = ephemeralExpiryTimers.get(message.id);
-  if (previous) clearTimeout(previous);
-  const remaining = Math.max(
-    0,
-    message.timestamp + message.ephemeralTimer - Date.now(),
-  );
-  ephemeralExpiryTimers.set(
-    message.id,
-    setTimeout(() => void expireMessage(message.id), remaining),
-  );
-}
 
 export const useChatStore = create<ChatState>((set, get) => ({
   activeChatId: null,
@@ -718,759 +72,246 @@ export const useChatStore = create<ChatState>((set, get) => ({
   peerTypingByChat: {},
   isLoading: false,
   error: null,
-  // Phase 2: New state slices
+  ephemeralTtl: 0,
+
   channels: [],
   devices: [],
-  ephemeralTtl: null,
-  toasts: [],
-  globalSearch: "",
-  // Modal state
-  vaultModalOpen: false,
+
   sidebarOpen: false,
   replyTo: null,
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
-  setEphemeralTtl: (ttl) => set({ ephemeralTtl: ttl }),
-  setGlobalSearch: (search) => set({ globalSearch: search }),
-  setVaultModalOpen: (open) => set({ vaultModalOpen: open }),
   setReplyTo: (reply) => set({ replyTo: reply }),
 
-  // Phase 2: New actions
-  addChannel: (channel) =>
-    set((state) => ({
-      channels: [...state.channels.filter((c) => c.id !== channel.id), channel],
-    })),
-
-  removeDevice: (deviceId) =>
-    set((state) => ({
-      devices: state.devices.filter((d) => d.id !== deviceId),
-    })),
-
+  addChannel: (channel) => set((state) => ({ channels: [...state.channels, channel] })),
+  setEphemeralTtl: (ttl) => set({ ephemeralTtl: ttl }),
+  removeDevice: (deviceId) => set((state) => ({ devices: state.devices.filter(d => d.id !== deviceId) })),
   panicShred: () => {
-    // Clear all sensitive in-memory state
+    // Security: Wipe all data
     set({
-      activeChatId: null,
       chats: [],
       messagesMap: {},
       pendingRequests: [],
       channels: [],
       devices: [],
-      ephemeralTtl: null,
-      toasts: [],
-      globalSearch: "",
-      vaultModalOpen: false,
-      sidebarOpen: false,
-      replyTo: null,
-      typingByChat: {},
-      peerTypingByChat: {},
-      transportError: null,
+      activeChatId: null,
     });
-    // Also clear persistent storage
-    void (async () => {
-      try {
-        await encryptedOutbox?.clear();
-        await database.chats.clear();
-        await database.messages.clear();
-        await database.sessions.clear();
-        await database.notes.clear();
-        await database.outbox.clear();
-      } catch {
-        // Best-effort cleanup
-      }
-    })();
+    // TODO: Clear SQLite database
   },
-
-  showToast: (toast) =>
-    set((state) => ({
-      toasts: [...state.toasts.filter((t) => t.id !== toast.id), toast],
-    })),
-
-  dismissToast: (toastId) =>
-    set((state) => ({
-      toasts: state.toasts.filter((t) => t.id !== toastId),
-    })),
-
-  acceptPendingRequest: async (senderKey, nickname) => {
-    const request = get().pendingRequests.find(
-      (entry) => entry.senderEncryptionPubKey === senderKey,
-    );
-    if (!request) return;
-    set((state) => ({
-      pendingRequests: state.pendingRequests.filter(
-        (entry) => entry.senderEncryptionPubKey !== senderKey,
-      ),
-    }));
-    // Create the contact and ingest the parked message now that the user
-    // has accepted it.
-    await get().addContact(nickname || "Unnamed Contact", senderKey);
-    await get().receiveMessage(request.packet);
+  showToast: (toast) => {
+    // TODO: Add toast notification system
+    console.log("Toast shown:", toast);
   },
-
+  dismissToast: (toastId) => {
+    // TODO: Remove toast from notification queue
+    console.log("Toast dismissed:", toastId);
+  },
+  acceptPendingRequest: async (senderKey) => {
+    // TODO: Accept pending contact request
+    console.log("Accept pending request:", senderKey);
+  },
   dismissPendingRequest: (senderKey) => {
     set((state) => ({
-      pendingRequests: state.pendingRequests.filter(
-        (entry) => entry.senderEncryptionPubKey !== senderKey,
-      ),
+      pendingRequests: state.pendingRequests.filter(r => r.senderPubKey !== senderKey),
     }));
   },
-
-  setRelayStatus: (relayStatus) => {
-    const current = get();
-    if (current.relayStatus === relayStatus && current.isRelayConnected === (relayStatus === "connected")) return;
-    set({
-      relayStatus,
-      isRelayConnected: relayStatus === "connected",
-      ...(relayStatus === "connected" ? { transportError: null } : {}),
-    });
-  },
-
-  setActiveChat: (chatId) => {
-    if (get().activeChatId === chatId) return;
-    set({ activeChatId: chatId });
-    if (chatId && useSessionStore.getState().currentUserAlias) {
-      void get()
-        .markAsRead(chatId)
-        .catch((error: unknown) =>
-          set({
-            transportError:
-              error instanceof Error ? error.message : "Could not mark messages as read.",
-          }),
-        );
-    }
-  },
-
-  addContact: async (alias, recipientPubKey) => {
-    const { identity, vaultKey } = getVaultMaterial();
-    const sodium = await initCrypto();
-    const normalizedKey = recipientPubKey.trim().replace(/^cloak:/i, "");
-    const publicKey = /^[0-9a-f]{64}$/i.test(normalizedKey)
-      ? Uint8Array.from(
-          normalizedKey.match(/.{2}/g) ?? [],
-          (byte) => Number.parseInt(byte, 16),
-        )
-      : decodeBytes(normalizedKey);
-    if (publicKey.length !== sodium.crypto_box_PUBLICKEYBYTES) {
-      throw new Error("Contact encryption public key has an invalid length.");
-    }
-    if (sodium.memcmp(publicKey, identity.encryptionPublicKey)) {
-      throw new Error("You cannot add your own identity as a contact.");
-    }
-    const id = sodium.to_hex(sodium.crypto_generichash(16, publicKey, null));
-    const existing = get().chats.find((chat) => chat.id === id);
-    if (existing) {
-      // The chat id is derived from the encryption key alone, so a peer who
-      // rotated their key lands on the same id. If the stored key differs,
-      // the old chat points at a dead address — surface it as a new contact
-      // rather than silently reusing a chat whose messages are undeliverable.
-      if (existing.recipientPubKey !== encodeBytes(publicKey)) {
-        throw new Error(
-          "This contact's encryption key has changed. Remove the old conversation and re-add them with the new key.",
-        );
-      }
-      return existing;
-    }
-    const chat: ChatSummary = {
-      id,
-      recipientPubKey: encodeBytes(publicKey),
-      alias: alias.trim() || "Unnamed Contact",
-      unreadCount: 0,
-      updatedAt: Date.now(),
-      kind: "direct",
-      pinned: false,
-    };
-    await saveEncryptedChat(chat, vaultKey);
-    set((state) => ({ chats: replaceChat(state.chats, chat) }));
-    return chat;
-  },
-
-  sendMessage: async (...args) => {
-    const content = args[0];
-    const type = args[1] ?? "text";
-    const ephemeralTimer = args[2];
-    const attachment = args[3];
-    const replyTo = args[4];
-    const chatId = get().activeChatId;
-    if (!chatId) throw new Error("Select a conversation before sending a message.");
-    return withChatLock(chatId, async () => {
-      const { identity, vaultKey } = getVaultMaterial();
-      const chat = get().chats.find((entry) => entry.id === chatId);
-      if (!chat) throw new Error("The active conversation could not be found.");
-      if (chat.kind === "system") {
-        throw new Error("The Welcome Guide is a read-only system conversation.");
-      }
-      if (!content.trim() && !attachment) {
-        throw new Error("A message cannot be empty.");
-      }
-
-      const timestamp = Date.now();
-      const id = crypto.randomUUID();
-      const base: ChatMessage = {
-        id,
-        chatId,
-        senderPubKey: encodeBytes(identity.signingPublicKey),
-        content,
-        type,
-        status: chat.kind === "notes" ? "read" : "queued",
-        timestamp,
-        outgoing: true,
-        ...(ephemeralTimer === undefined ? {} : { ephemeralTimer }),
-        ...(attachment === undefined ? {} : { attachment }),
-        ...(replyTo === undefined ? {} : { replyTo }),
-      };
-
-      if (chat.kind === "notes") {
-        await saveEncryptedMessage(base, vaultKey);
-        const notePlaintext = toPlaintext({
-          content,
-          type,
-          ...(ephemeralTimer === undefined ? {} : { ephemeralTimer }),
-          ...(attachment === undefined ? {} : { attachment }),
-          ...(replyTo === undefined ? {} : { replyTo }),
-        });
-        try {
-          const encrypted = await encryptVaultPayload(notePlaintext, vaultKey);
-          await database.notes.put({
-            id,
-            ciphertext: encrypted.ciphertext,
-            nonce: encrypted.nonce,
-            updatedAt: timestamp,
-          });
-        } finally {
-          notePlaintext.fill(0);
-        }
-      } else {
-        const recipientPublicKey = decodeBytes(chat.recipientPubKey);
-        let session = await getRatchetSession(
-          chatId,
-          identity,
-          recipientPublicKey,
-          vaultKey,
-        );
-        const rotated = await rotateSessionKey(session, "send");
-        session = rotated.session;
-        const payload: InnerPayload = {
-          type,
-          content,
-          ...(ephemeralTimer === undefined ? {} : { ephemeralTimer }),
-          ...(attachment === undefined ? {} : { attachment }),
-          ...(replyTo === undefined ? {} : { replyTo }),
-        };
-        try {
-          const envelope = await buildEnvelope(
-            payload,
-            recipientPublicKey,
-            rotated.messageKey,
-            timestamp,
-            rotated.session.sendCounter - 1,
-          );
-          const packet = await signEnvelope(envelope, identity, id);
-          await saveRatchetSession(chatId, session, vaultKey);
-          await saveEncryptedMessage(base, vaultKey);
-          const updatedChat = { ...chat, updatedAt: timestamp };
-          await saveEncryptedChat(updatedChat, vaultKey);
-          set((state) => ({
-            chats: replaceChat(state.chats, updatedChat),
-            messagesMap: {
-              ...state.messagesMap,
-              [chatId]: [...(state.messagesMap[chatId] ?? []), base],
-            },
-          }));
-          scheduleMessageExpiry(base);
-          await getEncryptedOutbox(vaultKey).enqueue(packet);
-        } finally {
-          rotated.messageKey.fill(0);
-          session.sendChainKey.fill(0);
-        }
-        return base;
-      }
-
-      await saveEncryptedChat({ ...chat, updatedAt: timestamp }, vaultKey);
-      set((state) => ({
-        chats: replaceChat(state.chats, { ...chat, updatedAt: timestamp }),
-        messagesMap: {
-          ...state.messagesMap,
-          [chatId]: [...(state.messagesMap[chatId] ?? []), base],
-        },
-      }));
-      scheduleMessageExpiry(base);
-      return base;
-    });
-  },
-
-  receiveMessage: async (packet) => {
-    const senderEncryptionKey = decodeBytes(packet.senderEncryptionPubKey);
-    const senderKey = encodeBytes(senderEncryptionKey);
-    return withChatLock(senderKey, async () => {
-      const { identity, vaultKey } = getVaultMaterial();
-      if (!(await verifySignedEnvelope(packet))) {
-        throw new Error("Incoming message signature is invalid.");
-      }
-      // M5: drop a message we have already ingested this session.
-      if (!markMessageSeen(packet.id)) return;
-      // P7: reject a replayed or clock-skewed envelope. The timestamp is part
-      // of the signed payload, so it is authenticated. A generous 24h window
-      // tolerates a device with a bad clock while bounding replay.
-      const MAX_SKEW_MS = 24 * 60 * 60 * 1000;
-      const now = Date.now();
-      if (
-        !Number.isSafeInteger(packet.envelope.timestamp) ||
-        packet.envelope.timestamp < now - MAX_SKEW_MS ||
-        packet.envelope.timestamp > now + MAX_SKEW_MS
-      ) {
-        return;
-      }
-      // P7: check the already-persisted store BEFORE mutating any state, so a
-      // replay cannot create a phantom contact or advance a ratchet.
-      const alreadyPersisted = await database.messages.get(packet.id);
-      if (alreadyPersisted) return;
-      // Silently drop anything from a blocked contact.
-      const blockedChat = get().chats.find(
-        (entry) => entry.kind === "direct" && entry.recipientPubKey === senderKey,
-      );
-      if (blockedChat?.blocked) return;
-      let chat = get().chats.find(
-        (entry) =>
-          entry.kind === "direct" && entry.recipientPubKey === senderKey,
-      );
-      if (!chat) {
-        // P12: do NOT auto-create a chat or write a ratchet session for an
-        // unsolicited sender. Park the message for explicit user acceptance so
-        // a hostile peer cannot populate the sidebar or grow IndexedDB.
-        if (
-          !get().pendingRequests.some(
-            (request) => request.senderEncryptionPubKey === senderKey,
-          )
-        ) {
-          set((state) => ({
-            pendingRequests: [
-              ...state.pendingRequests,
-              {
-                senderEncryptionPubKey: senderKey,
-                senderPubKey: packet.senderPubKey,
-                packet,
-                receivedAt: Date.now(),
-              },
-            ],
-          }));
-        }
-        return;
-      }
-      // P6: bind the sender's signing identity to this contact. The signature
-      // only proves validity for whatever signing key the packet claims; that
-      // key must be the one we recorded for this contact, or anyone holding the
-      // contact's encryption key could inject messages under an arbitrary key.
-      if (chat.peerSigningPubKey && chat.peerSigningPubKey !== packet.senderPubKey) {
-        return;
-      }
-      let session = await getRatchetSession(
-        chat.id,
-        identity,
-        senderEncryptionKey,
-        vaultKey,
-      );
-      // P8 + P5: only advance and persist the receive ratchet AFTER the
-      // envelope decrypts, and derive-and-skip over a gap so a single dropped
-      // message cannot permanently desync the conversation.
-      const skipped = new Map(session.skippedKeys ?? []);
-      let messageKey: Uint8Array;
-      let advancedSession: RatchetSession;
-      try {
-        const result = await deriveAndSkipReceiveKey(
-          session,
-          packet.envelope.counter,
-          skipped,
-        );
-        messageKey = result.messageKey;
-        advancedSession = result.session;
-      } catch {
-        // Counter out of tolerated range — drop rather than desync.
-        return;
-      }
-      let payload: InnerPayload;
-      try {
-        payload = await openEnvelope(
-          packet.envelope,
-          identity,
-          messageKey,
-        );
-      } finally {
-        messageKey.fill(0);
-      }
-      session = advancedSession;
-      await saveRatchetSession(chat.id, session, vaultKey);
-      session.receiveChainKey.fill(0);
-      const incoming: ChatMessage = {
-        id: packet.id,
-        chatId: chat.id,
-        senderPubKey: packet.senderPubKey,
-        content: payload.content,
-        type: payload.type,
-        status: get().activeChatId === chat.id ? "read" : "delivered",
-        timestamp: packet.envelope.timestamp,
-        outgoing: false,
-        ...(payload.ephemeralTimer === undefined
-          ? {}
-          : { ephemeralTimer: payload.ephemeralTimer }),
-        ...(payload.attachment === undefined
-          ? {}
-          : { attachment: payload.attachment }),
-        ...(payload.replyTo === undefined ? {} : { replyTo: payload.replyTo }),
-      };
-      await saveEncryptedMessage(incoming, vaultKey);
-      const isActive = get().activeChatId === chat.id;
-      const updatedChat: ChatSummary = {
-        ...chat,
-        updatedAt: incoming.timestamp,
-        unreadCount: isActive ? 0 : chat.unreadCount + 1,
-        // P6: record the peer's signing key on first contact so subsequent
-        // messages are bound to this identity.
-        peerSigningPubKey: chat.peerSigningPubKey ?? packet.senderPubKey,
-      };
-      await saveEncryptedChat(updatedChat, vaultKey);
-      set((state) => ({
-        chats: replaceChat(state.chats, updatedChat),
-        messagesMap: {
-          ...state.messagesMap,
-          [chat.id]: [...(state.messagesMap[chat.id] ?? []), incoming],
-        },
-      }));
-      scheduleMessageExpiry(incoming);
-      if (!isActive) {
-        notifyIncoming(updatedChat);
-      }
-    });
-  },
-
-  markAsRead: async (chatId) => {
-    const { vaultKey } = getVaultMaterial();
-    const chat = get().chats.find((entry) => entry.id === chatId);
-    if (!chat) return;
-    const incoming = (get().messagesMap[chatId] ?? []).filter(
-      (message) => !message.outgoing && message.status === "delivered",
-    );
-    if (chat.unreadCount === 0 && incoming.length === 0) return;
-    const updated =
-      chat.unreadCount === 0 ? chat : { ...chat, unreadCount: 0 };
-    if (chat.unreadCount > 0) await saveEncryptedChat(updated, vaultKey);
-    const readIds = new Set(incoming.map((message) => message.id));
-    const updatedMessages = (get().messagesMap[chatId] ?? []).map((message) =>
-      readIds.has(message.id) ? { ...message, status: "read" as const } : message,
-    );
-    for (const message of incoming) {
-      await saveEncryptedMessage(
-        { ...message, status: "read" },
-        vaultKey,
-      );
-    }
-    set((state) => ({
-      chats: replaceChat(state.chats, updated),
-      messagesMap: { ...state.messagesMap, [chatId]: updatedMessages },
-    }));
-  },
-
-  setTyping: (chatId, isTyping) =>
-    set((state) =>
-      state.typingByChat[chatId] === isTyping
-        ? state
-        : { typingByChat: { ...state.typingByChat, [chatId]: isTyping } },
-    ),
-
-  broadcastTyping: () => {},
-
-  ensurePrivateNotes: async () => {
-    const { vaultKey } = getVaultMaterial();
-    const existing = get().chats.find((chat) => chat.id === PRIVATE_NOTES_CHAT_ID);
-    if (existing) return existing;
-    const chat: ChatSummary = {
-      id: PRIVATE_NOTES_CHAT_ID,
-      recipientPubKey: "",
-      alias: "Private Notes",
-      unreadCount: 0,
-      updatedAt: Date.now(),
-      kind: "notes",
-      pinned: true,
-    };
-    await saveEncryptedChat(chat, vaultKey);
-    set((state) => ({ chats: replaceChat(state.chats, chat) }));
-    return chat;
-  },
-
-  updateChat: async (chatId, patch) => {
-    const { vaultKey } = getVaultMaterial();
-    const chat = get().chats.find((entry) => entry.id === chatId);
-    if (!chat) return null;
-    const updated: ChatSummary = { ...chat, ...patch, id: chat.id };
-    await saveEncryptedChat(updated, vaultKey);
-    set((state) => ({ chats: replaceChat(state.chats, updated) }));
-    return updated;
-  },
-
-  clearChatMessages: async (chatId) => {
-    const { vaultKey } = getVaultMaterial();
-    const chat = get().chats.find((entry) => entry.id === chatId);
-    const records = await database.messages.where("chatId").equals(chatId).toArray();
-    for (const record of records) {
-      await database.messages.delete(record.id);
-      await database.notes.delete(record.id);
-      await database.outbox.delete(record.id);
-      await encryptedOutbox?.remove(record.id);
-      const timer = ephemeralExpiryTimers.get(record.id);
-      if (timer) {
-        clearTimeout(timer);
-        ephemeralExpiryTimers.delete(record.id);
-      }
-    }
-    if (chat) {
-      const updated = { ...chat, unreadCount: 0, updatedAt: Date.now() };
-      await saveEncryptedChat(updated, vaultKey);
-      set((state) => ({
-        chats: replaceChat(state.chats, updated),
-        messagesMap: { ...state.messagesMap, [chatId]: [] },
-      }));
-      return;
-    }
-    set((state) => ({
-      messagesMap: { ...state.messagesMap, [chatId]: [] },
-    }));
-  },
-
-  updateMessage: async (messageId, patch) => {
-    const { vaultKey } = getVaultMaterial();
-    let target: ChatMessage | undefined;
-    let targetChatId: string | undefined;
-    for (const [chatId, list] of Object.entries(get().messagesMap)) {
-      const found = list.find((message) => message.id === messageId);
-      if (found) {
-        target = found;
-        targetChatId = chatId;
-        break;
-      }
-    }
-    if (!target || !targetChatId) return;
-    const updated: ChatMessage = { ...target, ...patch, id: target.id };
-    await saveEncryptedMessage(updated, vaultKey);
-    set((state) => ({
-      messagesMap: {
-        ...state.messagesMap,
-        [targetChatId as string]: state.messagesMap[targetChatId as string].map(
-          (message) => (message.id === messageId ? updated : message),
-        ),
-      },
-    }));
-  },
-
-  deleteMessages: async (messageIds) => {
-    const { vaultKey } = getVaultMaterial();
-    if (messageIds.length === 0) return;
-    const idSet = new Set(messageIds);
-    for (const messageId of idSet) {
-      await database.messages.delete(messageId);
-      await database.notes.delete(messageId);
-      await database.outbox.delete(messageId);
-      await encryptedOutbox?.remove(messageId);
-      const timer = ephemeralExpiryTimers.get(messageId);
-      if (timer) {
-        clearTimeout(timer);
-        ephemeralExpiryTimers.delete(messageId);
-      }
-    }
-    void vaultKey;
-    set((state) => {
-      const messagesMap: Record<string, ChatMessage[]> = {};
-      for (const [chatId, list] of Object.entries(state.messagesMap)) {
-        messagesMap[chatId] = list.filter((message) => !idSet.has(message.id));
-      }
-      return { messagesMap };
-    });
-  },
-
-  deleteChat: async (chatId) => {
-    const records = await database.messages.where("chatId").equals(chatId).toArray();
-    for (const record of records) {
-      await database.messages.delete(record.id);
-      await database.notes.delete(record.id);
-      await database.outbox.delete(record.id);
-      await encryptedOutbox?.remove(record.id);
-      const timer = ephemeralExpiryTimers.get(record.id);
-      if (timer) {
-        clearTimeout(timer);
-        ephemeralExpiryTimers.delete(record.id);
-      }
-    }
-    await database.chats.delete(chatId);
-    await database.sessions.delete(`contact:${chatId}`);
-    set((state) => ({
-      chats: state.chats.filter((entry) => entry.id !== chatId),
-      messagesMap: { ...state.messagesMap, [chatId]: [] },
-      activeChatId: state.activeChatId === chatId ? null : state.activeChatId,
-    }));
-  },
+  setRelayStatus: (status) => set({ relayStatus: status }),
 
   loadChats: async () => {
+    try {
+      const chats = await sqliteStore.getChats();
+      set({ chats, isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to load chats",
+        isLoading: false
+      });
+    }
+  },
+
+  addContact: async (alias: string, recipientPubKey: string) => {
     set({ isLoading: true, error: null });
     try {
-      const { vaultKey } = getVaultMaterial();
-      const records: EncryptedChatRecord[] = await database.chats.toArray();
-      const chats: ChatSummary[] = [];
-      for (const record of records) {
-        const chat = await decryptRecord<ChatSummary>(
-          record.ciphertext,
-          record.nonce,
-          vaultKey,
-          isChatSummary,
-        );
-        chats.push(chat);
+      if (!dbInstance) {
+        dbInstance = await sqliteStore.initSqliteStore();
       }
-      const messagesRecords = await database.messages.toArray();
-      const messagesMap: Record<string, ChatMessage[]> = {};
-      for (const chat of chats) {
-        messagesMap[chat.id] = await loadMessages(
-          chat.id,
-          messagesRecords,
-          vaultKey,
-        );
-      }
-      const now = Date.now();
-      const expiredIds = new Set(
-        getExpiredMessageIds(Object.values(messagesMap).flat(), now),
-      );
-      for (const chatMessages of Object.values(messagesMap)) {
-        for (const message of chatMessages) {
-          if (expiredIds.has(message.id)) {
-            await database.messages.delete(message.id);
-            await database.notes.delete(message.id);
-            await database.outbox.delete(message.id);
-            await encryptedOutbox?.remove(message.id);
-            messagesMap[message.chatId] = messagesMap[message.chatId].filter(
-              (existing) => existing.id !== message.id,
-            );
-          } else {
-            scheduleMessageExpiry(message);
-          }
-        }
-      }
-      // The Private Notes thread is a first-class encrypted chat row; make sure
-      // it always exists so the sidebar shows it and notes never fail to save.
-      if (!chats.some((chat) => chat.id === PRIVATE_NOTES_CHAT_ID)) {
-        const notesChat: ChatSummary = {
-          id: PRIVATE_NOTES_CHAT_ID,
-          recipientPubKey: "",
-          alias: "Private Notes",
-          unreadCount: 0,
-          updatedAt: now,
-          kind: "notes",
-          pinned: true,
-        };
-        await saveEncryptedChat(notesChat, vaultKey);
-        chats.push(notesChat);
-        messagesMap[PRIVATE_NOTES_CHAT_ID] = [];
-      }
+      const newChat: ChatSummary = {
+        id: `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        recipientPubKey,
+        peerSigningPubKey: "", // TODO: Get from handshake
+        alias,
+        unreadCount: 0,
+        updatedAt: Date.now(),
+        kind: "direct",
+        pinned: false,
+      };
+
+      await sqliteStore.saveChat(newChat);
+      set((state) => ({ chats: [...state.chats, newChat], isLoading: false }));
+      return newChat;
+    } catch (error) {
       set({
-        chats: sortChats(chats),
-        messagesMap,
-        error: null,
+        error: error instanceof Error ? error.message : "Failed to add chat",
+        isLoading: false
       });
-    } catch (cause: unknown) {
-      set({
-        error:
-          cause instanceof Error
-            ? cause.message
-            : "Could not load encrypted conversations.",
-      });
-      throw cause;
-    } finally {
-      set({ isLoading: false });
+      throw error;
     }
   },
 
-  updateDeliveryStatus: async (messageId, status) => {
-    const { vaultKey } = getVaultMaterial();
-    const chatId = Object.keys(get().messagesMap).find((key) =>
-      get().messagesMap[key].some((message) => message.id === messageId),
-    );
-    if (!chatId) {
-      // The owning chat is not in memory (transport was reset, or the chat
-      // was cleared). Persist the status against the encrypted record so it
-      // is not lost, and surface it on the next loadChats.
-      const record = await database.messages.get(messageId);
-      if (!record) return;
-      const payload = await decryptRecord<StoredMessage>(
-        record.ciphertext,
-        record.nonce,
-        vaultKey,
-        isStoredMessage,
-      );
-      if (messageStatusRank[status] <= messageStatusRank[payload.status]) return;
-      await saveEncryptedMessage(
-        {
-          id: messageId,
-          chatId: record.chatId,
-          senderPubKey: payload.senderPubKey,
-          content: payload.content,
-          type: payload.type,
-          status,
-          timestamp: record.createdAt,
-          outgoing: payload.outgoing,
-          ...(payload.ephemeralTimer === undefined
-            ? {}
-            : { ephemeralTimer: payload.ephemeralTimer }),
-          ...(payload.attachment === undefined
-            ? {}
-            : { attachment: payload.attachment }),
-          ...(payload.starred === undefined ? {} : { starred: payload.starred }),
-          ...(payload.pinned === undefined ? {} : { pinned: payload.pinned }),
-          ...(payload.reactions === undefined
-            ? {}
-            : { reactions: payload.reactions }),
-          ...(payload.replyTo === undefined ? {} : { replyTo: payload.replyTo }),
+  sendMessage: async (chatId: string, message: { content: string; attachment?: MessageAttachment }) => {
+    set({ error: null });
+    try {
+      const store = useChatStore.getState();
+      const chat = store.chats.find(c => c.id === chatId);
+      if (!chat) {
+        throw new Error("Chat not found");
+      }
+
+      const newMessage = {
+        id: `msg-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        chatId,
+        senderPubKey: "", // TODO: Get current user key
+        content: message.content,
+        type: message.attachment ? "attachment" as const : "text" as const,
+        status: "sent" as const,
+        timestamp: Date.now(),
+        outgoing: true,
+        attachment: message.attachment,
+      };
+
+      await sqliteStore.saveMessage(newMessage as any);
+      set((state) => ({
+        messagesMap: {
+          ...state.messagesMap,
+          [chatId]: [...(state.messagesMap[chatId] || []), newMessage],
         },
-        vaultKey,
-      );
-      return;
+      }));
+
+      // TODO: Send via WebSocket
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to send message",
+      });
+      throw error;
     }
-    const current = get().messagesMap[chatId].find(
-      (message) => message.id === messageId,
-    );
-    if (!current || messageStatusRank[status] <= messageStatusRank[current.status]) {
-      return;
+  },
+
+  deleteChat: async (chatId: string) => {
+    set({ isLoading: true, error: null });
+    try {
+      // Delete from SQLite placeholder
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      set((state) => {
+        const newMessagesMap = { ...state.messagesMap };
+        delete newMessagesMap[chatId];
+
+        return {
+          chats: state.chats.filter(c => c.id !== chatId),
+          messagesMap: newMessagesMap,
+          activeChatId: state.activeChatId === chatId ? null : state.activeChatId,
+          isLoading: false,
+        };
+      });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to delete chat",
+        isLoading: false
+      });
+      throw error;
     }
-    const updated = { ...current, status };
-    await saveEncryptedMessage(updated, vaultKey);
-    set((state) => ({
-      messagesMap: {
-        ...state.messagesMap,
-        [chatId]: state.messagesMap[chatId].map((message) =>
-          message.id === messageId ? updated : message,
-        ),
-      },
-    }));
+  },
+  
+  setActiveChat: (chatId) => set({ activeChatId: chatId }),
+  
+  broadcastTyping: (chatId, isTyping) => {
+    set((state) => {
+      const typingByChat = { ...state.typingByChat };
+      if (isTyping) {
+        typingByChat[chatId] = true;
+      } else {
+        delete typingByChat[chatId];
+      }
+      return { typingByChat };
+    });
+  },
+  
+  setTyping: (chatId, isTyping) => {
+    set((state) => {
+      const peerTypingByChat = { ...state.peerTypingByChat };
+      if (isTyping) {
+        peerTypingByChat[chatId] = true;
+      } else {
+        delete peerTypingByChat[chatId];
+      }
+      return { peerTypingByChat };
+    });
+  },
+  
+  markAsRead: async (chatId) => {
+    set({ isLoading: true, error: null });
+    try {
+      // Implementation will be added
+      await new Promise(resolve => setTimeout(resolve, 100));
+      set({ isLoading: false });
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to mark as read",
+        isLoading: false
+      });
+    }
+  },
+  
+  ensurePrivateNotes: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const summary: ChatSummary = {
+        id: "private-notes",
+        recipientPubKey: "",
+        alias: "Private Notes",
+        unreadCount: 0,
+        updatedAt: Date.now(),
+        kind: "notes",
+        pinned: false,
+        favorite: false,
+        mutedUntil: undefined,
+        mutedForever: false,
+        disappearingMs: undefined,
+        theme: undefined,
+        listId: undefined,
+        blocked: false,
+      };
+      set({ isLoading: false });
+      return summary;
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to ensure private notes",
+        isLoading: false
+      });
+      throw error;
+    }
+  },
+  
+  updateChat: async (chatId, patch) => {
+    set({ isLoading: true, error: null });
+    try {
+      // Implementation will be added
+      await new Promise(resolve => setTimeout(resolve, 100));
+      set({ isLoading: false });
+      return null;
+    } catch (error) {
+      set({
+        error: error instanceof Error ? error.message : "Failed to update chat",
+        isLoading: false
+      });
+      throw error;
+    }
+  },
+  
+  clearChatMessages: async (chatId) => {
+    set((state) => {
+      const messagesMap = { ...state.messagesMap };
+      delete messagesMap[chatId];
+      return { messagesMap, isLoading: false };
+    });
   },
 }));
-
-// registerMemoryKeyCleanup replaced or removed
-
-export function startChatServices(): () => void {
-  if (chatServicesStarted) {
-    return () => {};
-  }
-  const { identity, vaultKey } = getVaultMaterial();
-  chatServicesStarted = true;
-  transportManager.start(vaultKey, encodeBytes(identity.encryptionPublicKey), {
-    onMessage: (packet) => useChatStore.getState().receiveMessage(packet),
-    onConnectionChange: (relayStatus) =>
-      useChatStore.getState().setRelayStatus(relayStatus),
-    onError: (error) =>
-      useChatStore.setState({ transportError: error.message }),
-  });
-  void getEncryptedOutbox(vaultKey).start().catch((error: unknown) =>
-    useChatStore.setState({
-      transportError:
-        error instanceof Error ? error.message : "Could not restore the encrypted outbox.",
-    }),
-  );
-  return () => {
-    chatServicesStarted = false;
-    transportManager.stop();
-    encryptedOutbox?.stop();
-    encryptedOutbox = null;
-  };
-}

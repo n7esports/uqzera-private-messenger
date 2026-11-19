@@ -1,5 +1,3 @@
-import { VaultModal } from "../../components/modals/VaultModal";
-
 export default function ChatsLayout({
   children,
 }: {
@@ -10,9 +8,6 @@ export default function ChatsLayout({
       <div className="flex flex-1 flex-col min-w-0">
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
-
-      {/* Global modals */}
-      <VaultModal />
     </div>
   );
 }

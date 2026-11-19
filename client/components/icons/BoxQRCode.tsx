@@ -1,44 +1,40 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { KeyIcon as IconKey } from "./outline/KeyIcon";
 
-const DARK = "#064e3b";
-
 export default function BoxQRCode({ payload, size = 256 }: { payload: string; size?: number }) {
-  const qr = useMemo(() => QRCode.create(payload, { errorCorrectionLevel: "M" }), [payload]);
+  const [svgString, setSvgString] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!payload) return;
+    QRCode.toString(payload, { type: "svg", width: size, margin: 1 }, (err, string) => {
+      if (!err && string) {
+        setSvgString(string);
+      }
+    });
+  }, [payload, size]);
+
   if (!payload) return null;
-  const n = qr.modules.size;
-  const cell = size / n;
   const circleSize = size * 0.28;
+
   return (
-    <div className="relative inline-block" style={{ width: size, height: size }}>
-      <svg fill="currentColor" stroke="currentColor" strokeWidth="2" width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-        <rect width={size} height={size} rx={8} />
-        {Array.from(qr.modules.data).map((v, i) => {
-          if (!v) return null;
-          const c = i % n;
-          const r = Math.floor(i / n);
-          return (
-            <rect
-              key={i}
-              x={c * cell + cell * 0.04}
-              y={r * cell + cell * 0.04}
-              width={cell * 0.92}
-              height={cell * 0.92}
-              rx={2}
-              ry={2}
-            />
-          );
-        })}
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
+    <div className="relative inline-block overflow-hidden rounded-xl bg-white" style={{ width: size, height: size }}>
+      {svgString ? (
+        <div 
+          className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full" 
+          dangerouslySetInnerHTML={{ __html: svgString }} 
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center text-xs text-on-surface-variant">Generating QR...</div>
+      )}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div
-          className="flex items-center justify-center rounded-full"
-          style={{ width: circleSize, height: circleSize, backgroundColor: DARK }}
+          className="flex items-center justify-center rounded-full bg-primary shadow-md border-2 border-white"
+          style={{ width: circleSize, height: circleSize }}
         >
-          <IconKey size={circleSize * 0.45} className="text-[#dfe2ee]" />
+          <IconKey size={circleSize * 0.45} className="text-on-primary" />
         </div>
       </div>
     </div>

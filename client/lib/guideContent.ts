@@ -1,12 +1,10 @@
 import { ChatBubbleIcon } from "../components/icons/outline/ChatBubbleIcon";
-import { KeyIcon } from "../components/icons/outline/KeyIcon";
 import { ShieldIcon } from "../components/icons/outline/ShieldIcon";
 import { WifiOffIcon } from "../components/icons/outline/WifiOffIcon";
 import { SendIcon } from "../components/icons/outline/SendIcon";
 import { QrShareIcon } from "../components/icons/outline/QrShareIcon";
 import { DocumentIcon } from "../components/icons/outline/DocumentIcon";
 import { DisappearingTimerIcon } from "../components/icons/outline/DisappearingTimerIcon";
-import { MultiDeviceIcon } from "../components/icons/outline/MultiDeviceIcon";
 import { ChannelsIcon } from "../components/icons/outline/ChannelsIcon";
 import { EncryptedBackupIcon } from "../components/icons/outline/EncryptedBackupIcon";
 import { TorModeIcon } from "../components/icons/outline/TorModeIcon";

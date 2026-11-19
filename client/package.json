@@ -17,6 +17,7 @@
     "@scure/bip39": "^2.4.0",
     "@supabase/supabase-js": "^2.109.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/sql.js": "^1.4.11",
     "bcryptjs": "^3.0.3",
     "dexie": "^4.4.6",
     "framer-motion": "^12.43.0",
@@ -27,6 +28,7 @@
     "qrcode": "^1.5.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "sql.js": "^1.17.0",
     "zod": "^4.6.7",
     "zustand": "^5.0.15",
     "zxcvbn": "^4.4.2"
@@ -48,7 +50,6 @@
     "fake-indexeddb": "^6.2.7",
     "jsdom": "^29.1.1",
     "postcss": "^8.5.29",
-    "puppeteer": "^24.43.1",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3",
     "vitest": "^2.1.9"

@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useChatStore, type ChatMessage } from "../store/useChatStore";
+import { useChatStore } from "../store/useChatStore";
+import { type ChatMessage } from "../types/index";
 import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
 import { SingleTickSentIcon } from "./icons/outline/SingleTickSentIcon";
 import { DoubleTickReadIcon } from "./icons/outline/DoubleTickReadIcon";

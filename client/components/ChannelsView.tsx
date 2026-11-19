@@ -4,9 +4,9 @@ import { useChatStore } from "../store/useChatStore";
 import type { Channel, Broadcast } from "../types";
 
 export function ChannelsView() {
- const channels = useChatStore((s) => s.channels);
- const addChannel = useChatStore((s) => s.addChannel);
- const showToast = useChatStore((s) => s.showToast);
+  const channels = useChatStore((s) => s.channels);
+  const addChannel = useChatStore((s) => s.addChannel);
+  const showToast = useChatStore((s) => s.showToast);
 
  const handleCreate = () => {
  const name = prompt("Channel name (e.g. #ops)");

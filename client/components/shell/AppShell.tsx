@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
+import Image from "next/image";
 import { useChatStore, type ChatState } from "../../store/useChatStore";
 import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
 import IconPlus from "../icons/IconPlus";
@@ -28,8 +29,7 @@ export default function AppShell({
   const [acceptRequest, setAcceptRequest] = useState<{ senderKey: string; packet: unknown } | null>(null);
   const pendingRequests = useChatStore((s: ChatState) => s.pendingRequests);
   const dismissPendingRequest = useChatStore((s: ChatState) => s.dismissPendingRequest);
-  const loadChats = useChatStore((s: ChatState) => s.loadChats);
-  const searchInputRef = useRef<HTMLInputElement>(null);
+    const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState<SettingsSection>("linked-devices");
@@ -43,7 +43,7 @@ export default function AppShell({
         {/* Logo / brand */}
       <div className="flex h-14 items-center justify-between gap-3 px-4">
         <div className="flex items-center gap-3">
-          <img src="/uqzera-logo.png" alt="UQZERA" className="h-4 w-auto object-contain" />
+          <Image src="/uqzera-logo.png" alt="UQZERA" width={32} height={32} className="h-4 w-auto object-contain" />
         </div>
 
       </div>

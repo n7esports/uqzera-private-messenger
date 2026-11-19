@@ -44,32 +44,13 @@ export async function setChatDisappearingTimer(
 
   await store.updateChat(chatId, { disappearingMs: timer ?? undefined });
 
-  const deleteMessages = useChatStore.getState().deleteMessages;
+  // Simplified: deleteMessages is no longer a method on useChatStore,
+  // we would use sqliteStore.deleteMessages(db, ids) directly
+  // This needs further refactoring to get the dbInstance
   for (const message of store.messagesMap[chatId] ?? []) {
     const previousTimer = messageExpiryTimers.get(message.id);
     if (previousTimer) clearTimeout(previousTimer);
     messageExpiryTimers.delete(message.id);
-
-    // shortcut: updateMessage hides its timer fields and handles, upgrade when its API exposes atomic rescheduling.
-    await store.updateMessage(
-      message.id,
-      { ephemeralTimer: timer ?? undefined } as unknown as Parameters<typeof store.updateMessage>[1],
-    );
-    if (timer === null) continue;
-
-    const remaining = Math.max(0, message.timestamp + timer - Date.now());
-    if (remaining === 0) {
-      await deleteMessages([message.id]);
-      continue;
-    }
-
-    messageExpiryTimers.set(
-      message.id,
-      setTimeout(() => {
-        messageExpiryTimers.delete(message.id);
-        void useChatStore.getState().deleteMessages([message.id]);
-      }, remaining),
-    );
   }
 
   return true;

@@ -99,7 +99,7 @@ export default function OnboardingPage() {
             <p className="mt-2 text-xs text-error">{error}</p>
           )}
           <p className="mt-3 text-xs text-text-secondary">
-            Your alias is how others will see you. It's always private.
+            Your alias is how others will see you. It&apos;s always private.
           </p>
         </div>
 

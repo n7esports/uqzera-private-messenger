@@ -4,6 +4,7 @@ import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
 import { DocumentIcon } from "../icons/outline/DocumentIcon";
 import { SettingsProfileIcon } from "../icons/outline/SettingsProfileIcon";
+import Image from "next/image";
 import { useChatStore } from "../../store/useChatStore";
 
 export default function IconRail({ onSearchClick, onOpenSettings, className }: { onSearchClick?: () => void; onOpenSettings?: () => void; className?: string }) {
@@ -25,7 +26,7 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
       className={("flex h-screen w-16 flex-col items-center gap-2 bg-bg-app border-r border-border py-3 " + (className||"")).trim()}
     >
       <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2">
-        <img src="/keyhole-512.png" alt="UQZERA" className="h-8 w-8 object-contain text-[#34D399]" />
+        <Image src="/keyhole-512.png" alt="UQZERA" width={32} height={32} className="h-8 w-8 object-contain text-[#34D399]" />
       </div>
       <div className="my-1 h-px w-8 bg-border" />
       <button

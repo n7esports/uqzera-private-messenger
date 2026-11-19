@@ -1,25 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import AppShell from "../../components/shell/AppShell";
 import AddContactModal from "../../components/modals/AddContactModal";
 import { ChatView } from "../../components/ChatView";
 import GuideConversation from "../../components/chatList/GuideConversation";
 import { MyIdentityModal } from "../../components/modals/MyIdentityModal";
 import { useChatStore } from "../../store/useChatStore";
-import { startChatServices } from "../../store/useChatStore";
 
 type MobileView = "list" | "chat";
 
 export default function ChatsPage() {
-  const router = useRouter();
   const activeChatId = useChatStore((state) => state.activeChatId);
   const [mobileView, setMobileView] = useState<MobileView>("list");
   const [guideActive, setGuideActive] = useState(false);
   const [addContactOpen, setAddContactOpen] = useState(false);
   const [identityOpen, setIdentityOpen] = useState(false);
-  const startedRef = useRef(false);
 
 
 

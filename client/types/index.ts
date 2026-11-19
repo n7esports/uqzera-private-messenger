@@ -91,3 +91,75 @@ export interface DeviceSession {
   isCurrent: boolean;
   fingerprint: string;
 }
+
+// Core chat types for the new session-based system
+export type ChatKind = "direct" | "system" | "notes";
+
+export type MessageStatus =
+  | "queued"
+  | "relayAccepted"
+  | "sent"
+  | "delivered"
+  | "read";
+
+export interface ChatSummary {
+  id: string;
+  recipientPubKey: string;
+  peerSigningPubKey?: string;
+  alias: string;
+  unreadCount: number;
+  updatedAt: number;
+  kind: ChatKind;
+  pinned: boolean;
+  favorite?: boolean;
+  mutedUntil?: number;
+  mutedForever?: boolean;
+  disappearingMs?: number;
+  theme?: string;
+  listId?: string;
+  blocked?: boolean;
+}
+
+export interface MessageReplyRef {
+  id: string;
+  alias: string;
+  excerpt: string;
+}
+
+export type InnerPayload =
+  | { type: "text"; content: string }
+  | { type: "attachment"; attachment: MessageAttachment }
+  | { type: "encrypted"; encryptedPayload: string }
+  | { type: "system"; systemType: string };
+
+export interface MessageAttachment {
+  name: string;
+  size: string;
+  hash: string;
+  type: "file" | "audio" | "image";
+}
+
+export interface ChatMessage {
+  id: string;
+  chatId: string;
+  senderPubKey: string;
+  content: string;
+  type: InnerPayload["type"];
+  status: MessageStatus;
+  timestamp: number;
+  readAt?: number;
+  outgoing: boolean;
+  ephemeralTimer?: number;
+  attachment?: MessageAttachment;
+  starred?: boolean;
+  pinned?: boolean;
+  reactions?: string[];
+  replyTo?: MessageReplyRef;
+}
+
+export interface PendingRequest {
+  senderEncryptionPubKey: string;
+  senderPubKey: string;
+  packet: any;
+  receivedAt: number;
+}

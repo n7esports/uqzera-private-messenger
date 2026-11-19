@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useChatStore, type ChatMessage } from "../store/useChatStore";
+import { useChatStore } from "../store/useChatStore";
+import { type ChatMessage } from "../types/index";
 import { useRouter } from "next/navigation";
 import MessageBubble from "./MessageBubble";
 import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
@@ -12,7 +13,7 @@ import { SendIcon } from "./icons/outline/SendIcon";
 import IconClose from "./icons/ui/IconClose";
 import ChatMenu from "./chatList/ChatMenu";
 
-const EMPTY_MESSAGES: ChatMessage[] = [];
+const EMPTY_MESSAGES: any = [];
 
 export function ChatView({
   chatId,
@@ -48,7 +49,7 @@ const [searchQuery, setSearchQuery] = useState("");
 const moreButtonRef = useRef<HTMLButtonElement>(null);
   const chat = chatId ? chats.find((entry) => entry.id === chatId) ?? null : null;
 const filteredMessages = searchQuery.trim()
-  ? messages.filter((m) => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
+  ? messages.filter((m: ChatMessage) => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
   : messages;
 
   const handleSend = async () => {
@@ -57,13 +58,7 @@ const filteredMessages = searchQuery.trim()
 
     broadcastTyping(chatId, false);
     try {
-      await sendMessage(
-        text,
-        "text",
-        ephemeralTtl ?? undefined,
-        undefined,
-        replyTo ?? undefined,
-      );
+      await sendMessage(chatId, { content: text });
       setContent("");
       setReplyTo(null);
     } catch (error) {
@@ -79,7 +74,7 @@ const filteredMessages = searchQuery.trim()
     const presets = [0, 60, 300, 900, 3600];
     const index = presets.indexOf(ephemeralTtl ?? 0);
     const next = presets[(index + 1) % presets.length];
-    setEphemeralTtl(next || null);
+    setEphemeralTtl(next || 0);
   };
 
   useEffect(() => {
@@ -211,7 +206,7 @@ const filteredMessages = searchQuery.trim()
           <p className="py-8 text-center text-sm text-outline">No messages yet. Say hello.</p>
         )}
         <div className="flex flex-col gap-3">
-          {filteredMessages.map((message) => {
+          {filteredMessages.map((message: ChatMessage) => {
             const isMe = message.senderPubKey === "me" || message.outgoing;
             return (
               <div
