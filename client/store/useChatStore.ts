@@ -8,8 +8,6 @@ import * as sqliteStore from "../lib/sqliteStore";
 // Re-export types for use by other components
 export type { ChatSummary, MessageStatus, MessageReplyRef, PendingRequest, InnerPayload, MessageAttachment };
 
-let dbInstance: any = null;
-
 export interface ChatState {
   activeChatId: string | null;
   chats: ChatSummary[];
@@ -85,8 +83,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
   addChannel: (channel) => set((state) => ({ channels: [...state.channels, channel] })),
   setEphemeralTtl: (ttl) => set({ ephemeralTtl: ttl }),
   removeDevice: (deviceId) => set((state) => ({ devices: state.devices.filter(d => d.id !== deviceId) })),
-  panicShred: () => {
+  panicShred: async () => {
     // Security: Wipe all data
+    await sqliteStore.clearStore(sqliteStore.db);
     set({
       chats: [],
       messagesMap: {},
@@ -95,7 +94,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       devices: [],
       activeChatId: null,
     });
-    // TODO: Clear SQLite database
   },
   showToast: (toast) => {
     // TODO: Add toast notification system
@@ -118,6 +116,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   loadChats: async () => {
     try {
+      await sqliteStore.initSqliteStore();
       const chats = await sqliteStore.getChats();
       set({ chats, isLoading: false });
     } catch (error) {
@@ -131,9 +130,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   addContact: async (alias: string, recipientPubKey: string) => {
     set({ isLoading: true, error: null });
     try {
-      if (!dbInstance) {
-        dbInstance = await sqliteStore.initSqliteStore();
-      }
+      await sqliteStore.initSqliteStore();
       const newChat: ChatSummary = {
         id: `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         recipientPubKey,
@@ -160,6 +157,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sendMessage: async (chatId: string, message: { content: string; attachment?: MessageAttachment }) => {
     set({ error: null });
     try {
+      await sqliteStore.initSqliteStore();
       const store = useChatStore.getState();
       const chat = store.chats.find(c => c.id === chatId);
       if (!chat) {
@@ -198,8 +196,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   deleteChat: async (chatId: string) => {
     set({ isLoading: true, error: null });
     try {
-      // Delete from SQLite placeholder
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await sqliteStore.initSqliteStore();
 
       set((state) => {
         const newMessagesMap = { ...state.messagesMap };

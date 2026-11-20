@@ -22,72 +22,27 @@ interface DbInitOptions {
   locations?: boolean;
 }
 
+// Default options for database initialization
+const defaultOptions: DbInitOptions = {
+  localtime: true,
+  cacheSize: -10000, // 10MB cache
+};
+
 // Cache the database instance per session
 let db: any = null;
+let dbLoading: Promise<void> | null = null;
 
-export interface StoredChat {
-  id: string;
-  recipientPubKey: string;
-  peerSigningPubKey?: string;
-  alias: string;
-  unreadCount: number;
-  updatedAt: number;
-  kind: 'direct' | 'system' | 'notes';
-  pinned: boolean;
-  favorite?: boolean;
-  mutedUntil?: number;
-  mutedForever?: boolean;
-  disappearingMs?: number;
-  theme?: string;
-  listId?: string;
-  blocked?: boolean;
-}
+// Export the db instance for use by other modules
+export { db };
 
-export interface StoredMessage {
-  id: string;
-  chatId: string;
-  senderPubKey: string;
-  content: string;
-  type: string;
-  status: 'queued' | 'relayAccepted' | 'sent' | 'delivered' | 'read';
-  timestamp: number;
-  outgoing: boolean;
-  attachment?: any;
-  ephemeralTimer?: number;
-  readAt?: number;
-}
+export async function initSqliteStore(): Promise<void> {
+  if (db) return; // already initialized
+  if (dbLoading) return dbLoading; // avoid duplicate init
 
-export interface StoredSession {
-  id: string;
-  remotePubKey: string;
-  sendChainKey: string;
-  receiveChainKey: string;
-  sendCounter: number;
-  receiveCounter: number;
-}
-
-export async function initSqliteStore(): Promise<any> {
-  const SqlJs = await ensureSqlJsLoaded();
-
-  // Use localStorage to persist the SQLite .db file
-  const dbPath = typeof localStorage !== 'undefined' 
-    ? localStorage.getItem('uqzera_sqlite_db_path') 
-    : null;
-
-  const defaultOptions: DbInitOptions = {
-    localtime: true,
-    cacheSize: -10000, // 10MB cache
-  };
-
-  let db: any;
-
-  if (dbPath && dbPath.length > 0) {
-    // Open existing database from localStorage
-    const dbBuffer = Uint8Array.from(atob(dbPath), c => c.charCodeAt(0));
-    db = new SqlJs.Database(dbBuffer);
-  } else {
-    // Create new in-memory database
+  dbLoading = (async () => {
+    const SqlJs = await ensureSqlJsLoaded();
     db = new SqlJs.Database(defaultOptions);
+
     // Create tables
     db.run(`
       CREATE TABLE IF NOT EXISTS chats (
@@ -139,15 +94,57 @@ export async function initSqliteStore(): Promise<any> {
         data TEXT
       )
     `);
-  }
 
-  // Store the database path in localStorage for persistence across sessions
-  if (typeof localStorage !== 'undefined') {
-    const buffer = Buffer.from(db.export());
-    localStorage.setItem('uqzera_sqlite_db_path', buffer.toString('base64'));
-  }
+    // Store the database path in localStorage for persistence across sessions
+    if (typeof localStorage !== 'undefined') {
+      const buffer = Buffer.from(db.export());
+      localStorage.setItem('uqzera_sqlite_db_path', buffer.toString('base64'));
+    }
+  })();
 
-  return db;
+  await dbLoading;
+  dbLoading = null;
+}
+
+export interface StoredChat {
+  id: string;
+  recipientPubKey: string;
+  peerSigningPubKey?: string;
+  alias: string;
+  unreadCount: number;
+  updatedAt: number;
+  kind: 'direct' | 'system' | 'notes';
+  pinned: boolean;
+  favorite?: boolean;
+  mutedUntil?: number;
+  mutedForever?: boolean;
+  disappearingMs?: number;
+  theme?: string;
+  listId?: string;
+  blocked?: boolean;
+}
+
+export interface StoredMessage {
+  id: string;
+  chatId: string;
+  senderPubKey: string;
+  content: string;
+  type: string;
+  status: 'queued' | 'relayAccepted' | 'sent' | 'delivered' | 'read';
+  timestamp: number;
+  outgoing: boolean;
+  attachment?: any;
+  ephemeralTimer?: number;
+  readAt?: number;
+}
+
+export interface StoredSession {
+  id: string;
+  remotePubKey: string;
+  sendChainKey: string;
+  receiveChainKey: string;
+  sendCounter: number;
+  receiveCounter: number;
 }
 
 export async function saveChat(chat: StoredChat): Promise<void> {
@@ -219,7 +216,8 @@ export async function saveMessage(message: StoredMessage): Promise<void> {
   );
 }
 
-export async function getMessagesForChat(db: any, chatId: string): Promise<StoredMessage[]> {
+export async function getMessagesForChat(chatId: string): Promise<StoredMessage[]> {
+  if (!db) throw new Error("Database not initialized");
   const result = db.exec(
     `SELECT * FROM messages WHERE chat_id = ? ORDER BY timestamp ASC`,
     [chatId]
@@ -240,7 +238,7 @@ export async function getMessagesForChat(db: any, chatId: string): Promise<Store
   }));
 }
 
-export async function updateMessage(db: any, id: string, patch: Partial<StoredMessage>): Promise<void> {
+export async function updateMessage(id: string, patch: Partial<StoredMessage>): Promise<void> {
   const updates: string[] = [];
   const values: any[] = [id];
 
@@ -269,14 +267,9 @@ export async function updateMessage(db: any, id: string, patch: Partial<StoredMe
   }
 }
 
-export async function deleteMessages(db: any, ids: string[]): Promise<void> {
+export async function deleteMessages(ids: string[]): Promise<void> {
   if (ids.length === 0) return;
-  
-  // Build parameterized DELETE query with placeholders
-  const placeholders = ids.map((_, idx) => `?`).join(', ');
-  // const allIds = [...ids]; // Not needed
-  
-  // Actually, let's use a simpler approach - delete each id
+
   for (const id of ids) {
     db.run(`DELETE FROM messages WHERE id = ?`, [id]);
   }
@@ -296,7 +289,7 @@ export async function saveSession(db: any, session: StoredSession): Promise<void
   );
 }
 
-export async function getSession(db: any, id: string): Promise<StoredSession | undefined> {
+export async function getSession(id: string): Promise<StoredSession | undefined> {
   const result = db.exec(
     `SELECT * FROM sessions WHERE id = ?`,
     [id]
