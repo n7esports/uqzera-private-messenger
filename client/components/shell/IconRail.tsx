@@ -18,13 +18,6 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
 
   return (
     <nav className={`flex flex-col items-center gap-1 py-4 h-screen w-16 bg-[#0d1117] border-r border-white/5 ${className || ""}`} aria-label="Icon rail">
-      {/* Logo */}
-      <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2 mb-2">
-        <Image src="/keyhole-512.png" alt="UQZERA" width={32} height={32} className="h-8 w-8 object-contain text-[#34D399]" />
-      </div>
-      
-      <div className="my-1 h-px w-8 bg-white/10" />
-      
       {/* Search */}
       <button type="button" aria-label="Search chats" onClick={onSearchClick} className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-400 transition-all duration-200 hover:bg-white/5 hover:text-emerald-400">
         <SearchChatsIcon width={20} height={20} />
@@ -32,13 +25,9 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
       
       {/* Chats */}
       <button 
-        type="button" 
-        aria-label="Chats" 
-        onClick={() => setActiveChat(null)} 
+        type="button" aria-label="Chats" onClick={() => setActiveChat(null)} 
         className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-          activeChatId === null 
-            ? "bg-emerald-500/10 text-emerald-400" 
-            : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
+          activeChatId === null ? "bg-emerald-500/10 text-emerald-400" : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
         }`}
       >
         <ChatBubbleIcon width={20} height={20} />
@@ -46,20 +35,19 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
       
       {/* Private Notes */}
       <button 
-        type="button" 
-        aria-label="Private Notes" 
-        onClick={() => {
-          if (privateNotesId) setActiveChat(privateNotesId);
-          else setActiveChat("private-notes");
-        }} 
+        type="button" aria-label="Private Notes" 
+        onClick={() => { if (privateNotesId) setActiveChat(privateNotesId); else setActiveChat("private-notes"); }} 
         className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-          activeChatId === (privateNotesId ?? "private-notes")
-            ? "bg-emerald-500/10 text-emerald-400"
-            : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
+          activeChatId === privateNotesId || activeChatId === "private-notes" ? "bg-emerald-500/10 text-emerald-400" : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
         }`}
       >
         <DocumentIcon width={20} height={20} />
       </button>
+
+      {/* MOVED LOGO (Below Notes) */}
+      <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2 my-4">
+        <Image src="/keyhole-512.png" alt="UQZERA" width={28} height={28} className="h-7 w-7 object-contain text-[#34D399]" />
+      </div>
       
       {/* Bottom Section */}
       <div className="mt-auto flex flex-col items-center gap-2">

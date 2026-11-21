@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import ContextMenu from "./ui/ContextMenu";
 import { useChatStore } from "../store/useChatStore";
 import { type ChatMessage } from "../types/index";
 import { ClockPendingIcon } from "./icons/outline/ClockPendingIcon";
@@ -73,6 +74,12 @@ export default function MessageBubble({
   const status = message.status as DisplayStatus;
 
   return (
+    <ContextMenu
+      items={[
+        { label: "Reply", onClick: () => useChatStore.getState().setReplyTo({ id: message.id, alias: message.senderPubKey.slice(0, 8), excerpt: message.content }) },
+        { label: "Copy text", onClick: () => void navigator.clipboard.writeText(message.content) },
+      ]}
+    >
     <div className={`relative flex ${alignment} gap-2`}>
       <motion.div
         className={`inline-flex flex-col ${bubbleRadius} px-3 py-2 max-w-[70%] min-w-[80px] text-sm ${bubbleMargin} ${bubbleBg} ${bubbleGlass} break-words text-text-primary w-fit`}
@@ -116,5 +123,6 @@ export default function MessageBubble({
         </div>
       </motion.div>
     </div>
+    </ContextMenu>
   );
 }

@@ -8,10 +8,10 @@ import {
   type ChatSummary,
 } from "../../store/useChatStore";
 import { MuteChatIcon } from "../icons/outline/MuteChatIcon";
-import { BookIcon } from "../icons/outline/BookIcon";
 import { DocumentIcon } from "../icons/outline/DocumentIcon";
-import { DeleteForMeIcon } from "../icons/outline/DeleteForMeIcon";
 import IconClose from "../icons/ui/IconClose";
+import ContextMenu from "../ui/ContextMenu";
+import { DeleteForMeIcon } from "../icons/outline/DeleteForMeIcon";
 
 const MAX_PINNED_CHATS = 3;
 const ARCHIVED_LIST_ID = "archived";
@@ -45,11 +45,9 @@ function isMuted(chat: ChatSummary): boolean {
 }
 
 export default function ChatList({
-  guideActive,
   onOpenChat,
-  onOpenGuide,
 }: {
-  guideActive: boolean;
+  guideActive?: boolean;
   onOpenChat?: () => void;
   onOpenGuide?: () => void;
 }) {
@@ -62,13 +60,7 @@ export default function ChatList({
     (state: ChatState) => state.clearChatMessages,
   );
   const deleteChat = useChatStore((state: ChatState) => state.deleteChat);
-  const [guideConfirmed, setGuideConfirmed] = useState(false);
   const [menuChatId, setMenuChatId] = useState<string | null>(null);
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setGuideConfirmed(localStorage.getItem("uqzera.guide.confirmed") === "1");
-    }
-  }, []);
   const [sheetChatId, setSheetChatId] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,7 +79,7 @@ export default function ChatList({
 
   const { activeChats, archivedChats, pinnedChats, regularChats } = useMemo(() => {
     const active = chats
-      .filter((chat) => chat.listId !== ARCHIVED_LIST_ID)
+      .filter((chat) => chat.listId !== ARCHIVED_LIST_ID && chat.id !== "private-notes")
       .sort((left, right) => right.updatedAt - left.updatedAt);
     const pinned = active.filter((chat) => chat.pinned);
     const displayedPinned = pinned.slice(0, MAX_PINNED_CHATS);
@@ -189,6 +181,14 @@ export default function ChatList({
           if (longPressTimer.current) clearTimeout(longPressTimer.current);
         }}
       >
+        <ContextMenu
+          items={[
+            { label: chat.pinned ? "Unpin chat" : "Pin chat", onClick: () => void togglePinned(chat) },
+            { label: chat.mutedForever ? "Unmute" : "Mute", onClick: () => void toggleMuted(chat) },
+            { label: chat.listId === ARCHIVED_LIST_ID ? "Unarchive" : "Archive", onClick: () => void toggleArchived(chat) },
+            { label: "Delete chat", onClick: () => { if (window.confirm(`Delete the chat with ${chat.alias}?`)) void deleteChat(chat.id); } },
+          ]}
+        >
         <motion.div
           className="flex items-center pr-2"
           initial={{ opacity: 0, x: -10 }}
@@ -248,6 +248,7 @@ export default function ChatList({
           </button>
 
         </motion.div>
+        </ContextMenu>
         {menuOpen && (
           <div
             role="group"
@@ -316,34 +317,6 @@ export default function ChatList({
       className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-[#0d1117]"
     >
       <ul>
-{!guideConfirmed && (
-        <li className="list-none">
-          <button
-            type="button"
-            onClick={() => {
-              onOpenGuide?.();
-              setMenuChatId(null);
-            }}
-            aria-pressed={guideActive}
-            className={`flex h-[72px] w-full items-center gap-3 px-4 py-0 text-left transition ${
-              guideActive ? "bg-bg-selected" : "hover:bg-bg-hover"
-            }`}
-          >
-            <span className="flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel text-accent">
-              <BookIcon width={20} height={20} aria-hidden="true" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-base font-normal text-text-primary">
-                Guide
-              </span>
-              <span className="block truncate text-sm text-text-secondary">
-                Your quick-start guide
-              </span>
-            </span>
-            <span className="sr-only">Pinned</span>
-          </button>
-        </li>
-      )}
         {pinnedChats.map(renderChat)}
       </ul>
 
