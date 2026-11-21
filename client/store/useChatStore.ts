@@ -218,7 +218,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       set((state) => {
         const newMessagesMap = { ...state.messagesMap };
         delete newMessagesMap[chatId];
-        
+
         return {
           chats: state.chats.filter(c => c.id !== chatId),
           messagesMap: newMessagesMap,
@@ -234,9 +234,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       throw error;
     }
   },
-  
+
   setActiveChat: (chatId) => set({ activeChatId: chatId }),
-  
+
   broadcastTyping: (chatId, isTyping) => {
     set((state) => {
       const typingByChat = { ...state.typingByChat };
@@ -248,7 +248,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { typingByChat };
     });
   },
-  
+
   setTyping: (chatId, isTyping) => {
     set((state) => {
       const peerTypingByChat = { ...state.peerTypingByChat };
@@ -260,7 +260,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       return { peerTypingByChat };
     });
   },
-  
+
   markAsRead: async (chatId) => {
     set({ isLoading: true, error: null });
     try {
@@ -274,10 +274,24 @@ export const useChatStore = create<ChatState>((set, get) => ({
       });
     }
   },
-  
+
   ensurePrivateNotes: async () => {
     set({ isLoading: true, error: null });
     try {
+      const sessionStore = useSessionStore.getState();
+      if (!sessionStore.sessionEncryptionKey) {
+        throw new Error('Session encryption key is required');
+      }
+      await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
+
+      // Check if already exists in DB
+      const existingChats = await sqliteStore.getChats();
+      const existing = existingChats.find((c: any) => c.id === "private-notes");
+      if (existing) {
+        set({ isLoading: false });
+        return existing;
+      }
+
       const summary: ChatSummary = {
         id: "private-notes",
         recipientPubKey: "",
@@ -286,14 +300,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
         updatedAt: Date.now(),
         kind: "notes",
         pinned: false,
-        favorite: false,
-        mutedUntil: undefined,
-        mutedForever: false,
-        disappearingMs: undefined,
-        theme: undefined,
-        listId: undefined,
-        blocked: false,
       };
+
+      // Save private notes chat to SQLite
+      await sqliteStore.saveChat(summary);
+      // Ensure the chat is pinned for visibility
+      await sqliteStore.updateChat(
+        "private-notes",
+        { pinned: true }
+      );
+
       set({ isLoading: false });
       return summary;
     } catch (error) {
@@ -304,7 +320,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       throw error;
     }
   },
-  
+
   updateChat: async (chatId, patch) => {
     set({ isLoading: true, error: null });
     try {
@@ -320,7 +336,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
       throw error;
     }
   },
-  
+
   clearChatMessages: async (chatId) => {
     set((state) => {
       const messagesMap = { ...state.messagesMap };
