@@ -76,6 +76,9 @@ export default function MessageBubble({
     <div className={`relative flex ${alignment} gap-2`}>
       <motion.div
         className={`inline-flex flex-col ${bubbleRadius} px-3 py-2 max-w-[70%] min-w-[80px] text-sm ${bubbleMargin} ${bubbleBg} ${bubbleGlass} break-words text-text-primary w-fit`}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
         drag={isMe ? "x" : false}
         dragConstraints={{ left: 0, right: 0 }}
         onDragEnd={(_, info) => {

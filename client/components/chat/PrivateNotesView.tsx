@@ -1,109 +1,102 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { useChatStore } from "../../store/useChatStore";
 
-const PrivateNotesView = () => {
+export default function PrivateNotesView() {
   const notes = useChatStore((s) => s.notes);
   const activeNoteId = useChatStore((s) => s.activeNoteId);
   const setActiveNoteId = useChatStore((s) => s.setActiveNoteId);
   const createNote = useChatStore((s) => s.createNote);
   const updateNote = useChatStore((s) => s.updateNote);
-  const deleteNote = useChatStore((s) => s.deleteNote);
 
-  const activeNote = notes.find((note) => note.id === activeNoteId);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [activeTab, setActiveTab] = useState<"drafts" | "saved">("drafts");
+  const loadedKey = useRef<string | null>(null);
 
-  const loadedNoteId = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!activeNoteId) {
-      loadedNoteId.current = null;
-      return;
-    }
-    if (!activeNote || loadedNoteId.current === activeNoteId) return;
-    loadedNoteId.current = activeNoteId;
-    setTitle(activeNote.title);
-    setContent(activeNote.content);
-  }, [activeNote, activeNoteId]);
+  const currentNote =
+    notes.find((note) => note.id === activeNoteId && note.isDraft === (activeTab === "drafts")) ??
+    notes.find((note) => note.isDraft === (activeTab === "drafts"));
+  const currentNoteId = currentNote?.id;
+  const key = currentNoteId ? `${activeTab}:${currentNoteId}` : activeTab;
 
   useEffect(() => {
-    if (!activeNoteId) return;
-    if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      void updateNote(activeNoteId, { title, content });
+    if (loadedKey.current === key) return;
+    loadedKey.current = key;
+    setTitle(currentNote?.title ?? "");
+    setContent(currentNote?.content ?? "");
+  }, [key, currentNote]);
+
+  useEffect(() => {
+    if (!currentNoteId) return;
+    const timer = setTimeout(() => {
+      void updateNote(currentNoteId, {
+        title,
+        content,
+        isDraft: activeTab === "drafts",
+      });
     }, 1000);
-    return () => {
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-    };
-  }, [title, content, activeNoteId, updateNote]);
+    return () => clearTimeout(timer);
+  }, [title, content, currentNoteId, activeTab, updateNote]);
 
-  const renderNotes = (drafts: boolean) =>
-    notes
-      .filter((note) => note.isDraft === drafts)
-      .map((note) => (
-        <button
-          key={note.id}
-          type="button"
-          onClick={() => setActiveNoteId(note.id)}
-          className={`w-full truncate rounded-lg px-3 py-2 text-left text-sm ${
-            note.id === activeNoteId
-              ? "bg-emerald-500/10 text-emerald-400"
-              : "text-gray-400 hover:bg-white/5 hover:text-white"
-          }`}
-        >
-          {note.title || "Untitled"}
-        </button>
-      ));
+  const switchTab = (tab: "drafts" | "saved") => {
+    const first = notes.find((note) => note.isDraft === (tab === "drafts"));
+    if (first) setActiveNoteId(first.id);
+    setActiveTab(tab);
+  };
 
   return (
-    <div className="flex h-full w-full bg-[#0d1117]">
-      <aside className="flex w-64 flex-col border-r border-white/5">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col h-full w-full bg-[#0d1117]"
+    >
+      <div className="flex items-center justify-between p-3 border-b border-white/10 bg-[#161b22]">
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => switchTab("drafts")}
+            className={`text-sm font-medium transition-colors ${activeTab === "drafts" ? "text-emerald-400" : "text-gray-400 hover:text-white"}`}
+          >
+            Drafts
+          </button>
+          <button
+            type="button"
+            onClick={() => switchTab("saved")}
+            className={`text-sm font-medium transition-colors ${activeTab === "saved" ? "text-emerald-400" : "text-gray-400 hover:text-white"}`}
+          >
+            Saved
+          </button>
+        </div>
         <button
           type="button"
-          onClick={() => void createNote("Untitled", "")}
-          className="m-3 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm text-emerald-400 hover:bg-emerald-500/30"
+          onClick={() => void createNote("", "", activeTab === "drafts")}
+          className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-lg text-sm hover:bg-emerald-500/30 transition-colors"
         >
           + New Note
         </button>
-        <div className="flex-1 overflow-y-auto px-2 pb-3">
-          <p className="px-3 py-2 text-xs font-semibold text-white">Drafts</p>
-          {renderNotes(true)}
-          <p className="px-3 py-2 text-xs font-semibold text-white">Saved</p>
-          {renderNotes(false)}
-        </div>
-      </aside>
-      <section className="flex flex-1 flex-col p-4">
+      </div>
+
+      <div className="flex-1 p-6 flex flex-col gap-4 overflow-y-auto custom-scrollbar">
         <input
+          type="text"
           aria-label="Note title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          className="bg-transparent text-white text-lg w-full outline-none"
           placeholder="Untitled"
-          disabled={!activeNoteId}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="bg-transparent text-2xl font-semibold text-white outline-none w-full placeholder:text-gray-600"
         />
         <textarea
           aria-label="Note content"
-          value={content}
-          onChange={(event) => setContent(event.target.value)}
-          className="w-full h-full bg-transparent text-gray-300 resize-none outline-none mt-4"
           placeholder="Start typing your private note..."
-          disabled={!activeNoteId}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          className="flex-1 bg-transparent text-gray-300 outline-none w-full resize-none placeholder:text-gray-600 leading-relaxed"
         />
-        {activeNoteId && (
-          <button
-            type="button"
-            onClick={() => void deleteNote(activeNoteId)}
-            className="self-end rounded-lg border border-white/10 px-3 py-2 text-xs text-red-400 hover:bg-white/5"
-          >
-            Delete note
-          </button>
-        )}
-      </section>
-    </div>
+      </div>
+    </motion.div>
   );
-};
-
-export default PrivateNotesView;
+}

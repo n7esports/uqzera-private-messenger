@@ -58,8 +58,8 @@ export interface ChatState {
   notes: Note[];
   activeNoteId: string | null;
   setActiveNoteId: (id: string | null) => void;
-  createNote: (title: string, content: string) => Promise<void>;
-  updateNote: (id: string, updates: { title?: string, content?: string }) => Promise<void>;
+  createNote: (title: string, content: string, isDraft?: boolean) => Promise<void>;
+  updateNote: (id: string, updates: { title?: string, content?: string, isDraft?: boolean }) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
 }
 
@@ -364,8 +364,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   setActiveNoteId: (id) => set({ activeNoteId: id }),
-  createNote: async (title, content) => {
-    const note: Note = { id: `note-${Date.now()}`, title, content, updatedAt: Date.now(), isDraft: true };
+  createNote: async (title, content, isDraft = true) => {
+    const note: Note = { id: `note-${Date.now()}`, title, content, updatedAt: Date.now(), isDraft };
     await sqliteStore.saveNote(note);
     set((state) => ({ notes: [note, ...state.notes], activeNoteId: note.id }));
   },
