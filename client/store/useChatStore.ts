@@ -299,16 +299,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         unreadCount: 0,
         updatedAt: Date.now(),
         kind: "notes",
-        pinned: false,
+        pinned: true,
       };
 
-      // Save private notes chat to SQLite
+      // Save private notes chat to SQLite (pinned for visibility)
       await sqliteStore.saveChat(summary);
-      // Ensure the chat is pinned for visibility
-      await sqliteStore.updateChat(
-        "private-notes",
-        { pinned: true }
-      );
 
       set({ isLoading: false });
       return summary;
