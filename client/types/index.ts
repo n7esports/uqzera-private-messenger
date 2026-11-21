@@ -163,3 +163,11 @@ export interface PendingRequest {
   packet: any;
   receivedAt: number;
 }
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  updatedAt: number;
+  isDraft: boolean;
+}

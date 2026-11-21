@@ -313,7 +313,7 @@ export default function ChatList({
         ref={listRef}
       role="region"
       aria-label="Chat list"
-      className="flex-1 min-h-0 overflow-y-auto custom-scrollbar"
+      className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-[#0d1117]"
     >
       <ul>
 {!guideConfirmed && (

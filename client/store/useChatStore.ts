@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { useSessionStore } from "./useSessionStore";
-import { type ChatSummary, type MessageStatus, type InnerPayload, type MessageAttachment, type MessageReplyRef, type PendingRequest, type Channel, type DeviceSession, type ToastNotification } from "../types";
+import { type ChatSummary, type MessageStatus, type InnerPayload, type MessageAttachment, type MessageReplyRef, type PendingRequest, type Channel, type DeviceSession, type ToastNotification, type Note } from "../types";
 import * as sqliteStore from "../lib/sqliteStore";
 
 // Re-export types for use by other components
@@ -23,6 +23,8 @@ export interface ChatState {
   channels: Channel[];
   devices: DeviceSession[];
   ephemeralTtl: number;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 
   // Modal state
   sidebarOpen: boolean;
@@ -53,6 +55,7 @@ export interface ChatState {
   clearChatMessages: (chatId: string) => Promise<void>;
 
   // Notes actions
+  notes: Note[];
   activeNoteId: string | null;
   setActiveNoteId: (id: string | null) => void;
   createNote: (title: string, content: string) => Promise<void>;
@@ -78,13 +81,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isLoading: false,
   error: null,
   ephemeralTtl: 0,
+  searchQuery: "",
   activeNoteId: null,
+  notes: [],
 
   channels: [],
   devices: [],
 
   sidebarOpen: false,
   replyTo: null,
+  setSearchQuery: (query) => set({ searchQuery: query }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setReplyTo: (reply) => set({ replyTo: reply }),
 
@@ -131,7 +137,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
       const chats = await sqliteStore.getChats();
       const privateNotesChat = await get().ensurePrivateNotes();
-      set({ chats: [...chats, privateNotesChat], isLoading: false });
+      const notes = await sqliteStore.getNotes();
+      set({ chats: [...chats, privateNotesChat], notes, searchQuery: "", isLoading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : "Failed to load chats",
@@ -327,10 +334,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
   updateChat: async (chatId, patch) => {
     set({ isLoading: true, error: null });
     try {
-      // Implementation will be added
-      await new Promise(resolve => setTimeout(resolve, 100));
-      set({ isLoading: false });
-      return null;
+      const stored = (await sqliteStore.getChats()).find((c) => c.id === chatId);
+      if (!stored) {
+        set({ isLoading: false });
+        return null;
+      }
+      const next = { ...stored, ...patch };
+      await sqliteStore.saveChat(next);
+      set((state) => ({
+        chats: state.chats.map((c) => (c.id === chatId ? { ...c, ...patch } : c)),
+        isLoading: false,
+      }));
+      return next;
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : "Failed to update chat",
@@ -350,14 +365,22 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   setActiveNoteId: (id) => set({ activeNoteId: id }),
   createNote: async (title, content) => {
-    await sqliteStore.saveNote({ id: `note-${Date.now()}`, title, content, updatedAt: Date.now(), isDraft: false });
+    const note: Note = { id: `note-${Date.now()}`, title, content, updatedAt: Date.now(), isDraft: true };
+    await sqliteStore.saveNote(note);
+    set((state) => ({ notes: [note, ...state.notes], activeNoteId: note.id }));
   },
   updateNote: async (id, updates) => {
     const note = (await sqliteStore.getNotes()).find((n) => n.id === id);
     if (!note) return;
-    await sqliteStore.saveNote({ ...note, ...updates, updatedAt: Date.now() });
+    const next = { ...note, ...updates, updatedAt: Date.now() };
+    await sqliteStore.saveNote(next);
+    set((state) => ({ notes: state.notes.map((n) => (n.id === id ? next : n)) }));
   },
   deleteNote: async (id) => {
     await sqliteStore.deleteNote(id);
+    set((state) => ({
+      notes: state.notes.filter((n) => n.id !== id),
+      activeNoteId: state.activeNoteId === id ? null : state.activeNoteId,
+    }));
   },
 }));

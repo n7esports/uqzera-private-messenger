@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import {
-  CHAT_DISAPPEARING_TIMER_MS,
-  CHAT_DISAPPEARING_TIMER_OPTIONS,
   MAX_PINNED_CHATS,
   canPinChat,
   setChatDisappearingTimer,
@@ -174,7 +172,7 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
             left: menuPos ? `${menuPos.x}px` : undefined,
             right: menuPos ? undefined : "16px",
             width: "220px",
-            backgroundColor: "#0a1410",
+            backgroundColor: "#0d1117",
             border: "1px solid rgba(255, 255, 255, 0.1)",
             borderRadius: "12px",
             boxShadow: "0 10px 40px rgba(0, 0, 0, 0.8)",
@@ -287,38 +285,22 @@ export default function ChatMenu({ chatId, onClose, onCloseChat, buttonRef }: Ch
           </button>
           <div className="border-t border-border-default py-2">
             <p className="px-3 pb-1 text-xs text-text-secondary">Disappearing messages</p>
-            {CHAT_DISAPPEARING_TIMER_OPTIONS.map((option) => (
-              <button
-                key={option.label}
-                type="button"
-                role="menuitemradio"
-                aria-checked={
-                  (option.value === null && chat.disappearingMs === undefined) ||
-                  chat.disappearingMs === option.value
-                }
-                style={{
-                  padding: "10px 16px",
-                  fontSize: "14px",
-                  color: "#e5e7eb",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  background: "transparent",
-                  border: "none",
-                }}
-                className="hover:bg-white/10"
-                onClick={() => void chooseTimer(option.value)}
-              >
-                {option.label}
-              </button>
-            ))}
-            {chat.disappearingMs === CHAT_DISAPPEARING_TIMER_MS && (
-              <p className="px-3 pt-1 text-xs text-text-secondary">
-                Applies to messages in this chat.
-              </p>
-            )}
+            <div className="px-3 py-2">
+              <input
+                type="range"
+                min="0"
+                max="24"
+                step="1"
+                value={chat.disappearingMs ? chat.disappearingMs / 3600000 : 0}
+                onChange={(e) => void chooseTimer(Number(e.target.value) * 3600000)}
+                className="w-full accent-emerald-500"
+                aria-label="Disappearing messages timer"
+              />
+              <div className="flex justify-between text-xs text-text-secondary">
+                <span>Off</span>
+                <span>24 hours</span>
+              </div>
+            </div>
           </div>
           <button
             type="button"

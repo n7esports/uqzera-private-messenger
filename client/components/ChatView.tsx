@@ -13,6 +13,7 @@ import { SendIcon } from "./icons/outline/SendIcon";
 import IconClose from "./icons/ui/IconClose";
 import ChatMenu from "./chatList/ChatMenu";
 import PrivateNotesView from "./chat/PrivateNotesView";
+import ChatInfoModal from "./chat/ChatInfoModal";
 
 const EMPTY_MESSAGES: any = [];
 
@@ -42,16 +43,18 @@ export function ChatView({
   const broadcastTyping = useChatStore((state) => state.broadcastTyping);
   const replyTo = useChatStore((state) => state.replyTo);
   const setReplyTo = useChatStore((state) => state.setReplyTo);
+  const searchQuery = useChatStore((state) => state.searchQuery ?? "");
+  const setSearchQuery = useChatStore((state) => state.setSearchQuery);
 
   const [content, setContent] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-const [searchQuery, setSearchQuery] = useState("");
+  const [infoOpen, setInfoOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
 const moreButtonRef = useRef<HTMLButtonElement>(null);
   const chat = chatId ? chats.find((entry) => entry.id === chatId) ?? null : null;
-const filteredMessages = searchQuery.trim()
-  ? messages.filter((m: ChatMessage) => m.content.toLowerCase().includes(searchQuery.toLowerCase()))
-  : messages;
+const filteredMessages = messages.filter((m: ChatMessage) =>
+  m.content.toLowerCase().includes(searchQuery.toLowerCase()),
+);
 
   const handleSend = async () => {
     const text = content.trim();
@@ -106,6 +109,8 @@ const filteredMessages = searchQuery.trim()
     );
   }
 
+  if (chatId === "private-notes") return <PrivateNotesView />;
+
   return (
     <div className="flex h-full w-full flex-col relative bg-[#0d1117] border-l border-white/5">
       <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: "url('/doodle-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "300px 300px", opacity: 0.15 }} />
@@ -150,17 +155,27 @@ const filteredMessages = searchQuery.trim()
           >
             <SearchMessagesIcon width={18} height={18} />
           </button>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-lg text-text-secondary transition hover:bg-bg-hover"
+            title="Chat info"
+            aria-label="Chat info"
+            onClick={() => setInfoOpen(true)}
+          >
+            i
+          </button>
           <ChatMenu chatId={chatId!} onCloseChat={onBack} buttonRef={moreButtonRef} />
+          {infoOpen && <ChatInfoModal chat={chat} onClose={() => setInfoOpen(false)} />}
         </div>
       </header>
       {searchOpen && (
         <div className="px-4 py-2 border-b border-border">
           <input
             type="text"
-            placeholder="Search messages"
+            placeholder="Search messages..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-bg-panel text-text-primary px-3 py-1.5 rounded-lg outline-none"
+            className="w-full bg-[#161b22] text-white px-3 py-1.5 rounded-lg outline-none border border-white/10"
             autoFocus
           />
         </div>
@@ -223,18 +238,7 @@ const filteredMessages = searchQuery.trim()
       </div>
 
       {isPeerTyping && (
-        <div className="flex items-center gap-1 px-4 pb-1">
-          <span className="text-[10px] text-text-secondary">Peer is typing</span>
-          <span className="flex gap-0.5">
-            {[0, 150, 300].map((delay) => (
-              <span
-                key={delay}
-                className="h-1 w-1 animate-bounce rounded-full bg-text-secondary"
-                style={{ animationDelay: `${delay}ms` }}
-              />
-            ))}
-          </span>
-        </div>
+        <div className="text-xs text-emerald-400 px-4 py-1 animate-pulse">typing...</div>
       )}
 
       <div className="flex-shrink-0 border-t border-white/5 bg-[#0d1117]">
@@ -262,27 +266,23 @@ const filteredMessages = searchQuery.trim()
             <ClockPendingIcon width={16} height={16} />
           </button>
           <div className="flex-1 pr-4">
-            {chatId === 'private-notes' ? (
-              <PrivateNotesView />
-            ) : (
-              <textarea
-                value={content}
-                onChange={(event) => {
-                  setContent(event.target.value);
-                  broadcastTyping(chatId, true);
-                }}
-                aria-label="Message"
-                placeholder="Write encrypted message..."
-                rows={1}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" && !event.shiftKey) {
-                    event.preventDefault();
-                    void handleSend();
-                  }
-                }}
-                className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-[#111827] px-4 py-2 text-sm text-white placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-emerald-500"
-              />
-            )}
+            <textarea
+              value={content}
+              onChange={(event) => {
+                setContent(event.target.value);
+                broadcastTyping(chatId, true);
+              }}
+              aria-label="Message"
+              placeholder="Write encrypted message..."
+              rows={1}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && !event.shiftKey) {
+                  event.preventDefault();
+                  void handleSend();
+                }
+              }}
+              className="h-12 w-full resize-none rounded-[20px] border border-white/10 bg-[#161b22] px-4 py-2 text-sm text-white placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-white/20"
+            />
           </div>
           <button
             onClick={() => void handleSend()}
