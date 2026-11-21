@@ -28,7 +28,7 @@ export default function GuideConversation({
         </div>
       </header>
     <PrivacyBackdrop>
-      <div className="flex-1 overflow-y-auto no-scrollbar px-6 py-6">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 py-6">
         <div className="mx-auto w-full max-w-5xl">
           <p className="mb-6 rounded-xl border border-border bg-bg-panel p-4 text-sm leading-6 text-text-primary">
             {guideIntro}

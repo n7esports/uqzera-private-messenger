@@ -85,7 +85,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   removeDevice: (deviceId) => set((state) => ({ devices: state.devices.filter(d => d.id !== deviceId) })),
   panicShred: async () => {
     // Security: Wipe all data
-    await sqliteStore.clearStore(sqliteStore.db);
+    await sqliteStore.clearStore();
     set({
       chats: [],
       messagesMap: {},
@@ -116,7 +116,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   loadChats: async () => {
     try {
-      await sqliteStore.initSqliteStore();
+      const sessionStore = useSessionStore.getState();
+      if (!sessionStore.sessionEncryptionKey) {
+        throw new Error('Session encryption key is required for database initialization');
+      }
+      await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
       const chats = await sqliteStore.getChats();
       set({ chats, isLoading: false });
     } catch (error) {
@@ -130,7 +134,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   addContact: async (alias: string, recipientPubKey: string) => {
     set({ isLoading: true, error: null });
     try {
-      await sqliteStore.initSqliteStore();
+      const sessionStore = useSessionStore.getState();
+      if (!sessionStore.sessionEncryptionKey) {
+        throw new Error('Session encryption key is required for database initialization');
+      }
+      await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
       const newChat: ChatSummary = {
         id: `chat-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         recipientPubKey,
@@ -157,7 +165,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sendMessage: async (chatId: string, message: { content: string; attachment?: MessageAttachment }) => {
     set({ error: null });
     try {
-      await sqliteStore.initSqliteStore();
+      const sessionStore = useSessionStore.getState();
+      if (!sessionStore.sessionEncryptionKey) {
+        throw new Error('Session encryption key is required for database initialization');
+      }
+      await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
       const store = useChatStore.getState();
       const chat = store.chats.find(c => c.id === chatId);
       if (!chat) {
@@ -196,12 +208,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
   deleteChat: async (chatId: string) => {
     set({ isLoading: true, error: null });
     try {
-      await sqliteStore.initSqliteStore();
+      const sessionStore = useSessionStore.getState();
+      if (!sessionStore.sessionEncryptionKey) {
+        throw new Error('Session encryption key is required for database initialization');
+      }
+      await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
 
       set((state) => {
         const newMessagesMap = { ...state.messagesMap };
         delete newMessagesMap[chatId];
-
+        
         return {
           chats: state.chats.filter(c => c.id !== chatId),
           messagesMap: newMessagesMap,

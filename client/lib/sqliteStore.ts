@@ -3,107 +3,159 @@
 // @ts-ignore
 import initSqlJs from 'sql.js';
 
-let SqlJsStatic: any = null;
-
-async function ensureSqlJsLoaded(): Promise<any> {
-  if (SqlJsStatic) return SqlJsStatic;
-
-  try {
-    SqlJsStatic = await initSqlJs();
-    return SqlJsStatic;
-  } catch (error) {
-    throw new Error(`Failed to load sql.js: ${error}`);
-  }
-}
-
-interface DbInitOptions {
-  localtime?: boolean;
-  cacheSize?: number;
-  locations?: boolean;
-}
-
-// Default options for database initialization
-const defaultOptions: DbInitOptions = {
-  localtime: true,
-  cacheSize: -10000, // 10MB cache
-};
-
-// Cache the database instance per session
 let db: any = null;
-let dbLoading: Promise<void> | null = null;
+let dbLoadingPromise: Promise<void> | null = null;
 
-// Export the db instance for use by other modules
 export { db };
 
-export async function initSqliteStore(): Promise<void> {
-  if (db) return; // already initialized
-  if (dbLoading) return dbLoading; // avoid duplicate init
+async function deriveKeyFromPassphrase(passphrase: string, salt: Uint8Array): Promise<CryptoKey> {
+  const encoder = new TextEncoder();
+  const keyMaterial = encoder.encode(passphrase);
+  
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    keyMaterial,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits', 'deriveKey']
+  );
 
-  dbLoading = (async () => {
-    const SqlJs = await ensureSqlJsLoaded();
-    db = new SqlJs.Database(defaultOptions);
+  return await crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt as unknown as Uint8Array<ArrayBuffer>,
+      iterations: 600000,
+      hash: 'SHA-256',
+    },
+    baseKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
 
-    // Create tables
-    db.run(`
-      CREATE TABLE IF NOT EXISTS chats (
-        id TEXT PRIMARY KEY,
-        recipient_pub_key TEXT,
-        peer_signing_pub_key TEXT,
-        alias TEXT,
-        unread_count INTEGER,
-        updated_at INTEGER,
-        kind TEXT,
-        pinned INTEGER,
-        favorite INTEGER,
-        muted_until INTEGER,
-        muted_forever INTEGER,
-        disappearing_ms INTEGER,
-        theme TEXT,
-        list_id TEXT,
-        blocked INTEGER
-      )
-    `);
-    db.run(`
-      CREATE TABLE IF NOT EXISTS messages (
-        id TEXT PRIMARY KEY,
-        chat_id TEXT,
-        sender_pub_key TEXT,
-        content TEXT,
-        type TEXT,
-        status TEXT,
-        timestamp INTEGER,
-        outgoing INTEGER,
-        attachment TEXT,
-        ephemeral_timer INTEGER,
-        read_at INTEGER
-      )
-    `);
-    db.run(`
-      CREATE TABLE IF NOT EXISTS sessions (
-        id TEXT PRIMARY KEY,
-        remote_pub_key TEXT,
-        send_chain_key TEXT,
-        receive_chain_key TEXT,
-        send_counter INTEGER,
-        receive_counter INTEGER
-      )
-    `);
-    db.run(`
-      CREATE TABLE IF NOT EXISTS contacts (
-        id TEXT PRIMARY KEY,
-        data TEXT
-      )
-    `);
+async function encryptWithAES(key: CryptoKey, data: Uint8Array): Promise<{ iv: Uint8Array; salt: Uint8Array; ciphertext: Uint8Array }> {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const salt = crypto.getRandomValues(new Uint8Array(16));
 
-    // Store the database path in localStorage for persistence across sessions
-    if (typeof localStorage !== 'undefined') {
-      const buffer = Buffer.from(db.export());
-      localStorage.setItem('uqzera_sqlite_db_path', buffer.toString('base64'));
+  const encrypted = await crypto.subtle.encrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv as unknown as Uint8Array<ArrayBuffer>,
+      additionalData: salt as unknown as Uint8Array<ArrayBuffer>,
+    },
+    key,
+    data as unknown as Uint8Array<ArrayBuffer>
+  );
+
+  return { iv, salt, ciphertext: new Uint8Array(encrypted) };
+}
+
+async function decryptWithAES(key: CryptoKey, iv: Uint8Array, salt: Uint8Array, ciphertext: Uint8Array): Promise<Uint8Array> {
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: 'AES-GCM',
+      iv: iv as unknown as Uint8Array<ArrayBuffer>,
+      additionalData: salt as unknown as Uint8Array<ArrayBuffer>,
+    },
+    key,
+    ciphertext as unknown as Uint8Array<ArrayBuffer>
+  );
+  return new Uint8Array(decrypted);
+}
+
+export async function initSqliteStore(passphrase: string): Promise<void> {
+  if (db) return;
+  if (dbLoadingPromise) return dbLoadingPromise;
+
+  dbLoadingPromise = (async () => {
+    try {
+      const SQL = await initSqlJs({
+        locateFile: (file: string) => `https://sql.js.org/dist/${file}`
+      });
+      
+      const storedData = typeof localStorage !== 'undefined' ? localStorage.getItem('uqzera_sqlite_db_path') : null;
+
+      if (storedData) {
+        const buffer = Buffer.from(storedData, 'base64');
+        const iv = new Uint8Array(buffer.slice(0, 12));
+        const salt = new Uint8Array(buffer.slice(12, 28));
+        const ciphertext = new Uint8Array(buffer.slice(28));
+
+        const key = await deriveKeyFromPassphrase(passphrase, salt);
+        const decrypted = await decryptWithAES(key, iv, salt, ciphertext);
+        db = new SQL.Database(decrypted);
+      } else {
+        db = new SQL.Database();
+        // Initial Schema
+        db.run(`
+          CREATE TABLE IF NOT EXISTS chats (
+            id TEXT PRIMARY KEY,
+            recipient_pub_key TEXT,
+            peer_signing_pub_key TEXT,
+            alias TEXT,
+            unread_count INTEGER,
+            updated_at INTEGER,
+            kind TEXT,
+            pinned INTEGER,
+            favorite INTEGER,
+            muted_until INTEGER,
+            muted_forever INTEGER,
+            disappearing_ms INTEGER,
+            theme TEXT,
+            list_id TEXT,
+            blocked INTEGER
+          );
+          CREATE TABLE IF NOT EXISTS messages (
+            id TEXT PRIMARY KEY,
+            chat_id TEXT,
+            sender_pub_key TEXT,
+            content TEXT,
+            type TEXT,
+            status TEXT,
+            timestamp INTEGER,
+            outgoing INTEGER,
+            attachment TEXT,
+            ephemeral_timer INTEGER,
+            read_at INTEGER
+          );
+          CREATE TABLE IF NOT EXISTS sessions (
+            id TEXT PRIMARY KEY,
+            remote_pub_key TEXT,
+            send_chain_key TEXT,
+            receive_chain_key TEXT,
+            send_counter INTEGER,
+            receive_counter INTEGER
+          );
+          CREATE TABLE IF NOT EXISTS contacts (
+            id TEXT PRIMARY KEY,
+            data TEXT
+          );
+        `);
+        await persistToStorage(passphrase);
+      }
+    } catch (e) {
+      dbLoadingPromise = null;
+      throw e;
     }
   })();
 
-  await dbLoading;
-  dbLoading = null;
+  return dbLoadingPromise;
+}
+
+async function persistToStorage(passphrase: string) {
+  if (!db) return;
+  const binaryDb = db.export();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await deriveKeyFromPassphrase(passphrase, salt);
+  const { iv, ciphertext } = await encryptWithAES(key, binaryDb);
+  
+  const finalBuffer = Buffer.concat([
+    new Uint8Array(iv),
+    new Uint8Array(salt),
+    new Uint8Array(ciphertext)
+  ]);
+  localStorage.setItem('uqzera_sqlite_db_path', finalBuffer.toString('base64'));
 }
 
 export interface StoredChat {
@@ -138,15 +190,6 @@ export interface StoredMessage {
   readAt?: number;
 }
 
-export interface StoredSession {
-  id: string;
-  remotePubKey: string;
-  sendChainKey: string;
-  receiveChainKey: string;
-  sendCounter: number;
-  receiveCounter: number;
-}
-
 export async function saveChat(chat: StoredChat): Promise<void> {
   if (!db) throw new Error("Database not initialized");
   db.run(
@@ -160,9 +203,9 @@ export async function saveChat(chat: StoredChat): Promise<void> {
       chat.updatedAt,
       chat.kind,
       chat.pinned ? 1 : 0,
-      chat.favorite ?? 0,
+      chat.favorite ? 1 : 0,
       chat.mutedUntil ?? 0,
-      chat.mutedForever ?? 0,
+      chat.mutedForever ? 1 : 0,
       chat.disappearingMs ?? 0,
       chat.theme ?? '',
       chat.listId ?? '',
@@ -173,26 +216,25 @@ export async function saveChat(chat: StoredChat): Promise<void> {
 
 export async function getChats(): Promise<StoredChat[]> {
   if (!db) throw new Error("Database not initialized");
-  const result = db.exec(
-    `SELECT * FROM chats ORDER BY updated_at DESC`
-  );
-  const rows = result[0].values;
-  return rows.map((row: any[]) => ({
+  const result = db.exec(`SELECT * FROM chats ORDER BY updated_at DESC`);
+  if (!result || result.length === 0) return [];
+  
+  return result[0].values.map((row: any[]) => ({
     id: row[0],
     recipientPubKey: row[1],
-    peerSigningPubKey: row[2] || undefined,
+    peerSigningPubKey: row[2],
     alias: row[3],
     unreadCount: row[4],
     updatedAt: row[5],
-    kind: row[6] as 'direct' | 'system' | 'notes',
-    pinned: row[7] === 1,
-    favorite: row[8] === 1,
-    mutedUntil: row[9] || undefined,
-    mutedForever: row[10] || undefined,
-    disappearingMs: row[11] || undefined,
-    theme: row[12] || undefined,
-    listId: row[13] || undefined,
-    blocked: row[14] === 1,
+    kind: row[6],
+    pinned: !!row[7],
+    favorite: !!row[8],
+    mutedUntil: row[9],
+    mutedForever: !!row[10],
+    disappearingMs: row[11],
+    theme: row[12],
+    listId: row[13],
+    blocked: !!row[14],
   }));
 }
 
@@ -209,7 +251,7 @@ export async function saveMessage(message: StoredMessage): Promise<void> {
       message.status,
       message.timestamp,
       message.outgoing ? 1 : 0,
-      message.attachment ? JSON.stringify(message.attachment) : undefined,
+      message.attachment ? JSON.stringify(message.attachment) : null,
       message.ephemeralTimer ?? 0,
       message.readAt ?? 0,
     ]
@@ -218,116 +260,26 @@ export async function saveMessage(message: StoredMessage): Promise<void> {
 
 export async function getMessagesForChat(chatId: string): Promise<StoredMessage[]> {
   if (!db) throw new Error("Database not initialized");
-  const result = db.exec(
-    `SELECT * FROM messages WHERE chat_id = ? ORDER BY timestamp ASC`,
-    [chatId]
-  );
-  const rows = result[0].values;
-  return rows.map((row: any[]) => ({
+  const result = db.exec(`SELECT * FROM messages WHERE chat_id = ? ORDER BY timestamp ASC`, [chatId]);
+  if (!result || result.length === 0) return [];
+
+  return result[0].values.map((row: any[]) => ({
     id: row[0],
     chatId: row[1],
     senderPubKey: row[2],
     content: row[3],
     type: row[4],
-    status: row[5] as 'queued' | 'relayAccepted' | 'sent' | 'delivered' | 'read',
+    status: row[5],
     timestamp: row[6],
-    outgoing: row[7] === 1,
-    attachment: row[8] ? JSON.parse(row[8]) : undefined,
-    ephemeralTimer: row[9] || 0,
-    readAt: row[10] || 0,
+    outgoing: !!row[7],
+    attachment: row[8] ? JSON.parse(row[8]) : null,
+    ephemeralTimer: row[9],
+    readAt: row[10],
   }));
 }
 
-export async function updateMessage(id: string, patch: Partial<StoredMessage>): Promise<void> {
-  const updates: string[] = [];
-  const values: any[] = [id];
-
-  if (patch.content !== undefined) {
-    updates.push(`content = ?`);
-    values.push(patch.content);
-  }
-  if (patch.status !== undefined) {
-    updates.push(`status = ?`);
-    values.push(patch.status);
-  }
-  if (patch.readAt !== undefined) {
-    updates.push(`read_at = ?`);
-    values.push(patch.readAt);
-  }
-  if (patch.ephemeralTimer !== undefined) {
-    updates.push(`ephemeral_timer = ?`);
-    values.push(patch.ephemeralTimer);
-  }
-
-  if (updates.length > 0) {
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
-    values.push(`updated_at`);
-    const query = `UPDATE messages SET ${updates.join(', ')} WHERE id = ?`;
-    db.run(query, values);
-  }
-}
-
-export async function deleteMessages(ids: string[]): Promise<void> {
-  if (ids.length === 0) return;
-
-  for (const id of ids) {
-    db.run(`DELETE FROM messages WHERE id = ?`, [id]);
-  }
-}
-
-export async function saveSession(db: any, session: StoredSession): Promise<void> {
-  db.run(
-    `INSERT OR REPLACE INTO sessions (id, remote_pub_key, send_chain_key, receive_chain_key, send_counter, receive_counter) VALUES (?, ?, ?, ?, ?, ?)`,
-    [
-      session.id,
-      session.remotePubKey,
-      session.sendChainKey,
-      session.receiveChainKey,
-      session.sendCounter,
-      session.receiveCounter,
-    ]
-  );
-}
-
-export async function getSession(id: string): Promise<StoredSession | undefined> {
-  const result = db.exec(
-    `SELECT * FROM sessions WHERE id = ?`,
-    [id]
-  );
-  const rows = result[0].values;
-  if (rows.length === 0) return undefined;
-  const row = rows[0];
-  return {
-    id: row[0],
-    remotePubKey: row[1],
-    sendChainKey: row[2],
-    receiveChainKey: row[3],
-    sendCounter: row[4],
-    receiveCounter: row[5],
-  };
-}
-
-export async function saveContact(db: any, contact: any): Promise<void> {
-  const data = JSON.stringify(contact);
-  db.run(
-    `INSERT OR REPLACE INTO contacts (id, data) VALUES (?, ?)`,
-    [contact.id || Date.now().toString(), data]
-  );
-}
-
-export async function getContact(db: any, id: string): Promise<any> {
-  const result = db.exec(
-    `SELECT * FROM contacts WHERE id = ?`,
-    [id]
-  );
-  const rows = result[0].values;
-  if (rows.length === 0) return undefined;
-  return JSON.parse(rows[0][1]);
-}
-
-export async function clearStore(db: any): Promise<void> {
-  db.run(`DELETE FROM chats`);
-  db.run(`DELETE FROM messages`);
-  db.run(`DELETE FROM sessions`);
-  db.run(`DELETE FROM contacts`);
+export async function clearStore(): Promise<void> {
+  if (!db) return;
+  db.run("DELETE FROM chats; DELETE FROM messages; DELETE FROM sessions; DELETE FROM contacts;");
+  localStorage.removeItem('uqzera_sqlite_db_path');
 }

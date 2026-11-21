@@ -9,7 +9,7 @@ export default function BoxQRCode({ payload, size = 256 }: { payload: string; si
 
   useEffect(() => {
     if (!payload) return;
-    QRCode.toString(payload, { type: "svg", width: size, margin: 1 }, (err, string) => {
+    QRCode.toString(payload, { type: "svg", width: size, margin: 1, color: { dark: '#10B981', light: '#0a1410' } }, (err, string) => {
       if (!err && string) {
         setSvgString(string);
       }
@@ -20,11 +20,11 @@ export default function BoxQRCode({ payload, size = 256 }: { payload: string; si
   const circleSize = size * 0.28;
 
   return (
-    <div className="relative inline-block overflow-hidden rounded-xl bg-white" style={{ width: size, height: size }}>
+    <div className="relative inline-block overflow-hidden rounded-xl bg-[#0a1410] p-4 border border-emerald-500/20" style={{ width: size, height: size }}>
       {svgString ? (
-        <div 
-          className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full" 
-          dangerouslySetInnerHTML={{ __html: svgString }} 
+        <div
+          className="w-full h-full flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
+          dangerouslySetInnerHTML={{ __html: svgString }}
         />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-xs text-on-surface-variant">Generating QR...</div>

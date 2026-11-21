@@ -40,8 +40,10 @@ export default function LinkedDevices({
         <p className="mt-1 text-xs text-outline">
           Scan the QR code with Cloak on your phone, or enter the pairing code below.
         </p>
-        <div className="mt-4 flex flex-col items-center gap-3">
-          <BoxQRCode payload={pairingCode} size={180} />
+        <div className="bg-[#0a1410] p-4 rounded-xl border border-emerald-500/20 mt-4 flex flex-col items-center gap-3">
+          <div className="bg-[#0a1410] p-4 rounded-xl border border-emerald-500/20">
+            <BoxQRCode payload={pairingCode} size={180} />
+          </div>
           <div className="flex items-center gap-2">
             <span className="font-mono text-lg tracking-[0.3em] text-accent-emerald">
               {pairingCode.slice(0, 3)}-{pairingCode.slice(3)}

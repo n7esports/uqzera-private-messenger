@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import {
   useChatStore,
   type ChatState,
@@ -62,7 +63,7 @@ export default function ChatList({
   );
   const deleteChat = useChatStore((state: ChatState) => state.deleteChat);
   const [guideConfirmed, setGuideConfirmed] = useState(false);
-const [menuChatId, setMenuChatId] = useState<string | null>(null);
+  const [menuChatId, setMenuChatId] = useState<string | null>(null);
   useEffect(() => {
     if (typeof window !== "undefined") {
       setGuideConfirmed(localStorage.getItem("uqzera.guide.confirmed") === "1");
@@ -188,7 +189,12 @@ const [menuChatId, setMenuChatId] = useState<string | null>(null);
           if (longPressTimer.current) clearTimeout(longPressTimer.current);
         }}
       >
-        <div className="flex items-center pr-2">
+        <motion.div
+          className="flex items-center pr-2"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.2 }}
+        >
           <button
             type="button"
             onClick={() => { if (longPressFired.current) { longPressFired.current = false; return; } selectChat(chat.id); }}
@@ -241,7 +247,7 @@ const [menuChatId, setMenuChatId] = useState<string | null>(null);
             </span>
           </button>
 
-        </div>
+        </motion.div>
         {menuOpen && (
           <div
             role="group"
@@ -307,7 +313,7 @@ const [menuChatId, setMenuChatId] = useState<string | null>(null);
         ref={listRef}
       role="region"
       aria-label="Chat list"
-      className="flex-1 overflow-y-auto no-scrollbar"
+      className="flex-1 min-h-0 overflow-y-auto custom-scrollbar"
     >
       <ul>
 {!guideConfirmed && (
