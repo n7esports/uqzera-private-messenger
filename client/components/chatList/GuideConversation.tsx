@@ -30,7 +30,7 @@ export default function GuideConversation({
     <PrivacyBackdrop>
       <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 py-6 bg-[#0a1410]">
         <div className="mx-auto w-full max-w-5xl">
-          <p className="mb-6 rounded-xl border border-white/15 bg-[#111827] p-4 text-sm leading-6 text-gray-200">
+          <p className="mb-6 rounded-xl border border-white/10 bg-[#111827] p-4 text-sm leading-6 text-gray-400">
             {guideIntro}
           </p>
           <div className="space-y-6">

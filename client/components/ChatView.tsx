@@ -106,10 +106,10 @@ const filteredMessages = searchQuery.trim()
   }
 
   return (
-    <div className="flex h-full w-full flex-col relative bg-surface">
+    <div className="flex h-full w-full flex-col relative bg-[#0a1410] border-l border-white/5">
       <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: "url('/doodle-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "300px 300px", opacity: 0.15 }} />
       <header
-        className="flex h-14 items-center justify-between border-b border-border sidebar-glass px-4"
+        className="flex h-14 items-center justify-between border-b border-white/5 px-4"
         onContextMenu={(e) => {
           e.preventDefault();
           moreButtonRef.current?.click();
@@ -236,17 +236,17 @@ const filteredMessages = searchQuery.trim()
         </div>
       )}
 
-      <div className="flex-shrink-0 border-t border-border bg-bg-sidebar glass-strong">
+      <div className="flex-shrink-0 border-t border-white/5 bg-[#0a1410]">
         {replyTo && (
-          <div className="flex items-center gap-2 border-b border-border bg-bg-sidebar px-4 py-2">
+          <div className="flex items-center gap-2 border-b border-white/5 bg-[#111827] px-4 py-2">
             <IconReply size={14} />
-            <span className="flex-1 truncate text-xs text-text-secondary">
+            <span className="flex-1 truncate text-xs text-gray-400">
               Replying to {replyTo.alias}: {replyTo.excerpt}
             </span>
             <button
               onClick={() => setReplyTo(null)}
               aria-label="Cancel reply"
-              className="rounded p-1 hover:bg-bg-hover"
+              className="rounded p-1 hover:bg-white/5"
             >
               <IconClose width={14} height={14} />
             </button>
@@ -256,7 +256,7 @@ const filteredMessages = searchQuery.trim()
           <button
             onClick={cycleEphemeralTtl}
             title="Ephemeral TTL"
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-text-secondary transition hover:bg-bg-hover"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition hover:bg-white/5"
           >
             <ClockPendingIcon width={16} height={16} />
           </button>
@@ -275,13 +275,13 @@ const filteredMessages = searchQuery.trim()
                 void handleSend();
               }
             }}
-            className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-bg-panel px-4 py-2 text-sm text-text-primary placeholder:text-text-secondary outline-none focus:ring-2 focus:ring-accent"
+            className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-[#111827] px-4 py-2 text-sm text-white placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-emerald-500"
           />
           <button
             onClick={() => void handleSend()}
             disabled={!content.trim()}
             aria-label="Send message"
-            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-accent-emerald/20 text-accent-emerald transition hover:bg-accent-emerald/40 disabled:opacity-40"
+            className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-500 transition hover:bg-emerald-500/40 disabled:opacity-40"
           >
             <SendIcon width={20} height={20} />
           </button>
