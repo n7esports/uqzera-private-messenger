@@ -69,22 +69,24 @@ export default function PrivateNotesView() {
         transition={{ duration: 0.3 }}
         className="flex flex-col h-full w-full bg-[#0d1117]"
       >
-        <div className="flex items-center gap-4 px-4 py-2 border-b border-white/10 bg-[#161b22]">
-          <button
-            type="button"
-            onClick={() => switchTab("drafts")}
-            className={`text-sm ${activeTab === "drafts" ? "text-emerald-400" : "text-gray-400 hover:text-white"}`}
-          >
-            Drafts
-          </button>
-          <button
-            type="button"
-            onClick={() => switchTab("saved")}
-            className={`text-sm ${activeTab === "saved" ? "text-emerald-400" : "text-gray-400 hover:text-white"}`}
-          >
-            Saved
-          </button>
-          <div className="ml-auto flex gap-2">
+        <div className="flex items-center justify-between px-6 py-3 border-b border-white/10">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => switchTab("drafts")}
+              className={`text-sm ${activeTab === "drafts" ? "text-emerald-400" : "text-gray-400 hover:text-white"}`}
+            >
+              Drafts
+            </button>
+            <button
+              type="button"
+              onClick={() => switchTab("saved")}
+              className={`text-sm ${activeTab === "saved" ? "text-emerald-400" : "text-gray-400 hover:text-white"}`}
+            >
+              Saved
+            </button>
+          </div>
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={handleNewNote}
@@ -95,7 +97,7 @@ export default function PrivateNotesView() {
             <button
               type="button"
               onClick={handleExport}
-              className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded"
+              className="text-xs bg-white/10 text-white px-2 py-1 rounded"
             >
               Export
             </button>
@@ -123,7 +125,7 @@ export default function PrivateNotesView() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Start typing..."
-            className="flex-1 bg-transparent text-gray-300 outline-none w-full resize-none"
+            className="flex-1 bg-transparent text-gray-300 outline-none w-full resize-none overflow-y-auto custom-scrollbar"
           />
         </div>
       </motion.div>

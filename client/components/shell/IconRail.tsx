@@ -38,14 +38,15 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
         type="button" aria-label="Private Notes" 
         onClick={() => { if (privateNotesId) setActiveChat(privateNotesId); else setActiveChat("private-notes"); }} 
         className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-          activeChatId === privateNotesId || activeChatId === "private-notes" ? "bg-emerald-500/10 text-emerald-400" : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
+          (privateNotesId !== null && activeChatId === privateNotesId) || activeChatId === "private-notes"
+            ? "bg-emerald-500/10 text-emerald-400" : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
         }`}
       >
         <DocumentIcon width={20} height={20} />
       </button>
 
       {/* MOVED LOGO (Below Notes) */}
-      <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2 my-4">
+      <div className="bg-[#060c09] rounded-xl p-2">
         <Image src="/keyhole-512.png" alt="UQZERA" width={28} height={28} className="h-7 w-7 object-contain text-[#34D399]" />
       </div>
       
