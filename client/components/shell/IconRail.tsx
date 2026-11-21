@@ -48,9 +48,12 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
       <button 
         type="button" 
         aria-label="Private Notes" 
-        onClick={() => { if (privateNotesId) setActiveChat(privateNotesId); }} 
+        onClick={() => {
+          if (privateNotesId) setActiveChat(privateNotesId);
+          else setActiveChat("private-notes");
+        }} 
         className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-          privateNotesId !== null && activeChatId === privateNotesId
+          activeChatId === (privateNotesId ?? "private-notes")
             ? "bg-emerald-500/10 text-emerald-400"
             : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
         }`}

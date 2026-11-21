@@ -45,6 +45,7 @@ export function ChatView({
   const setReplyTo = useChatStore((state) => state.setReplyTo);
   const searchQuery = useChatStore((state) => state.searchQuery ?? "");
   const setSearchQuery = useChatStore((state) => state.setSearchQuery);
+  const activeChatId = useChatStore((state) => state.activeChatId);
 
   const [content, setContent] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
@@ -89,6 +90,10 @@ const filteredMessages = messages.filter((m: ChatMessage) =>
     bottomRef.current?.scrollIntoView?.({ behavior: "smooth" });
   }, [messages.length, isPeerTyping]);
 
+  if (activeChatId === "private-notes" || chatId === "private-notes") {
+    return <PrivateNotesView />;
+  }
+
   if (!chatId || !chat) {
     return (
       <div className="flex h-full w-full items-center justify-center bg-surface">
@@ -108,8 +113,6 @@ const filteredMessages = messages.filter((m: ChatMessage) =>
       </div>
     );
   }
-
-  if (chatId === "private-notes") return <PrivateNotesView />;
 
   return (
     <div className="flex h-full w-full flex-col relative bg-[#0d1117] border-l border-white/5">
