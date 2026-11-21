@@ -12,6 +12,7 @@ import { SearchMessagesIcon } from "./icons/outline/SearchMessagesIcon";
 import { SendIcon } from "./icons/outline/SendIcon";
 import IconClose from "./icons/ui/IconClose";
 import ChatMenu from "./chatList/ChatMenu";
+import PrivateNotesView from "./chat/PrivateNotesView";
 
 const EMPTY_MESSAGES: any = [];
 
@@ -106,7 +107,7 @@ const filteredMessages = searchQuery.trim()
   }
 
   return (
-    <div className="flex h-full w-full flex-col relative bg-[#0a1410] border-l border-white/5">
+    <div className="flex h-full w-full flex-col relative bg-[#0d1117] border-l border-white/5">
       <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: "url('/doodle-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "300px 300px", opacity: 0.15 }} />
       <header
         className="flex h-14 items-center justify-between border-b border-white/5 px-4"
@@ -236,7 +237,7 @@ const filteredMessages = searchQuery.trim()
         </div>
       )}
 
-      <div className="flex-shrink-0 border-t border-white/5 bg-[#0a1410]">
+      <div className="flex-shrink-0 border-t border-white/5 bg-[#0d1117]">
         {replyTo && (
           <div className="flex items-center gap-2 border-b border-white/5 bg-[#111827] px-4 py-2">
             <IconReply size={14} />
@@ -260,23 +261,29 @@ const filteredMessages = searchQuery.trim()
           >
             <ClockPendingIcon width={16} height={16} />
           </button>
-          <textarea
-            value={content}
-            onChange={(event) => {
-              setContent(event.target.value);
-              broadcastTyping(chatId, true);
-            }}
-            aria-label="Message"
-            placeholder="Write encrypted message..."
-            rows={1}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && !event.shiftKey) {
-                event.preventDefault();
-                void handleSend();
-              }
-            }}
-            className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-[#111827] px-4 py-2 text-sm text-white placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-emerald-500"
-          />
+          <div className="flex-1 pr-4">
+            {chatId === 'private-notes' ? (
+              <PrivateNotesView />
+            ) : (
+              <textarea
+                value={content}
+                onChange={(event) => {
+                  setContent(event.target.value);
+                  broadcastTyping(chatId, true);
+                }}
+                aria-label="Message"
+                placeholder="Write encrypted message..."
+                rows={1}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    void handleSend();
+                  }
+                }}
+                className="h-12 flex-1 resize-none rounded-[20px] border-0 bg-[#111827] px-4 py-2 text-sm text-white placeholder:text-gray-500 outline-none focus:ring-1 focus:ring-emerald-500"
+              />
+            )}
+          </div>
           <button
             onClick={() => void handleSend()}
             disabled={!content.trim()}

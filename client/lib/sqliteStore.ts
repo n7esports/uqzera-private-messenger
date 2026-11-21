@@ -131,6 +131,13 @@ export async function initSqliteStore(passphrase: string): Promise<void> {
             id TEXT PRIMARY KEY,
             data TEXT
           );
+          CREATE TABLE IF NOT EXISTS notes (
+            id TEXT PRIMARY KEY,
+            title TEXT,
+            content TEXT,
+            updatedAt INTEGER,
+            isDraft INTEGER
+          );
         `);
         await persistToStorage(passphrase);
       }
@@ -280,6 +287,41 @@ export async function getMessagesForChat(chatId: string): Promise<StoredMessage[
 
 export async function clearStore(): Promise<void> {
   if (!db) return;
-  db.run("DELETE FROM chats; DELETE FROM messages; DELETE FROM sessions; DELETE FROM contacts;");
+  db.run("DELETE FROM chats; DELETE FROM messages; DELETE FROM sessions; DELETE FROM contacts; DELETE FROM notes;");
   localStorage.removeItem('uqzera_sqlite_db_path');
+}
+
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  updatedAt: number;
+  isDraft: boolean;
+}
+
+export async function saveNote(note: Note): Promise<void> {
+  if (!db) throw new Error("Database not initialized");
+  db.run(
+    `INSERT OR REPLACE INTO notes (id, title, content, updatedAt, isDraft) VALUES (?, ?, ?, ?, ?)`,
+    [note.id, note.title, note.content, note.updatedAt, note.isDraft ? 1 : 0]
+  );
+  // Optional: Add a call to persistToStorage(passphrase) here if needed
+}
+
+export async function getNotes(): Promise<Note[]> {
+  if (!db) throw new Error("Database not initialized");
+  const result = db.exec(`SELECT * FROM notes ORDER BY updatedAt DESC`);
+  if (!result || result.length === 0) return [];
+  return result[0].values.map((row: any[]) => ({
+    id: row[0],
+    title: row[1],
+    content: row[2],
+    updatedAt: row[3],
+    isDraft: !!row[4],
+  }));
+}
+
+export async function deleteNote(id: string): Promise<void> {
+  if (!db) throw new Error("Database not initialized");
+  db.run("DELETE FROM notes WHERE id = ?", [id]);
 }

@@ -51,6 +51,13 @@ export interface ChatState {
   ensurePrivateNotes: () => Promise<ChatSummary>;
   updateChat: (chatId: string, patch: Partial<ChatSummary>) => Promise<ChatSummary | null>;
   clearChatMessages: (chatId: string) => Promise<void>;
+
+  // Notes actions
+  activeNoteId: string | null;
+  setActiveNoteId: (id: string | null) => void;
+  createNote: (title: string, content: string) => Promise<void>;
+  updateNote: (id: string, updates: { title?: string, content?: string }) => Promise<void>;
+  deleteNote: (id: string) => Promise<void>;
 }
 
 export const startChatServices = async () => {
@@ -71,6 +78,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isLoading: false,
   error: null,
   ephemeralTtl: 0,
+  activeNoteId: null,
 
   channels: [],
   devices: [],
@@ -338,5 +346,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
       delete messagesMap[chatId];
       return { messagesMap, isLoading: false };
     });
+  },
+
+  setActiveNoteId: (id) => set({ activeNoteId: id }),
+  createNote: async (title, content) => {
+    await sqliteStore.saveNote({ id: `note-${Date.now()}`, title, content, updatedAt: Date.now(), isDraft: false });
+  },
+  updateNote: async (id, updates) => {
+    const note = (await sqliteStore.getNotes()).find((n) => n.id === id);
+    if (!note) return;
+    await sqliteStore.saveNote({ ...note, ...updates, updatedAt: Date.now() });
+  },
+  deleteNote: async (id) => {
+    await sqliteStore.deleteNote(id);
   },
 }));

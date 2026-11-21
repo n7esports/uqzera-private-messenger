@@ -10,8 +10,8 @@ export default function GuideConversation({
   onBack?: () => void;
 }) {
   return (
-    <article className="flex h-full w-full flex-col bg-[#0a1410]">
-      <header className="flex items-center gap-3 border-b border-white/5 px-6 py-4 bg-[#0a1410]">
+    <article className="flex h-full w-full flex-col bg-[#0d1117]">
+      <header className="flex items-center gap-3 border-b border-white/5 px-6 py-4 bg-[#0d1117]">
         {onBack && (
           <button
             type="button"
@@ -28,9 +28,9 @@ export default function GuideConversation({
         </div>
       </header>
     <PrivacyBackdrop>
-      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 py-6 bg-[#0a1410]">
+      <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-6 py-6 bg-[#0d1117]">
         <div className="mx-auto w-full max-w-5xl">
-          <p className="mb-6 rounded-xl border border-white/10 bg-[#111827] p-4 text-sm leading-6 text-gray-400">
+          <p className="mb-6 rounded-xl border border-white/10 bg-[#161b22] p-4 text-sm leading-6 text-gray-400">
             {guideIntro}
           </p>
           <div className="space-y-6">
@@ -48,7 +48,7 @@ export default function GuideConversation({
                     return (
                       <article
                         key={item.title}
-                        className="rounded-xl border border-white/10 p-4 bg-[#111827] shadow-sm"
+                        className="rounded-xl border border-white/10 p-4 bg-[#161b22] shadow-sm"
                       >
                         <div className="flex items-center gap-2">
                           <ItemIcon
@@ -68,7 +68,7 @@ export default function GuideConversation({
               </section>
             ))}
           </div>
-          <div className="mt-6 rounded-xl border border-white/10 bg-[#111827] p-4">
+          <div className="mt-6 rounded-xl border border-white/10 bg-[#161b22] p-4">
             <h2 className="text-sm font-semibold text-white">
               {guideOutro.title}
             </h2>

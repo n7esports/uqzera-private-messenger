@@ -17,7 +17,7 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
     alias.split(/\s+/).map((word) => word[0]).join("").slice(0, 2).toUpperCase() || "?";
 
   return (
-    <nav className={`flex flex-col items-center gap-1 py-4 h-screen w-16 bg-[#0a1410] border-r border-white/5 ${className || ""}`} aria-label="Icon rail">
+    <nav className={`flex flex-col items-center gap-1 py-4 h-screen w-16 bg-[#0d1117] border-r border-white/5 ${className || ""}`} aria-label="Icon rail">
       {/* Logo */}
       <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2 mb-2">
         <Image src="/keyhole-512.png" alt="UQZERA" width={32} height={32} className="h-8 w-8 object-contain text-[#34D399]" />
