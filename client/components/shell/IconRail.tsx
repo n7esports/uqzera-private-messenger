@@ -36,7 +36,7 @@ export default function IconRail({ onSearchClick, onOpenSettings, className }: {
         aria-label="Chats" 
         onClick={() => setActiveChat(null)} 
         className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 ${
-          activeChatId !== privateNotesId 
+          activeChatId === null 
             ? "bg-emerald-500/10 text-emerald-400" 
             : "text-gray-400 hover:bg-white/5 hover:text-emerald-400"
         }`}
