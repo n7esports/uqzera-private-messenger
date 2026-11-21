@@ -122,7 +122,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
       await sqliteStore.initSqliteStore(sessionStore.sessionEncryptionKey.toString());
       const chats = await sqliteStore.getChats();
-      set({ chats, isLoading: false });
+      const privateNotesChat = await get().ensurePrivateNotes();
+      set({ chats: [...chats, privateNotesChat], isLoading: false });
     } catch (error) {
       set({
         error: error instanceof Error ? error.message : "Failed to load chats",
