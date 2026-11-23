@@ -60,19 +60,16 @@ export default function AppShell({
 
       {/* Search bar */}
       <div className="pb-2">
-        <div className="flex h-8 items-center gap-2 rounded-full border border-white/[0.07] bg-[#121824] px-3 py-1.5">
-          <SearchChatsIcon
-            size={16}
-            className="text-text-secondary"
-          />
-          <input
+        <div className="flex items-center gap-2 bg-[#161b22] border border-white/10 rounded-lg px-3 py-2">
+          <SearchChatsIcon width={16} height={16} className="text-gray-400" />
+          <input 
             ref={searchInputRef}
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search or start new chat"
-            aria-label="Search chats and messages"
-            className="w-full box-border bg-transparent text-xs text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-accent"
+            type="text" 
+            value={searchQuery} 
+            onChange={(e) => setSearchQuery(e.target.value)} 
+            placeholder="Search or start new chat" 
+            aria-label="Search chats and messages" 
+            className="bg-transparent text-white text-sm outline-none w-full placeholder:text-gray-500" 
           />
         </div>
       </div>

@@ -314,7 +314,7 @@ export default function ChatList({
         ref={listRef}
       role="region"
       aria-label="Chat list"
-      className="flex-1 min-h-0 overflow-y-auto px-2.5 space-y-1 custom-scrollbar bg-[#0F131C]"
+      className="flex-1 min-h-0 overflow-y-auto px-2.5 space-y-1 custom-scrollbar bg-[#0a1410]"
     >
       <ul>
         {pinnedChats.map(renderChat)}

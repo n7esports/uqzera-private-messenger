@@ -29,11 +29,15 @@ export default function IconRail({ onOpenSettings, onOpenContacts, contactsActiv
   const notesActive = (activeChatId === privateNotesId && privateNotesId !== null) || activeChatId === "private-notes";
   const itemClass = (active: boolean) =>
     `flex h-10 w-10 items-center justify-center rounded-xl transition-colors ${
-      active ? "bg-[#10B981]/10 text-[#10B981]" : "text-slate-400 hover:bg-white/5 hover:text-white"
+      active ? "bg-emerald-500/10 text-emerald-400" : "text-gray-400 hover:text-emerald-400 hover:bg-white/5"
     }`;
 
   return (
-    <nav className={`w-16 shrink-0 flex flex-col items-center py-3 h-full border-r border-white/[0.07] bg-[#0d1117] ${className || ""}`} aria-label="Icon rail">
+    <nav className={`w-16 shrink-0 flex flex-col items-center py-3 h-full border-r border-white/5 bg-[#0a1410] ${className || ""}`} aria-label="Icon rail">
+      <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2 my-4">
+        <Image src="/keyhole-512.png" alt="UQZERA" width={28} height={28} className="h-7 w-7 object-contain text-[#34D399]" />
+      </div>
+
       <div className="flex flex-col items-center gap-1 py-3">
         <button
           type="button"
@@ -42,7 +46,7 @@ export default function IconRail({ onOpenSettings, onOpenContacts, contactsActiv
           onClick={() => { setActiveChat(null); setGuideActive(false); }}
           className={itemClass(!guideActive && !notesActive && activeChatId === null)}
         >
-          <ChatBubbleIcon size={20} />
+          <ChatBubbleIcon width={20} height={20} />
         </button>
         <button
           type="button"
@@ -76,12 +80,8 @@ export default function IconRail({ onOpenSettings, onOpenContacts, contactsActiv
           }}
           className={itemClass(!guideActive && notesActive)}
         >
-          <DocumentIcon size={20} />
+          <DocumentIcon width={20} height={20} />
         </button>
-        <div className="flex h-10 w-10 items-center justify-center">
-          <Image src="/keyhole-512.png" alt="UQZERA" width={24} height={24} className="h-6 w-6 object-contain" priority />
-        </div>
-        <div className="my-1 h-px w-8 bg-border" />
         <button
           type="button"
           aria-label="Guide"
@@ -89,24 +89,24 @@ export default function IconRail({ onOpenSettings, onOpenContacts, contactsActiv
           onClick={() => setGuideActive(true)}
           className={itemClass(guideActive)}
         >
-          <BookIcon size={20} />
+          <BookIcon width={20} height={20} />
         </button>
       </div>
 
-      <div className="mt-auto flex flex-col items-center gap-2 border-t border-white/[0.07] py-4">
+      <div className="mt-auto flex flex-col items-center gap-2 border-t border-white/5 py-4">
         <button
           type="button"
           onClick={onOpenSettings}
           aria-label="Settings"
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-400 transition-colors hover:bg-white/5 hover:text-emerald-400"
         >
-          <SettingsProfileIcon size={20} />
+          <SettingsProfileIcon width={20} height={20} />
         </button>
         <button
           type="button"
           onClick={onOpenSettings}
           aria-label="Profile"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-xs font-medium text-slate-200"
+          className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-xs font-medium text-slate-200 hover:text-emerald-400"
         >
           {initials("UQZERA")}
         </button>
