@@ -46,7 +46,7 @@ export default function AppShell({
     <>
     <div className="flex h-screen w-screen overflow-hidden bg-[#0A0D14]">
       <IconRail onOpenContacts={onAddContactRequest} contactsActive={contactsActive} onOpenSettings={() => setIsSettingsOpen(true)} className="hidden md:flex w-16 shrink-0" />
-      <aside aria-label="Chats sidebar" className="hidden h-full w-64 shrink-0 flex-col overflow-hidden border-r border-white/[0.07] bg-[#0d1117] md:flex">
+      <aside aria-label="Chats sidebar" className="hidden h-full w-80 shrink-0 flex-col overflow-hidden border-r border-white/[0.07] bg-[#0d1117] md:flex">
         {!notesActive && (
         <>
         <div className="px-4 pt-4 pb-3 shrink-0">
