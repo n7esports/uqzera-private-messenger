@@ -25,6 +25,10 @@ export interface ChatState {
   ephemeralTtl: number;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
+  guideActive: boolean;
+  setGuideActive: (active: boolean) => void;
+  notesTab: "drafts" | "saved";
+  setNotesTab: (tab: "drafts" | "saved") => void;
 
   // Modal state
   sidebarOpen: boolean;
@@ -82,6 +86,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   error: null,
   ephemeralTtl: 0,
   searchQuery: "",
+  guideActive: false,
+  notesTab: "drafts",
   activeNoteId: null,
   notes: [],
 
@@ -91,6 +97,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   sidebarOpen: false,
   replyTo: null,
   setSearchQuery: (query) => set({ searchQuery: query }),
+  setGuideActive: (active) => set({ guideActive: active }),
+  setNotesTab: (tab) => set({ notesTab: tab }),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
   setReplyTo: (reply) => set({ replyTo: reply }),
 

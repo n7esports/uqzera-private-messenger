@@ -12,8 +12,9 @@ type MobileView = "list" | "chat";
 
 export default function ChatsPage() {
   const activeChatId = useChatStore((state) => state.activeChatId);
+  const guideActive = useChatStore((state) => state.guideActive);
+  const setGuideActive = useChatStore((state) => state.setGuideActive);
   const [mobileView, setMobileView] = useState<MobileView>("list");
-  const [guideActive, setGuideActive] = useState(false);
   const [addContactOpen, setAddContactOpen] = useState(false);
   const [identityOpen, setIdentityOpen] = useState(false);
 
@@ -21,14 +22,15 @@ export default function ChatsPage() {
 
 
   return (
-    <div className="flex h-full w-full overflow-hidden">
-      <div className="hidden md:flex md:w-80 lg:w-96 flex-col">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0A0D14]">
+      <div className="hidden md:flex shrink-0 flex-col h-full overflow-hidden">
         <AppShell
           onOpenIdentity={() => setIdentityOpen(true)}
           onOpenChat={() => setGuideActive(false)}
           onOpenGuide={() => setGuideActive(true)}
           guideActive={guideActive}
           onAddContactRequest={() => setAddContactOpen(true)}
+          contactsActive={addContactOpen}
         />
       </div>
 
@@ -47,6 +49,7 @@ export default function ChatsPage() {
               }}
               guideActive={guideActive}
               onAddContactRequest={() => setAddContactOpen(true)}
+              contactsActive={addContactOpen}
             />
           </div>
         ) : (
@@ -60,7 +63,7 @@ export default function ChatsPage() {
         )}
       </div>
 
-      <main className="hidden flex-1 md:flex">
+      <main className="hidden flex-1 min-w-0 md:flex h-full">
         {guideActive ? (
           <GuideConversation />
         ) : (

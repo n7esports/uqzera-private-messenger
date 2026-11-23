@@ -8,6 +8,7 @@ import IconPlus from "../icons/IconPlus";
 import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
 import AcceptContactModal from "../modals/AcceptContactModal";
 import ChatList from "../chatList/ChatList";
+import NotesSidebar from "../chatList/NotesSidebar";
 import IconRail from "./IconRail";
 import { SettingsSidebar } from "@/components/settings/SettingsSidebar";
 import { SettingsView, type SettingsSection } from "@/components/SettingsView";
@@ -18,16 +19,22 @@ export default function AppShell({
   onOpenGuide,
   guideActive = false,
   onAddContactRequest,
+  contactsActive = false,
 }: {
   onOpenIdentity?: () => void;
   onOpenChat?: () => void;
   onOpenGuide?: () => void;
   guideActive?: boolean;
   onAddContactRequest?: () => void;
+  contactsActive?: boolean;
 }) {
 
   const [acceptRequest, setAcceptRequest] = useState<{ senderKey: string; packet: unknown } | null>(null);
   const pendingRequests = useChatStore((s: ChatState) => s.pendingRequests);
+  const activeChatId = useChatStore((s: ChatState) => s.activeChatId);
+  const chats = useChatStore((s: ChatState) => s.chats);
+  const notesId = chats.find((chat) => chat.alias === "Private Notes")?.id ?? "private-notes";
+  const notesActive = activeChatId === notesId;
   const dismissPendingRequest = useChatStore((s: ChatState) => s.dismissPendingRequest);
     const searchInputRef = useRef<HTMLInputElement>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -37,11 +44,14 @@ export default function AppShell({
 
   return (
     <>
-    <div className="flex h-screen w-full">
-      <IconRail onSearchClick={() => searchInputRef.current?.focus()} onOpenSettings={() => setIsSettingsOpen(true)} className="hidden md:flex" />
-      <aside aria-label="Chats sidebar" className="hidden h-screen w-80 flex-col border-r border-border bg-bg-app md:flex">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0A0D14]">
+      <IconRail onOpenContacts={onAddContactRequest} contactsActive={contactsActive} onOpenSettings={() => setIsSettingsOpen(true)} className="hidden md:flex w-16 shrink-0" />
+      <aside aria-label="Chats sidebar" className="hidden h-full w-64 shrink-0 flex-col overflow-hidden border-r border-white/[0.07] bg-[#0d1117] md:flex">
+        {!notesActive && (
+        <>
+        <div className="px-4 pt-4 pb-3 shrink-0">
         {/* Logo / brand */}
-      <div className="flex h-14 items-center justify-between gap-3 px-4">
+      <div className="flex h-14 items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Image src="/uqzera-logo.png" alt="UQZERA" width={32} height={32} className="h-4 w-auto object-contain" />
         </div>
@@ -49,10 +59,8 @@ export default function AppShell({
       </div>
 
       {/* Search bar */}
-      <div className="px-4 pb-2">
-        <div
-          className="flex h-8 items-center gap-2 rounded-full bg-bg-panel border border-border px-3 py-1.5"
-        >
+      <div className="pb-2">
+        <div className="flex h-8 items-center gap-2 rounded-full border border-white/[0.07] bg-[#121824] px-3 py-1.5">
           <SearchChatsIcon
             size={16}
             className="text-text-secondary"
@@ -64,10 +72,11 @@ export default function AppShell({
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search or start new chat"
             aria-label="Search chats and messages"
-            className="w-full bg-transparent text-xs text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-accent"
+            className="w-full box-border bg-transparent text-xs text-text-primary outline-none placeholder:text-text-secondary focus:ring-2 focus:ring-accent"
           />
         </div>
       </div>
+        </div>
 
       {pendingRequests.length > 0 && (
         <div className="px-4 pb-2">
@@ -84,17 +93,17 @@ export default function AppShell({
       )}
       {/* Chats nav */}
       <div
-        className="flex items-center justify-between px-4 py-2 text-sm font-semibold cursor-pointer transition-colors"
+        className="flex shrink-0 items-center justify-between px-4 py-2 text-sm font-semibold cursor-pointer transition-colors"
         style={{ color: "var(--text-primary)" }}
       >
-        <div className="flex items-center gap-2">
-          <ChatBubbleIcon width={18} height={18} />
-          <span>Chats</span>
+        <div className="flex min-w-0 items-center gap-2">
+          <ChatBubbleIcon width={18} height={18} className="shrink-0" />
+          <span className="truncate">Chats</span>
         </div>
         <button
           onClick={() => onAddContactRequest?.()}
           aria-label="Add contact"
-          className="flex h-7 w-7 items-center justify-center rounded-lg transition"
+          className="ml-2 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition"
           style={{ color: "#dfe2ee" }}
           onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#181c24")}
           onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
@@ -108,6 +117,9 @@ export default function AppShell({
         onOpenChat={onOpenChat}
         onOpenGuide={onOpenGuide}
       />
+        </>
+      )}
+      {notesActive && <NotesSidebar />}
 
       {/* Divider above bottom section */}
       <div className="mx-4 border-t" style={{ borderColor: "rgba(255,255,255,0.08)" }} />

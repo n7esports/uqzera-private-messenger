@@ -199,11 +199,11 @@ export default function ChatList({
             type="button"
             onClick={() => { if (longPressFired.current) { longPressFired.current = false; return; } selectChat(chat.id); }}
             aria-pressed={activeChatId === chat.id}
-            className={`flex h-[72px] min-w-0 flex-1 items-center gap-3 px-4 py-0 text-left transition focus:ring-2 focus:ring-accent ${
-              activeChatId === chat.id ? "bg-accent/15 border-l-[3px] border-accent" : "hover:bg-bg-hover"
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl overflow-hidden text-left transition focus:ring-2 focus:ring-accent ${
+              activeChatId === chat.id ? "bg-[#10B981]/10" : "hover:bg-white/5"
             }`}
           >
-            <span className="relative flex h-[49px] w-[49px] flex-shrink-0 items-center justify-center rounded-full bg-bg-panel">
+            <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg-panel">
               {chat.alias === "Private Notes" ? (
                 <DocumentIcon width={22} height={22} className="text-accent" />
               ) : (
@@ -212,9 +212,9 @@ export default function ChatList({
                 </span>
               )}
             </span>
-            <span className="min-w-0 flex-1">
+            <span className="flex-1 min-w-0 flex flex-col">
               <span className="flex items-center justify-between gap-2">
-                <span className={`flex min-w-0 items-center gap-1 truncate text-base font-normal ${activeChatId === chat.id ? "text-accent" : "text-text-primary"}`}>
+                <span className="flex min-w-0 items-center gap-1 truncate text-sm font-medium text-slate-100">
                   <span className="truncate">{chat.alias}</span>
                   {chat.pinned && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.25" className="text-text-secondary flex-shrink-0" aria-hidden="true"><path d="M12 17v5" /><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></svg>}
                   {muted && (
@@ -226,13 +226,13 @@ export default function ChatList({
                 <time
                   dateTime={new Date(timestamp).toISOString()}
                   aria-label={`${chat.alias} last message time`}
-                  className="flex-shrink-0 text-xs tabular-nums text-text-secondary"
+                  className="shrink-0 text-[11px] tabular-nums text-slate-500"
                 >
                   {formatTime(timestamp)}
                 </time>
               </span>
               <span className="mt-0.5 flex items-center justify-between gap-2">
-                <span className="truncate text-sm text-text-secondary">
+                <span className="truncate text-xs text-slate-400">
                   {lastMessage?.outgoing ? `You: ${preview}` : preview}
                 </span>
                 {chat.unreadCount > 0 && (
@@ -314,7 +314,7 @@ export default function ChatList({
         ref={listRef}
       role="region"
       aria-label="Chat list"
-      className="flex-1 min-h-0 overflow-y-auto custom-scrollbar bg-[#0d1117]"
+      className="flex-1 min-h-0 overflow-y-auto px-2.5 space-y-1 custom-scrollbar bg-[#0F131C]"
     >
       <ul>
         {pinnedChats.map(renderChat)}

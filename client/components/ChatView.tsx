@@ -33,6 +33,7 @@ export function ChatView({
     chatId ? state.messagesMap[chatId] ?? EMPTY_MESSAGES : EMPTY_MESSAGES,
   );
   const chats = useChatStore((state) => state.chats);
+  const notesId = chats.find((entry) => entry.alias === "Private Notes")?.id ?? "private-notes";
   const sendMessage = useChatStore((state) => state.sendMessage);
   const showToast = useChatStore((state) => state.showToast);
   const ephemeralTtl = useChatStore((state) => state.ephemeralTtl);
@@ -90,13 +91,13 @@ const filteredMessages = messages.filter((m: ChatMessage) =>
     bottomRef.current?.scrollIntoView?.({ behavior: "smooth" });
   }, [messages.length, isPeerTyping]);
 
-  if (activeChatId === "private-notes" || chatId === "private-notes") {
+  if (activeChatId === notesId || chatId === notesId) {
     return <PrivateNotesView />;
   }
 
   if (!chatId || !chat) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-surface">
+      <div className="flex-1 min-w-0 h-full flex flex-col items-center justify-center bg-[#0A0D14] overflow-hidden">
         <div className="flex flex-col items-center gap-2">
           <VaultLockIcon width={48} height={48} className="text-primary" />
           <p className="text-sm font-medium text-text-primary">No active session</p>
@@ -115,8 +116,7 @@ const filteredMessages = messages.filter((m: ChatMessage) =>
   }
 
   return (
-    <div className="flex h-full w-full flex-col relative bg-[#0d1117] border-l border-white/5">
-      <div className="absolute inset-0 pointer-events-none z-0" style={{ backgroundImage: "url('/doodle-pattern.svg')", backgroundRepeat: "repeat", backgroundSize: "300px 300px", opacity: 0.15 }} />
+    <div className="flex-1 min-w-0 h-full flex flex-col bg-[#0A0D14] overflow-hidden">
       <header
         className="flex h-14 items-center justify-between border-b border-white/5 px-4"
         onContextMenu={(e) => {
