@@ -46,7 +46,7 @@ export default function AppShell({
     <>
     <div className="flex h-screen w-screen overflow-hidden bg-[#0A0D14]">
       <IconRail onOpenContacts={onAddContactRequest} contactsActive={contactsActive} onOpenSettings={() => setIsSettingsOpen(true)} className="hidden md:flex w-16 shrink-0" />
-      <aside aria-label="Chats sidebar" className="hidden h-full w-80 shrink-0 flex-col overflow-hidden border-r border-white/[0.07] bg-[#0d1117] md:flex">
+      <aside aria-label="Chats sidebar" className="hidden h-full w-80 shrink-0 flex-col overflow-hidden border-r border-white/5 bg-[#0d1117] md:flex">
         {!notesActive && (
         <>
         <div className="px-4 pt-4 pb-3 shrink-0">
@@ -60,7 +60,7 @@ export default function AppShell({
 
       {/* Search bar */}
       <div className="pb-2">
-        <div className="flex items-center gap-2 bg-[#161b22] border border-white/10 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-2 bg-[#0d1117] border border-white/10 rounded-lg px-3 py-2">
           <SearchChatsIcon width={16} height={16} className="text-gray-400" />
           <input 
             ref={searchInputRef}
