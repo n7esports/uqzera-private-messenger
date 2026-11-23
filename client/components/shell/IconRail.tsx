@@ -34,7 +34,7 @@ export default function IconRail({ onOpenSettings, onOpenContacts, contactsActiv
 
   return (
     <nav className={`w-16 shrink-0 flex flex-col items-center py-3 h-full border-r border-white/5 bg-[#0d1117] ${className || ""}`} aria-label="Icon rail">
-      <div className="flex items-center justify-center rounded-xl bg-[#060c09] p-2 my-4">
+      <div className="flex items-center justify-center p-2 my-4">
         <Image src="/keyhole-512.png" alt="UQZERA" width={28} height={28} className="h-7 w-7 object-contain text-[#34D399]" />
       </div>
 

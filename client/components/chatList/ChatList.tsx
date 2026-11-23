@@ -328,6 +328,21 @@ export default function ChatList({
         </p>
       )}
 
+      {/* Search bar for chat list */}
+      <div className="px-3 pb-3">
+        <div className="flex items-center gap-2 bg-[#161b22] border border-white/10 rounded-full px-3 py-1.5 focus-within:border-emerald-500 transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 flex-shrink-0">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input 
+            type="text" 
+            placeholder="Search or start new chat" 
+            className="bg-transparent text-white text-sm outline-none w-full placeholder:text-gray-500" 
+          />
+        </div>
+      </div>
+
       {archivedChats.length > 0 && (
         <details className="group border-t border-hairline">
           <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs font-semibold text-on-surface-variant hover:bg-surface">
