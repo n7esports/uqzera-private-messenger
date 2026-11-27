@@ -2,16 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import {
   useChatStore,
   type ChatState,
   type ChatSummary,
 } from "../../store/useChatStore";
 import { MuteChatIcon } from "../icons/outline/MuteChatIcon";
-import { DocumentIcon } from "../icons/outline/DocumentIcon";
+import { SearchChatsIcon } from "../icons/outline/SearchChatsIcon";
+import { ChatBubbleIcon } from "../icons/outline/ChatBubbleIcon";
+import IconPlus from "../icons/IconPlus";
 import IconClose from "../icons/ui/IconClose";
 import ContextMenu from "../ui/ContextMenu";
+import { DocumentIcon } from "../icons/outline/DocumentIcon";
 import { DeleteForMeIcon } from "../icons/outline/DeleteForMeIcon";
+
 
 const MAX_PINNED_CHATS = 3;
 const ARCHIVED_LIST_ID = "archived";
@@ -312,53 +317,75 @@ export default function ChatList({
     <>
       <div
         ref={listRef}
-      role="region"
-      aria-label="Chat list"
-      className="flex-1 min-h-0 overflow-y-auto px-2.5 space-y-1 custom-scrollbar bg-[#0d1117]"
-    >
-      <ul>
-        {pinnedChats.map(renderChat)}
-      </ul>
-
-      {regularChats.length > 0 && <ul>{regularChats.map(renderChat)}</ul>}
-
-      {regularChats.length === 0 && pinnedChats.length === 0 && (
-        <p className="px-4 py-3 text-xs text-on-surface-variant">
-          No conversations found
-        </p>
-      )}
-
-      {/* Search bar for chat list */}
-      <div className="px-3 pb-3">
-        <div className="flex items-center gap-2 bg-[#161b22] border border-white/10 rounded-full px-3 py-1.5 focus-within:border-emerald-500 transition-colors">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400 flex-shrink-0">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input 
-            type="text" 
-            placeholder="Search or start new chat" 
-            className="bg-transparent text-white text-sm outline-none w-full placeholder:text-gray-500" 
-          />
+        role="region"
+        aria-label="Chat list"
+        className="flex-1 min-h-0 overflow-y-auto px-2.5 space-y-1 custom-scrollbar bg-[#0d1117]"
+      >
+        {/* Logo / Brand */}
+        <div className="flex items-center justify-start px-4 pt-4 pb-3">
+          <span className="text-sm font-semibold text-[#9CA3AF]">UQZERA</span>
         </div>
-      </div>
 
-      {archivedChats.length > 0 && (
-        <details className="group border-t border-hairline">
-          <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs font-semibold text-on-surface-variant hover:bg-surface">
-            <span>Archived</span>
-            <span>{archivedChats.length}</span>
-          </summary>
-          {archivedChats.length === 0 ? (
-            <p className="px-4 pb-3 text-xs text-on-surface-variant">
-              No archived chats
-            </p>
-          ) : (
-            <ul>{archivedChats.map(renderChat)}</ul>
-          )}
-        </details>
-      )}
-    </div>
+        {/* Search bar */}
+        <div className="px-4 pb-3">
+          <div className="flex items-center gap-3 bg-[#1F222A] border border-[#2D313A] rounded-full px-4 py-2 focus-within:border-[#10B981] focus-within:ring-1 focus-within:ring-[#10B981]/20 transition-all duration-200">
+            <SearchChatsIcon width={16} height={16} className="text-[#9CA3AF] flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Search or start new chat"
+              className="bg-transparent text-[#F3F4F6] text-sm outline-none border-none ring-0 focus:outline-none focus:ring-0 w-full placeholder:text-[#9CA3AF]"
+            />
+            <span className="text-[#9CA3AF] text-xs">⌘ K</span>
+          </div>
+        </div>
+
+        {/* Chats nav */}
+        <div
+          className="flex shrink-0 items-center justify-between px-4 py-2.5 text-lg font-semibold cursor-pointer transition-colors"
+          style={{ color: "#F3F4F6" }}
+        >
+          <div className="flex min-w-0 items-center gap-2">
+            <ChatBubbleIcon width={18} height={18} className="shrink-0" />
+            <span className="truncate">Chats</span>
+          </div>
+          <button
+            onClick={() => {}}
+            aria-label="Add contact"
+            className="ml-2 flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-[#1F222A] transition"
+            style={{ color: "#F3F4F6" }}
+          >
+            <IconPlus size={16} />
+          </button>
+        </div>
+
+        <ul>
+          {pinnedChats.map(renderChat)}
+        </ul>
+
+        {regularChats.length > 0 && <ul>{regularChats.map(renderChat)}</ul>}
+
+        {regularChats.length === 0 && pinnedChats.length === 0 && (
+          <p className="px-4 py-3 text-xs text-on-surface-variant">
+            No conversations found
+          </p>
+        )}
+
+        {archivedChats.length > 0 && (
+          <details className="group border-t border-hairline">
+            <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-xs font-semibold text-on-surface-variant hover:bg-surface">
+              <span>Archived</span>
+              <span>{archivedChats.length}</span>
+            </summary>
+            {archivedChats.length === 0 ? (
+              <p className="px-4 pb-3 text-xs text-on-surface-variant">
+                No archived chats
+              </p>
+            ) : (
+              <ul>{archivedChats.map(renderChat)}</ul>
+            )}
+          </details>
+        )}
+      </div>
     {sheetChatId && (
       <div className="fixed inset-0 z-50 md:hidden" onClick={() => setSheetChatId(null)}>
         <div className="absolute inset-0 bg-black/40" />

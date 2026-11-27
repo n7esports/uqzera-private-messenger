@@ -7,6 +7,7 @@ import { ChatView } from "../../components/ChatView";
 import GuideConversation from "../../components/chatList/GuideConversation";
 import { MyIdentityModal } from "../../components/modals/MyIdentityModal";
 import { useChatStore } from "../../store/useChatStore";
+import EmptyState from "../../components/EmptyState";
 
 type MobileView = "list" | "chat";
 
@@ -66,8 +67,10 @@ export default function ChatsPage() {
       <main className="hidden flex-1 min-w-0 md:flex h-full">
         {guideActive ? (
           <GuideConversation />
-        ) : (
+        ) : activeChatId ? (
           <ChatView chatId={activeChatId} onOpenGuide={() => setGuideActive(true)} onAddContact={() => setAddContactOpen(true)} />
+        ) : (
+          <EmptyState />
         )}
       </main>
 
